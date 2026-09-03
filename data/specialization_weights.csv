@@ -1,0 +1,33 @@
+specialization_id,specialization_name,subject_area,weight
+1,Software Engineering,Programming,0.30
+1,Software Engineering,Software Engineering,0.25
+1,Software Engineering,Algorithms & Data Structures,0.20
+1,Software Engineering,Database,0.10
+1,Software Engineering,Systems & Operating Systems,0.10
+1,Software Engineering,Other,0.05
+2,Data Science,Statistics,0.30
+2,Data Science,Programming,0.25
+2,Data Science,Database,0.20
+2,Data Science,Mathematics,0.15
+2,Data Science,Other,0.10
+3,Artificial Intelligence / Machine Learning,Mathematics,0.25
+3,Artificial Intelligence / Machine Learning,Statistics,0.20
+3,Artificial Intelligence / Machine Learning,Programming,0.25
+3,Artificial Intelligence / Machine Learning,Algorithms & Data Structures,0.15
+3,Artificial Intelligence / Machine Learning,Artificial Intelligence,0.15
+4,Cyber Security,Cyber Security,0.35
+4,Cyber Security,Networking,0.25
+4,Cyber Security,Programming,0.20
+4,Cyber Security,Systems & Operating Systems,0.15
+4,Cyber Security,Mathematics,0.05
+5,Networking & Cloud Computing,Networking,0.40
+5,Networking & Cloud Computing,Systems & Operating Systems,0.20
+5,Networking & Cloud Computing,Cyber Security,0.15
+5,Networking & Cloud Computing,Programming,0.10
+5,Networking & Cloud Computing,Cloud Computing,0.15
+6,Database & Data Engineering,Database,0.35
+6,Database & Data Engineering,Programming,0.20
+6,Database & Data Engineering,Data Analysis,0.15
+6,Database & Data Engineering,Mathematics,0.10
+6,Database & Data Engineering,Statistics,0.10
+6,Database & Data Engineering,Systems & Operating Systems,0.10

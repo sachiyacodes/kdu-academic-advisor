@@ -1,0 +1,11 @@
+# AI-Based IT Specialization & Course Recommendation System
+# KDU Group 22 — IT3182 Essentials of AI
+# Pin exact versions for reproducibility (FIX-6)
+
+streamlit==1.37.1
+pandas==2.2.2
+numpy==1.26.4
+plotly==5.24.0
+scikit-learn==1.5.1
+pydantic==2.8.2
+pytest==8.3.2

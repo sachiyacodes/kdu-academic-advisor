@@ -1,0 +1,7 @@
+specialization_id,name,description
+1,Software Engineering,"Focuses on software design, development methodologies, programming paradigms, and software project management. Emphasizes building reliable, maintainable, and scalable software systems."
+2,Data Science,"Focuses on extracting insights from data through statistical analysis, data visualization, and data-driven decision making. Combines statistics, programming, and domain knowledge."
+3,Artificial Intelligence / Machine Learning,"Focuses on building intelligent systems that can learn from data, recognize patterns, and make decisions. Covers mathematical foundations, algorithms, and AI applications."
+4,Cyber Security,"Focuses on protecting computer systems, networks, and data from security threats. Covers security principles, ethical hacking, network security, and security policy."
+5,Networking & Cloud Computing,"Focuses on computer networking, distributed systems, and cloud infrastructure. Covers network design, protocols, cloud services, and system administration."
+6,Database & Data Engineering,"Focuses on designing, implementing, and managing data systems. Covers database design, data warehousing, data pipelines, and data quality."

@@ -1,0 +1,76 @@
+course_id,course_code,course_name,degree,year,semester,credits,subject_area
+1,IT1101,Introduction to Programming,Information Technology,1,1,4,Programming
+2,IT1102,Mathematics for Computing I,Information Technology,1,1,3,Mathematics
+3,IT1103,Computer Systems Fundamentals,Information Technology,1,1,3,Systems & Operating Systems
+4,IT1104,Introduction to IT,Information Technology,1,1,3,Other
+5,IT1201,Object-Oriented Programming,Information Technology,1,2,4,Programming
+6,IT1202,Mathematics for Computing II,Information Technology,1,2,3,Mathematics
+7,IT1203,Database Fundamentals,Information Technology,1,2,4,Database
+8,IT1204,Introduction to Networking,Information Technology,1,2,3,Networking
+9,IT2101,Data Structures and Algorithms,Information Technology,2,1,4,Algorithms & Data Structures
+10,IT2102,Probability and Statistics,Information Technology,2,1,3,Statistics
+11,IT2103,Operating Systems,Information Technology,2,1,3,Systems & Operating Systems
+12,IT2104,Software Engineering Principles,Information Technology,2,1,3,Software Engineering
+13,IT2201,Advanced Programming,Information Technology,2,2,4,Programming
+14,IT2202,Database Management Systems,Information Technology,2,2,4,Database
+15,IT2203,Computer Networks,Information Technology,2,2,3,Networking
+16,IT2204,Statistical Methods,Information Technology,2,2,3,Statistics
+17,IT2205,Web Technologies,Information Technology,2,2,3,Other
+18,IT3101,Artificial Intelligence,Information Technology,3,1,4,Artificial Intelligence
+19,IT3102,Information Security,Information Technology,3,1,3,Cyber Security
+20,IT3103,Software Design and Architecture,Information Technology,3,1,3,Software Engineering
+21,IT3104,Data Analysis and Visualization,Information Technology,3,1,3,Data Analysis
+22,IT3105,Cloud Computing Fundamentals,Information Technology,3,1,3,Cloud Computing
+23,IT3201,Machine Learning,Information Technology,3,2,4,Artificial Intelligence
+24,IT3202,Network Security,Information Technology,3,2,3,Cyber Security
+25,IT3203,Advanced Database Systems,Information Technology,3,2,3,Database
+26,IT3204,Data Mining,Information Technology,3,2,3,Data Analysis
+27,IT3205,Software Testing and QA,Information Technology,3,2,3,Software Engineering
+28,IT4101,Advanced AI Applications,Information Technology,4,1,4,Artificial Intelligence
+29,IT4102,Ethical Hacking and Penetration Testing,Information Technology,4,1,3,Cyber Security
+30,IT4103,Distributed Systems,Information Technology,4,1,3,Cloud Computing
+31,IT4104,Big Data Analytics,Information Technology,4,1,3,Data Analysis
+32,IT4105,Advanced Algorithms,Information Technology,4,1,3,Algorithms & Data Structures
+33,IT4201,Research Project,Information Technology,4,2,6,Other
+34,IT4202,Professional Practice,Information Technology,4,2,3,Other
+35,SE1101,Programming Fundamentals,Software Engineering,1,1,4,Programming
+36,SE1102,Discrete Mathematics,Software Engineering,1,1,3,Mathematics
+37,SE1103,Digital Logic and Systems,Software Engineering,1,1,3,Systems & Operating Systems
+38,SE1104,Engineering Principles,Software Engineering,1,1,3,Other
+39,SE1201,Advanced OOP,Software Engineering,1,2,4,Programming
+40,SE1202,Linear Algebra,Software Engineering,1,2,3,Mathematics
+41,SE1203,Database Design,Software Engineering,1,2,4,Database
+42,SE1204,Network Essentials,Software Engineering,1,2,3,Networking
+43,SE2101,Algorithms and Complexity,Software Engineering,2,1,4,Algorithms & Data Structures
+44,SE2102,Statistics for Engineers,Software Engineering,2,1,3,Statistics
+45,SE2103,Systems Programming,Software Engineering,2,1,3,Systems & Operating Systems
+46,SE2104,Software Requirements Engineering,Software Engineering,2,1,3,Software Engineering
+47,SE2201,Software Design Patterns,Software Engineering,2,2,4,Software Engineering
+48,SE2202,Database Administration,Software Engineering,2,2,4,Database
+49,SE2203,Network Architecture,Software Engineering,2,2,3,Networking
+50,SE2204,Applied Statistics,Software Engineering,2,2,3,Statistics
+51,CS1101,Intro to Computer Science,Computer Science,1,1,4,Programming
+52,CS1102,Calculus I,Computer Science,1,1,3,Mathematics
+53,CS1103,Computer Organization,Computer Science,1,1,3,Systems & Operating Systems
+54,CS1104,Academic Skills for CS,Computer Science,1,1,3,Other
+55,CS1201,Programming Paradigms,Computer Science,1,2,4,Programming
+56,CS1202,Calculus II,Computer Science,1,2,3,Mathematics
+57,CS1203,Introduction to Databases,Computer Science,1,2,4,Database
+58,CS1204,Networking Basics,Computer Science,1,2,3,Networking
+59,CS2101,Data Structures,Computer Science,2,1,4,Algorithms & Data Structures
+60,CS2102,Probability and Statistics,Computer Science,2,1,3,Statistics
+61,CS2103,Operating Systems Concepts,Computer Science,2,1,3,Systems & Operating Systems
+62,CS2104,Software Engineering I,Computer Science,2,1,3,Software Engineering
+63,CS2201,Algorithm Design,Computer Science,2,2,4,Algorithms & Data Structures
+64,CS2202,Advanced Databases,Computer Science,2,2,4,Database
+65,CS2203,Data Communications,Computer Science,2,2,3,Networking
+66,CS2204,Statistical Computing,Computer Science,2,2,3,Statistics
+67,CS3101,Artificial Intelligence Fundamentals,Computer Science,3,1,4,Artificial Intelligence
+68,CS3102,Cyber Security Principles,Computer Science,3,1,3,Cyber Security
+69,CS3103,Software Architecture,Computer Science,3,1,3,Software Engineering
+70,CS3104,Exploratory Data Analysis,Computer Science,3,1,3,Data Analysis
+71,CS3105,Cloud Infrastructure,Computer Science,3,1,3,Cloud Computing
+72,CS3201,Deep Learning Concepts,Computer Science,3,2,4,Artificial Intelligence
+73,CS3202,Digital Forensics,Computer Science,3,2,3,Cyber Security
+74,CS3203,Data Warehousing,Computer Science,3,2,3,Database
+75,CS3204,Predictive Analytics,Computer Science,3,2,3,Data Analysis
