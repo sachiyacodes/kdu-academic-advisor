@@ -33,7 +33,8 @@ ml/*.pkl
 ml/*.joblib
 
 # Streamlit
-.streamlit/
+.streamlit/*
+!.streamlit/config.toml
 
 # Misc
 *.log
