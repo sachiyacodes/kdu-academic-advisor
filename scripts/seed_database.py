@@ -60,7 +60,7 @@ def create_schema(conn: sqlite3.Connection) -> None:
             degree TEXT NOT NULL,
             year INTEGER NOT NULL CHECK(year BETWEEN 1 AND 4),
             semester INTEGER NOT NULL CHECK(semester BETWEEN 1 AND 2),
-            credits INTEGER NOT NULL CHECK(credits > 0),
+            credits INTEGER NOT NULL CHECK(credits >= 0),
             subject_area TEXT NOT NULL,
             FOREIGN KEY (degree) REFERENCES degrees(name),
             FOREIGN KEY (subject_area) REFERENCES subject_areas(name)

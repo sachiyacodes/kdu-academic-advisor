@@ -1,97 +1,445 @@
 course_id,course_code,course_name,degree,year,semester,credits,subject_area
-1,IT1101,Introduction to Programming,Information Technology,1,1,4,Programming
-2,IT1102,Mathematics for Computing I,Information Technology,1,1,3,Mathematics
-3,IT1103,Computer Systems Fundamentals,Information Technology,1,1,3,Systems & Operating Systems
-4,IT1104,Introduction to IT,Information Technology,1,1,3,Other
-5,IT1201,Object-Oriented Programming,Information Technology,1,2,4,Programming
-6,IT1202,Mathematics for Computing II,Information Technology,1,2,3,Mathematics
-7,IT1203,Database Fundamentals,Information Technology,1,2,4,Database
-8,IT1204,Introduction to Networking,Information Technology,1,2,3,Networking
-9,IT2101,Data Structures and Algorithms,Information Technology,2,1,4,Algorithms & Data Structures
-10,IT2102,Probability and Statistics,Information Technology,2,1,3,Statistics
-11,IT2103,Operating Systems,Information Technology,2,1,3,Systems & Operating Systems
-12,IT2104,Software Engineering Principles,Information Technology,2,1,3,Software Engineering
-13,IT2201,Advanced Programming,Information Technology,2,2,4,Programming
-14,IT2202,Database Management Systems,Information Technology,2,2,4,Database
-15,IT2203,Computer Networks,Information Technology,2,2,3,Networking
-16,IT2204,Statistical Methods,Information Technology,2,2,3,Statistics
-17,IT2205,Web Technologies,Information Technology,2,2,3,Other
-18,IT3101,Artificial Intelligence,Information Technology,3,1,4,Artificial Intelligence
-19,IT3102,Information Security,Information Technology,3,1,3,Cyber Security
-20,IT3103,Software Design and Architecture,Information Technology,3,1,3,Software Engineering
-21,IT3104,Data Analysis and Visualization,Information Technology,3,1,3,Data Analysis
-22,IT3105,Cloud Computing Fundamentals,Information Technology,3,1,3,Cloud Computing
-23,IT3201,Machine Learning,Information Technology,3,2,4,Artificial Intelligence
-24,IT3202,Network Security,Information Technology,3,2,3,Cyber Security
-25,IT3203,Advanced Database Systems,Information Technology,3,2,3,Database
-26,IT3204,Data Mining,Information Technology,3,2,3,Data Analysis
-27,IT3205,Software Testing and QA,Information Technology,3,2,3,Software Engineering
-28,IT4101,Advanced AI Applications,Information Technology,4,1,4,Artificial Intelligence
-29,IT4102,Ethical Hacking and Penetration Testing,Information Technology,4,1,3,Cyber Security
-30,IT4103,Distributed Systems,Information Technology,4,1,3,Cloud Computing
-31,IT4104,Big Data Analytics,Information Technology,4,1,3,Data Analysis
-32,IT4105,Advanced Algorithms,Information Technology,4,1,3,Algorithms & Data Structures
-33,IT4201,Research Project,Information Technology,4,2,6,Other
-34,IT4202,Professional Practice,Information Technology,4,2,3,Other
-35,SE1101,Programming Fundamentals,Software Engineering,1,1,4,Programming
-36,SE1102,Discrete Mathematics,Software Engineering,1,1,3,Mathematics
-37,SE1103,Digital Logic and Systems,Software Engineering,1,1,3,Systems & Operating Systems
-38,SE1104,Engineering Principles,Software Engineering,1,1,3,Other
-39,SE1201,Advanced OOP,Software Engineering,1,2,4,Programming
-40,SE1202,Linear Algebra,Software Engineering,1,2,3,Mathematics
-41,SE1203,Database Design,Software Engineering,1,2,4,Database
-42,SE1204,Network Essentials,Software Engineering,1,2,3,Networking
-43,SE2101,Algorithms and Complexity,Software Engineering,2,1,4,Algorithms & Data Structures
-44,SE2102,Statistics for Engineers,Software Engineering,2,1,3,Statistics
-45,SE2103,Systems Programming,Software Engineering,2,1,3,Systems & Operating Systems
-46,SE2104,Software Requirements Engineering,Software Engineering,2,1,3,Software Engineering
-47,SE2201,Software Design Patterns,Software Engineering,2,2,4,Software Engineering
-48,SE2202,Database Administration,Software Engineering,2,2,4,Database
-49,SE2203,Network Architecture,Software Engineering,2,2,3,Networking
-50,SE2204,Applied Statistics,Software Engineering,2,2,3,Statistics
-51,CS1101,Intro to Computer Science,Computer Science,1,1,4,Programming
-52,CS1102,Calculus I,Computer Science,1,1,3,Mathematics
-53,CS1103,Computer Organization,Computer Science,1,1,3,Systems & Operating Systems
-54,CS1104,Academic Skills for CS,Computer Science,1,1,3,Other
-55,CS1201,Programming Paradigms,Computer Science,1,2,4,Programming
-56,CS1202,Calculus II,Computer Science,1,2,3,Mathematics
-57,CS1203,Introduction to Databases,Computer Science,1,2,4,Database
-58,CS1204,Networking Basics,Computer Science,1,2,3,Networking
-59,CS2101,Data Structures,Computer Science,2,1,4,Algorithms & Data Structures
-60,CS2102,Probability and Statistics,Computer Science,2,1,3,Statistics
-61,CS2103,Operating Systems Concepts,Computer Science,2,1,3,Systems & Operating Systems
-62,CS2104,Software Engineering I,Computer Science,2,1,3,Software Engineering
-63,CS2201,Algorithm Design,Computer Science,2,2,4,Algorithms & Data Structures
-64,CS2202,Advanced Databases,Computer Science,2,2,4,Database
-65,CS2203,Data Communications,Computer Science,2,2,3,Networking
-66,CS2204,Statistical Computing,Computer Science,2,2,3,Statistics
-67,CS3101,Artificial Intelligence Fundamentals,Computer Science,3,1,4,Artificial Intelligence
-68,CS3102,Cyber Security Principles,Computer Science,3,1,3,Cyber Security
-69,CS3103,Software Architecture,Computer Science,3,1,3,Software Engineering
-70,CS3104,Exploratory Data Analysis,Computer Science,3,1,3,Data Analysis
-71,CS3105,Cloud Infrastructure,Computer Science,3,1,3,Cloud Computing
-72,CS3201,Deep Learning Concepts,Computer Science,3,2,4,Artificial Intelligence
-73,CS3202,Digital Forensics,Computer Science,3,2,3,Cyber Security
-74,CS3203,Data Warehousing,Computer Science,3,2,3,Database
-75,CS3204,Predictive Analytics,Computer Science,3,2,3,Data Analysis
-76,SE3101,Software Architecture and Design,Software Engineering,3,1,3,Software Engineering
-77,SE3102,Web Application Development,Software Engineering,3,1,3,Programming
-78,SE3103,Artificial Intelligence for Engineers,Software Engineering,3,1,4,Artificial Intelligence
-79,SE3104,Secure Software Development,Software Engineering,3,1,3,Cyber Security
-80,SE3105,Cloud Native Systems,Software Engineering,3,1,3,Cloud Computing
-81,SE3201,Software Quality Assurance and Testing,Software Engineering,3,2,3,Software Engineering
-82,SE3202,Mobile Application Development,Software Engineering,3,2,3,Software Engineering
-83,SE3203,Distributed Systems and Big Data,Software Engineering,3,2,4,Database
-84,SE3204,Machine Learning Applications,Software Engineering,3,2,3,Artificial Intelligence
-85,SE4101,DevOps and Continuous Delivery,Software Engineering,4,1,3,Software Engineering
-86,SE4102,Enterprise Software Architecture,Software Engineering,4,1,3,Software Engineering
-87,SE4103,Software Security and Vulnerability Analysis,Software Engineering,4,1,3,Cyber Security
-88,SE4104,Deep Learning Systems,Software Engineering,4,1,4,Artificial Intelligence
-89,SE4201,Software Engineering Capstone Project,Software Engineering,4,2,6,Software Engineering
-90,SE4202,Professional Ethics and Project Management,Software Engineering,4,2,3,Other
-91,CS4101,Advanced Artificial Intelligence,Computer Science,4,1,4,Artificial Intelligence
-92,CS4102,Advanced Cyber Security,Computer Science,4,1,3,Cyber Security
-93,CS4103,Distributed and Cloud Systems,Computer Science,4,1,3,Cloud Computing
-94,CS4104,Advanced Data Mining and Analytics,Computer Science,4,1,3,Data Analysis
-95,CS4201,CS Capstone Research Project,Computer Science,4,2,6,Other
-96,CS4202,Technology Innovation and Entrepreneurship,Computer Science,4,2,3,Other
+1,CS1101,Fundamentals of Programming,Computer Science,1,1,2,Programming
+2,CS1102,Programming Laboratory,Computer Science,1,1,1,Programming
+3,CS1103,Foundation of Computer Science,Computer Science,1,1,2,Other
+4,CS1104,Fundamentals of Databases,Computer Science,1,1,2,Database
+5,CS1105,Software Development Methodologies,Computer Science,1,1,2,Software Engineering
+6,CS1106,Computer Systems Architecture,Computer Science,1,1,3,Systems & Operating Systems
+7,CS1107,Probability and Statistics,Computer Science,1,1,3,Statistics
+8,CS1108,Mathematics for Computing,Computer Science,1,1,2,Mathematics
+9,CS1109,Collaborative Hardware Project,Computer Science,1,1,1,Systems & Operating Systems
+10,CS1110,English: Basic Study Skills for CS/SE/CE,Computer Science,1,1,2,Other
+11,CS1111,Leadership Training,Computer Science,1,1,2,Other
+12,CS1201,Web Development,Computer Science,1,2,2,Other
+13,CS1202,Object Oriented Programming,Computer Science,1,2,3,Programming
+14,CS1203,Computer Networks,Computer Science,1,2,3,Networking
+15,CS1204,Creative Media Tools,Computer Science,1,2,1,Other
+16,CS1205,Software Analysis and Modeling,Computer Science,1,2,2,Software Engineering
+17,CS1206,Discrete Mathematics,Computer Science,1,2,2,Mathematics
+18,CS1207,Fundamentals of Electronics,Computer Science,1,2,1,Systems & Operating Systems
+19,CS1208,Collaborative Hardware Project II,Computer Science,1,2,1,Systems & Operating Systems
+20,CS1209,English: Advance Study Skills for CS/SE/CE,Computer Science,1,2,2,Other
+21,CS2101,Operating Systems,Computer Science,2,1,2,Systems & Operating Systems
+22,CS2102,Data Structures and Algorithms,Computer Science,2,1,2,Algorithms & Data Structures
+23,CS2103,Advanced Object Oriented Programming,Computer Science,2,1,2,Programming
+24,CS2104,Advanced Computer Networks and Wireless Communication,Computer Science,2,1,2,Networking
+25,CS2105,Advanced Web Development,Computer Science,2,1,2,Other
+26,CS2106,Group Project in Software Development,Computer Science,2,1,1,Software Engineering
+27,CS2107,Requirements Engineering,Computer Science,2,1,2,Software Engineering
+28,CS2108,Statistical Distributions and Inference,Computer Science,2,1,2,Statistics
+29,CS2109,Calculus,Computer Science,2,1,2,Mathematics
+30,CS2110,Principles of Management,Computer Science,2,1,2,Other
+31,CS2111,Writing and Speaking Skills,Computer Science,2,1,2,Other
+32,CS2201,Advanced Data Structures and Algorithms,Computer Science,2,2,2,Algorithms & Data Structures
+33,CS2202,Artificial Intelligence,Computer Science,2,2,3,Artificial Intelligence
+34,CS2203,Group Project in Software Development II,Computer Science,2,2,2,Software Engineering
+35,CS2204,Software Project Management,Computer Science,2,2,3,Software Engineering
+36,CS2205,Software Architecture,Computer Science,2,2,2,Software Engineering
+37,CS2206,Computer Interfacing and Microprocessors,Computer Science,2,2,2,Systems & Operating Systems
+38,CS2207,Numerical Methods,Computer Science,2,2,2,Mathematics
+39,CS2208,Research Writing Skills,Computer Science,2,2,2,Other
+40,CS3101,Essentials of Computer Law,Computer Science,3,1,2,Other
+41,CS3102,Research Methodology,Computer Science,3,1,2,Other
+42,CS3103,Mobile Computing,Computer Science,3,1,2,Other
+43,CS3104,Computer and Network Security,Computer Science,3,1,2,Cyber Security
+44,CS3105,Bioinformatics,Computer Science,3,1,2,Other
+45,CS3106,UX and UI Engineering,Computer Science,3,1,2,Software Engineering
+46,CS3107,Advanced Database Techniques,Computer Science,3,1,2,Database
+47,CS3108,Distributed Computing,Computer Science,3,1,2,Cloud Computing
+48,CS3109,Digital Image Processing,Computer Science,3,1,2,Artificial Intelligence
+49,CS3110,Expert Systems and Logic Programming,Computer Science,3,1,2,Artificial Intelligence
+50,CS3111,Cloud Computing,Computer Science,3,1,2,Cloud Computing
+51,CS3112,Data Mining and Business Intelligence,Computer Science,3,1,2,Data Analysis
+52,CS3113,Big Data Analytics,Computer Science,3,1,2,Data Analysis
+53,CS3114,Enterprise System Administration,Computer Science,3,1,2,Systems & Operating Systems
+54,CS3201,Computer Graphics and Visualization,Computer Science,3,2,2,Other
+55,CS3202,Automata Theory,Computer Science,3,2,2,Algorithms & Data Structures
+56,CS3203,Complex Systems and Agent Technology,Computer Science,3,2,2,Artificial Intelligence
+57,CS3204,Information Security,Computer Science,3,2,2,Cyber Security
+58,CS3205,Modeling and Simulation,Computer Science,3,2,2,Mathematics
+59,CS3206,Nature Inspired Computing,Computer Science,3,2,2,Artificial Intelligence
+60,CS3207,Internet of Things,Computer Science,3,2,2,Systems & Operating Systems
+61,CS3208,Natural Language Processing,Computer Science,3,2,2,Artificial Intelligence
+62,CS3209,Machine Learning,Computer Science,3,2,2,Artificial Intelligence
+63,CS3210,Distributed Systems,Computer Science,3,2,2,Cloud Computing
+64,CS3211,Advanced Mobile Computing,Computer Science,3,2,2,Other
+65,CS3212,Independent Research Study,Computer Science,3,2,2,Other
+66,CS3213,Operational Research,Computer Science,3,2,3,Statistics
+67,CS3214,Statistical Tools for Computing,Computer Science,3,2,1,Statistics
+68,CS3215,Microcontrollers and Embedded Systems,Computer Science,3,2,2,Systems & Operating Systems
+69,CS3216,Geoinformatics,Computer Science,3,2,2,Other
+70,CS4101,Emerging Trends in Computing,Computer Science,4,1,2,Other
+71,CS4102,Theory of Programming Languages,Computer Science,4,1,2,Algorithms & Data Structures
+72,CS4103,Artificial Cognitive Systems,Computer Science,4,1,2,Artificial Intelligence
+73,CS4104,Computability and Complexity,Computer Science,4,1,2,Algorithms & Data Structures
+74,CS4105,Semantic Web and Ontology,Computer Science,4,1,2,Database
+75,CS4106,Computer Music,Computer Science,4,1,2,Other
+76,CS4107,High Performance Computing,Computer Science,4,1,2,Cloud Computing
+77,CS4108,Social Aspects and Professional Practices,Computer Science,4,1,2,Other
+78,CS4109,Digital Forensics,Computer Science,4,1,2,Cyber Security
+79,CS4110,Cyber Security,Computer Science,4,1,2,Cyber Security
+80,CS4111,Deep Learning,Computer Science,4,1,2,Artificial Intelligence
+81,CS4112,Location Based Services,Computer Science,4,1,2,Other
+82,CS4113,Interactive Media and Game Development,Computer Science,4,1,2,Other
+83,CS4114,Individual Research Project,Computer Science,4,1,2,Other
+84,CS4115,Formal Methods and Software Verification,Computer Science,4,1,2,Software Engineering
+85,CS4116,Software Quality Assurance,Computer Science,4,1,2,Software Engineering
+86,CS4117,Advanced Operating Systems,Computer Science,4,1,2,Systems & Operating Systems
+87,CS4118,Robotics and Automation,Computer Science,4,1,2,Artificial Intelligence
+88,CS4119,Entrepreneurship and Business Management,Computer Science,4,1,2,Other
+89,CS4201,Individual Research Project II,Computer Science,4,2,7,Other
+90,CS4202,Industrial Training,Computer Science,4,2,6,Other
+91,SE1101,Fundamentals of Programming,Software Engineering,1,1,2,Programming
+92,SE1102,Programming Laboratory,Software Engineering,1,1,1,Programming
+93,SE1103,Foundation of Computer Science,Software Engineering,1,1,2,Other
+94,SE1104,Computer Systems Architecture,Software Engineering,1,1,2,Systems & Operating Systems
+95,SE1105,Fundamentals of Databases,Software Engineering,1,1,3,Database
+96,SE1106,Fundamentals of Visual Computing,Software Engineering,1,1,2,Other
+97,SE1107,Probability and Statistics,Software Engineering,1,1,3,Statistics
+98,SE1108,Engineering Mathematics,Software Engineering,1,1,2,Mathematics
+99,SE1109,English: Basic Study Skills for CS/SE/CE,Software Engineering,1,1,2,Other
+100,SE1110,Leadership Training,Software Engineering,1,1,2,Other
+101,SE1201,Developments in Mathematics and Sciences,Software Engineering,1,2,2,Mathematics
+102,SE1202,Object Oriented Programming I,Software Engineering,1,2,3,Programming
+103,SE1203,Web Development,Software Engineering,1,2,2,Other
+104,SE1204,Computer Networks I,Software Engineering,1,2,2,Networking
+105,SE1205,Discrete Mathematics,Software Engineering,1,2,2,Mathematics
+106,SE1206,Group Project in Hardware,Software Engineering,1,2,3,Systems & Operating Systems
+107,SE1207,Fundamentals of Electrical Engineering,Software Engineering,1,2,2,Systems & Operating Systems
+108,SE1208,Basic Electronics,Software Engineering,1,2,2,Systems & Operating Systems
+109,SE1209,English: Advanced Study Skills for CS/SE/CE,Software Engineering,1,2,2,Other
+110,SE2101,Data Structures and Algorithms I,Software Engineering,2,1,3,Algorithms & Data Structures
+111,SE2102,Operating Systems,Software Engineering,2,1,2,Systems & Operating Systems
+112,SE2103,Object Oriented Programming II,Software Engineering,2,1,2,Programming
+113,SE2104,Computer Networks II,Software Engineering,2,1,2,Networking
+114,SE2105,Requirements Engineering,Software Engineering,2,1,2,Software Engineering
+115,SE2106,Electronics Systems,Software Engineering,2,1,2,Systems & Operating Systems
+116,SE2107,Calculus and Numerical Methods,Software Engineering,2,1,3,Mathematics
+117,SE2108,Principles of Management,Software Engineering,2,1,3,Other
+118,SE2109,Writing and Speaking Skills,Software Engineering,2,1,2,Other
+119,SE2201,Data Structures and Algorithms II,Software Engineering,2,2,2,Algorithms & Data Structures
+120,SE2202,Advanced Computer Architecture and Organization,Software Engineering,2,2,2,Systems & Operating Systems
+121,SE2203,Artificial Intelligence,Software Engineering,2,2,2,Artificial Intelligence
+122,SE2204,Software Project Management,Software Engineering,2,2,3,Software Engineering
+123,SE2205,Software Process Engineering,Software Engineering,2,2,2,Software Engineering
+124,SE2206,Statistical Distributions and Inference,Software Engineering,2,2,2,Statistics
+125,SE2207,Computer Interfacing and Microprocessors,Software Engineering,2,2,2,Systems & Operating Systems
+126,SE2208,Group Project in Software Development,Software Engineering,2,2,3,Software Engineering
+127,SE2209,Research Writing Skills,Software Engineering,2,2,2,Other
+128,SE3101,Engineering Foundation for Software,Software Engineering,3,1,2,Software Engineering
+129,SE3102,Software Modeling,Software Engineering,3,1,2,Software Engineering
+130,SE3103,Software Construction Technologies and Tools,Software Engineering,3,1,2,Software Engineering
+131,SE3104,Software Design and Architecture,Software Engineering,3,1,2,Software Engineering
+132,SE3105,Human Computer Interaction,Software Engineering,3,1,2,Software Engineering
+133,SE3106,Essentials of Computer Law,Software Engineering,3,1,2,Other
+134,SE3107,Advanced Database and Big Data Analytics,Software Engineering,3,1,3,Database
+135,SE3108,Computer & Network Security,Software Engineering,3,1,2,Cyber Security
+136,SE3109,Image Processing & Computer Vision,Software Engineering,3,1,2,Artificial Intelligence
+137,SE3110,Research Methodology,Software Engineering,3,1,2,Other
+138,SE3111,Logic Programming,Software Engineering,3,1,2,Artificial Intelligence
+139,SE3112,Mobile Computing,Software Engineering,3,1,2,Other
+140,SE3201,Engineering Economics for Software,Software Engineering,3,2,2,Other
+141,SE3202,Software Verification and Validation,Software Engineering,3,2,2,Software Engineering
+142,SE3203,Software Process,Software Engineering,3,2,2,Software Engineering
+143,SE3204,Social Aspects of Computing,Software Engineering,3,2,2,Other
+144,SE3205,Independent Study,Software Engineering,3,2,2,Other
+145,SE3206,Digital Forensic,Software Engineering,3,2,2,Cyber Security
+146,SE3207,Computer Graphics & Visualization,Software Engineering,3,2,2,Other
+147,SE3208,Automata Theory,Software Engineering,3,2,2,Algorithms & Data Structures
+148,SE3209,Information Security,Software Engineering,3,2,2,Cyber Security
+149,SE3210,High Performance Computing,Software Engineering,3,2,2,Cloud Computing
+150,SE3211,Complex Systems and Agent Technology,Software Engineering,3,2,2,Artificial Intelligence
+151,SE4101,Formal Methods and Software Verification,Software Engineering,4,1,2,Software Engineering
+152,SE4102,Software Evolution,Software Engineering,4,1,2,Software Engineering
+153,SE4103,Software Quality,Software Engineering,4,1,2,Software Engineering
+154,SE4104,Emerging Trends in Computing,Software Engineering,4,1,2,Other
+155,SE4105,Theory of Programming Languages,Software Engineering,4,1,2,Algorithms & Data Structures
+156,SE4106,Natural Language Processing,Software Engineering,4,1,2,Artificial Intelligence
+157,SE4107,Artificial Cognitive Systems,Software Engineering,4,1,2,Artificial Intelligence
+158,SE4108,Compilers Design,Software Engineering,4,1,2,Algorithms & Data Structures
+159,SE4109,Semantic Web and Ontology,Software Engineering,4,1,2,Database
+160,SE4110,Distributed Systems,Software Engineering,4,1,2,Cloud Computing
+161,SE4111,Advanced Topics in Statistics,Software Engineering,4,1,2,Statistics
+162,SE4112,Individual Research Project,Software Engineering,4,1,4,Other
+163,SE4201,Individual Research Project II,Software Engineering,4,2,9,Other
+164,SE4202,Industrial Training,Software Engineering,4,2,6,Other
+165,DS1101,Fundamentals of Data Science,Data Science & Business Analytics,1,1,1,Data Analysis
+166,DS1102,Probability and Statistics,Data Science & Business Analytics,1,1,3,Statistics
+167,DS1103,Calculus I,Data Science & Business Analytics,1,1,2,Mathematics
+168,DS1104,Fundamentals of Programming,Data Science & Business Analytics,1,1,2,Programming
+169,DS1105,Programming Laboratory,Data Science & Business Analytics,1,1,1,Programming
+170,DS1106,Fundamentals of Databases,Data Science & Business Analytics,1,1,2,Database
+171,DS1107,Principles of Management,Data Science & Business Analytics,1,1,2,Other
+172,DS1108,Introduction to Communication Skills,Data Science & Business Analytics,1,1,3,Other
+173,DS1201,Discrete Mathematics for Data Science,Data Science & Business Analytics,1,2,3,Mathematics
+174,DS1202,Linear Algebra I,Data Science & Business Analytics,1,2,2,Mathematics
+175,DS1203,Statistical Inference,Data Science & Business Analytics,1,2,3,Statistics
+176,DS1204,Object Oriented Programming,Data Science & Business Analytics,1,2,2,Programming
+177,DS1205,Applied Statistical Computing,Data Science & Business Analytics,1,2,2,Statistics
+178,DS1206,Business Economics,Data Science & Business Analytics,1,2,2,Other
+179,DS1207,Fundamentals of Business Communication,Data Science & Business Analytics,1,2,3,Other
+180,DS2101,Calculus II,Data Science & Business Analytics,2,1,2,Mathematics
+181,DS2102,Linear Algebra II,Data Science & Business Analytics,2,1,2,Mathematics
+182,DS2103,Regression Analysis,Data Science & Business Analytics,2,1,3,Statistics
+183,DS2104,Data Structures and Algorithms,Data Science & Business Analytics,2,1,3,Algorithms & Data Structures
+184,DS2105,Programming for Data Science,Data Science & Business Analytics,2,1,2,Programming
+185,DS2106,Accounting and Finance,Data Science & Business Analytics,2,1,3,Other
+186,DS2107,Advanced Communication Skills,Data Science & Business Analytics,2,1,3,Other
+187,DS2201,Categorical Data Analysis,Data Science & Business Analytics,2,2,2,Data Analysis
+188,DS2202,Essentials of Artificial Intelligence,Data Science & Business Analytics,2,2,2,Artificial Intelligence
+189,DS2203,Data Mining and Data Warehousing,Data Science & Business Analytics,2,2,3,Data Analysis
+190,DS2204,Software Engineering,Data Science & Business Analytics,2,2,3,Software Engineering
+191,DS2205,Cost & Management Accounting,Data Science & Business Analytics,2,2,2,Other
+192,DS2206,Business Intelligence and Analytics,Data Science & Business Analytics,2,2,2,Data Analysis
+193,DS2207,Conversation Analysis,Data Science & Business Analytics,2,2,3,Other
+194,DS3101,Advanced Database Management Systems,Data Science & Business Analytics,3,1,2,Database
+195,DS3102,Machine Learning,Data Science & Business Analytics,3,1,3,Artificial Intelligence
+196,DS3103,Multivariate Data Analysis,Data Science & Business Analytics,3,1,2,Data Analysis
+197,DS3104,Computer Networks,Data Science & Business Analytics,3,1,2,Networking
+198,DS3105,Research Methodology,Data Science & Business Analytics,3,1,3,Other
+199,DS3106,Bayesian Data Analysis,Data Science & Business Analytics,3,1,2,Statistics
+200,DS3107,Professional Practices and IT Law,Data Science & Business Analytics,3,1,2,Other
+201,DS3108,Operations Research,Data Science & Business Analytics,3,1,3,Statistics
+202,DS3109,Group Project in Applied Data Analytics,Data Science & Business Analytics,3,1,0,Data Analysis
+203,DS3201,Big Data Analytics,Data Science & Business Analytics,3,2,3,Data Analysis
+204,DS3202,Time Series Analysis,Data Science & Business Analytics,3,2,3,Statistics
+205,DS3203,Group Project in Applied Data Analytics II,Data Science & Business Analytics,3,2,3,Data Analysis
+206,DS3204,Operation Management,Data Science & Business Analytics,3,2,2,Other
+207,DS3205,Cloud Computing,Data Science & Business Analytics,3,2,2,Cloud Computing
+208,DS3206,Cyber Security,Data Science & Business Analytics,3,2,2,Cyber Security
+209,DS3207,Deep Learning,Data Science & Business Analytics,3,2,3,Artificial Intelligence
+210,DS3208,Discourse Communication,Data Science & Business Analytics,3,2,3,Other
+211,DS4101,Image Processing and Computer Vision,Data Science & Business Analytics,4,1,2,Artificial Intelligence
+212,DS4102,Data Management and Governance,Data Science & Business Analytics,4,1,2,Database
+213,DS4103,Project Management for Data Science,Data Science & Business Analytics,4,1,2,Other
+214,DS4104,Natural Language Processing,Data Science & Business Analytics,4,1,2,Artificial Intelligence
+215,DS4105,Semantic Web and Ontology,Data Science & Business Analytics,4,1,2,Database
+216,DS4106,Spatial Data Analysis,Data Science & Business Analytics,4,1,2,Data Analysis
+217,DS4107,Emerging Trends in Data Science,Data Science & Business Analytics,4,1,2,Data Analysis
+218,DS4108,Parallel Computing,Data Science & Business Analytics,4,1,2,Cloud Computing
+219,DS4109,Information Security,Data Science & Business Analytics,4,1,2,Cyber Security
+220,DS4110,Strategic Business Analysis,Data Science & Business Analytics,4,1,2,Data Analysis
+221,DS4111,Individual Research Project,Data Science & Business Analytics,4,1,0,Other
+222,DS4201,Individual Research Project II,Data Science & Business Analytics,4,2,9,Other
+223,DS4202,Industrial Training,Data Science & Business Analytics,4,2,6,Other
+224,IT1101,Information Technology Concepts,Information Technology,1,1,2,Other
+225,IT1102,Fundamentals of Computer Programming,Information Technology,1,1,2,Programming
+226,IT1103,Computer Programming Laboratory,Information Technology,1,1,1,Programming
+227,IT1104,Fundamentals of Computer Systems,Information Technology,1,1,2,Systems & Operating Systems
+228,IT1105,Fundamentals of Multimedia Technologies,Information Technology,1,1,2,Other
+229,IT1106,Mathematics for IT I,Information Technology,1,1,3,Mathematics
+230,IT1107,Principles of Management,Information Technology,1,1,2,Other
+231,IT1108,English Study Skills for ICT,Information Technology,1,1,2,Other
+232,IT1109,Leadership Training,Information Technology,1,1,2,Other
+233,IT1201,Object Oriented Designing,Information Technology,1,2,2,Software Engineering
+234,IT1202,Object Oriented Programming,Information Technology,1,2,3,Programming
+235,IT1203,Fundamentals of Database Management Systems,Information Technology,1,2,3,Database
+236,IT1204,Computer Systems Architecture,Information Technology,1,2,2,Systems & Operating Systems
+237,IT1205,Internet of Things Applications and Design,Information Technology,1,2,2,Systems & Operating Systems
+238,IT1206,Computer Network Systems I,Information Technology,1,2,2,Networking
+239,IT1207,Web Technologies,Information Technology,1,2,2,Other
+240,IT1208,Basic Probability and Statistics,Information Technology,1,2,2,Statistics
+241,IT1209,Presentation Skills for ICT,Information Technology,1,2,2,Other
+242,IT2101,Rapid Application Development,Information Technology,2,1,3,Programming
+243,IT2102,System Analysis and Design,Information Technology,2,1,2,Software Engineering
+244,IT2103,UX and UI Engineering,Information Technology,2,1,3,Software Engineering
+245,IT2104,Advanced Database Management Systems,Information Technology,2,1,3,Database
+246,IT2105,Computer Network Systems II,Information Technology,2,1,2,Networking
+247,IT2106,Industry based Software Engineering Project,Information Technology,2,1,0,Software Engineering
+248,IT2107,Mathematics for IT II,Information Technology,2,1,2,Mathematics
+249,IT2108,Human Resource Management,Information Technology,2,1,2,Other
+250,IT2109,Writing and Speaking Skills,Information Technology,2,1,2,Other
+251,IT2201,Data Structures and Algorithms,Information Technology,2,2,3,Algorithms & Data Structures
+252,IT2202,Software Engineering,Information Technology,2,2,2,Software Engineering
+253,IT2203,Operating Systems,Information Technology,2,2,2,Systems & Operating Systems
+254,IT2204,Project Management,Information Technology,2,2,2,Other
+255,IT2205,Research Methodology,Information Technology,2,2,2,Other
+256,IT2206,Industry based Software Engineering Project II,Information Technology,2,2,2,Software Engineering
+257,IT2207,Statistical Distributions and Inference,Information Technology,2,2,2,Statistics
+258,IT2208,Research Writing Skills,Information Technology,2,2,2,Other
+259,IT3101,Advanced Web Technologies,Information Technology,3,1,3,Other
+260,IT3102,Enterprise Application Development,Information Technology,3,1,3,Software Engineering
+261,IT3103,Advanced Multimedia Technologies,Information Technology,3,1,2,Other
+262,IT3104,Mobile Computing,Information Technology,3,1,2,Other
+263,IT3105,Advanced Computer Network Systems I,Information Technology,3,1,2,Networking
+264,IT3106,Information and Data Security,Information Technology,3,1,2,Cyber Security
+265,IT3107,Computer Ethics and IT Law,Information Technology,3,1,2,Other
+266,IT3108,Career Development Planning,Information Technology,3,1,1,Other
+267,IT3109,Essentials of Artificial Intelligence,Information Technology,3,1,3,Artificial Intelligence
+268,IT3201,Distributed Systems,Information Technology,3,2,2,Cloud Computing
+269,IT3202,Software Quality Assurance,Information Technology,3,2,2,Software Engineering
+270,IT3203,Cyber Security,Information Technology,3,2,3,Cyber Security
+271,IT3204,Cloud Computing and Virtualization,Information Technology,3,2,3,Cloud Computing
+272,IT3205,Enterprise Resource Planning Systems,Information Technology,3,2,2,Other
+273,IT3206,Independent Research Study,Information Technology,3,2,2,Other
+274,IT3207,Machine Learning,Information Technology,3,2,3,Artificial Intelligence
+275,IT3208,Geoinformatics,Information Technology,3,2,2,Other
+276,IT3209,Location Based Services,Information Technology,3,2,2,Other
+277,IT3210,Entrepreneurship and Innovation,Information Technology,3,2,2,Other
+278,IT4101,Data Mining and Data Warehousing,Information Technology,4,1,3,Data Analysis
+279,IT4102,Data Analytics,Information Technology,4,1,2,Data Analysis
+280,IT4103,Advanced Computer Network Systems II,Information Technology,4,1,2,Networking
+281,IT4104,Database Administration,Information Technology,4,1,3,Database
+282,IT4105,Deployment Engineering,Information Technology,4,1,1,Cloud Computing
+283,IT4106,Semantic Web and Ontology,Information Technology,4,1,2,Database
+284,IT4107,Digital Image Processing,Information Technology,4,1,2,Artificial Intelligence
+285,IT4108,Emerging Technologies in ICT,Information Technology,4,1,2,Other
+286,IT4109,Interactive Media and Game Development,Information Technology,4,1,2,Other
+287,IT4110,Blockchain Technologies,Information Technology,4,1,2,Cyber Security
+288,IT4111,Social Aspects and Professional Practices,Information Technology,4,1,2,Other
+289,IT4112,Natural Language Processing,Information Technology,4,1,2,Artificial Intelligence
+290,IT4113,Individual Research Project,Information Technology,4,1,2,Other
+291,IT4201,Individual Research Project II,Information Technology,4,2,7,Other
+292,IT4202,Industrial Training,Information Technology,4,2,6,Other
+293,IS1101,Information Technology Concepts,Information Systems,1,1,2,Other
+294,IS1102,Fundamentals of Computer Programming,Information Systems,1,1,2,Programming
+295,IS1103,Computer Programming Laboratory,Information Systems,1,1,1,Programming
+296,IS1104,Fundamentals of Computer Systems,Information Systems,1,1,2,Systems & Operating Systems
+297,IS1105,Fundamentals of Multimedia Technologies,Information Systems,1,1,2,Other
+298,IS1106,Mathematics for IT I,Information Systems,1,1,3,Mathematics
+299,IS1107,Principles of Management,Information Systems,1,1,2,Other
+300,IS1108,English Study Skills for ICT,Information Systems,1,1,2,Other
+301,IS1109,Leadership Training,Information Systems,1,1,2,Other
+302,IS1201,Object Oriented Designing,Information Systems,1,2,2,Software Engineering
+303,IS1202,Object Oriented Programming,Information Systems,1,2,3,Programming
+304,IS1203,Fundamentals of Database Management Systems,Information Systems,1,2,3,Database
+305,IS1204,Computer Systems Architecture,Information Systems,1,2,2,Systems & Operating Systems
+306,IS1205,Internet of Things Applications and Design,Information Systems,1,2,2,Systems & Operating Systems
+307,IS1206,Computer Network Systems I,Information Systems,1,2,2,Networking
+308,IS1207,Web Technologies,Information Systems,1,2,2,Other
+309,IS1208,Basic Probability and Statistics,Information Systems,1,2,2,Statistics
+310,IS1209,Presentation Skills for ICT,Information Systems,1,2,2,Other
+311,IS2101,Rapid Application Development,Information Systems,2,1,3,Programming
+312,IS2102,System Analysis and Design,Information Systems,2,1,2,Software Engineering
+313,IS2103,UX and UI Engineering,Information Systems,2,1,3,Software Engineering
+314,IS2104,Advanced Database Management Systems,Information Systems,2,1,3,Database
+315,IS2105,Computer Network Systems II,Information Systems,2,1,2,Networking
+316,IS2106,Industry based Software Engineering Project,Information Systems,2,1,0,Software Engineering
+317,IS2107,Mathematics for IT II,Information Systems,2,1,2,Mathematics
+318,IS2108,Human Resource Management,Information Systems,2,1,2,Other
+319,IS2109,Writing and Speaking Skills,Information Systems,2,1,2,Other
+320,IS2201,Data Structures and Algorithms,Information Systems,2,2,3,Algorithms & Data Structures
+321,IS2202,Software Engineering,Information Systems,2,2,2,Software Engineering
+322,IS2203,Operating Systems,Information Systems,2,2,2,Systems & Operating Systems
+323,IS2204,Project Management,Information Systems,2,2,2,Other
+324,IS2205,Research Methodology,Information Systems,2,2,2,Other
+325,IS2206,Industry based Software Engineering Project II,Information Systems,2,2,2,Software Engineering
+326,IS2207,Statistical Distributions and Inference,Information Systems,2,2,2,Statistics
+327,IS2208,Research Writing Skills,Information Systems,2,2,2,Other
+328,IS3101,Advanced Web Technologies,Information Systems,3,1,3,Other
+329,IS3102,Management Information Systems,Information Systems,3,1,3,Database
+330,IS3103,Accounting and Financial Management,Information Systems,3,1,3,Other
+331,IS3104,Principles of Economics,Information Systems,3,1,2,Other
+332,IS3105,Information and Data Security,Information Systems,3,1,2,Cyber Security
+333,IS3106,Computer Ethics and IT Law,Information Systems,3,1,2,Other
+334,IS3107,Mobile Computing,Information Systems,3,1,2,Other
+335,IS3108,Essentials of Artificial Intelligence,Information Systems,3,1,3,Artificial Intelligence
+336,IS3109,Career Development Planning,Information Systems,3,1,1,Other
+337,IS3201,E-commerce and Digital Marketing,Information Systems,3,2,3,Other
+338,IS3202,Organizational Behaviour,Information Systems,3,2,2,Other
+339,IS3203,Knowledge Management,Information Systems,3,2,2,Database
+340,IS3204,Operational Research,Information Systems,3,2,3,Statistics
+341,IS3205,Software Quality Assurance,Information Systems,3,2,2,Software Engineering
+342,IS3206,Enterprise Resource Planning Systems,Information Systems,3,2,2,Database
+343,IS3207,Independent Research Study,Information Systems,3,2,2,Other
+344,IS3208,Geoinformatics,Information Systems,3,2,2,Other
+345,IS3209,Location Based Services,Information Systems,3,2,2,Other
+346,IS3210,Entrepreneurship and Innovation,Information Systems,3,2,2,Other
+347,IS4101,Enterprise Architecture,Information Systems,4,1,2,Software Engineering
+348,IS4102,Data Analytics,Information Systems,4,1,2,Data Analysis
+349,IS4103,Information Systems Auditing and Control,Information Systems,4,1,3,Cyber Security
+350,IS4104,Business Process Reengineering,Information Systems,4,1,2,Software Engineering
+351,IS4105,Operations and Supply Chain Management,Information Systems,4,1,2,Other
+352,IS4106,Strategic IT Management,Information Systems,4,1,2,Other
+353,IS4107,Deployment Engineering,Information Systems,4,1,1,Cloud Computing
+354,IS4108,Digital Image Processing,Information Systems,4,1,2,Artificial Intelligence
+355,IS4109,Emerging Technologies in ICT,Information Systems,4,1,2,Other
+356,IS4110,Blockchain Technologies,Information Systems,4,1,2,Cyber Security
+357,IS4111,Social Aspects and Professional Practices,Information Systems,4,1,2,Other
+358,IS4112,Natural Language Processing,Information Systems,4,1,2,Artificial Intelligence
+359,IS4113,Individual Research Project,Information Systems,4,1,2,Other
+360,IS4201,Individual Research Project II,Information Systems,4,2,7,Other
+361,IS4202,Industrial Training,Information Systems,4,2,6,Other
+362,CE1101,Computer Systems Architecture,Computer Engineering,1,1,3,Systems & Operating Systems
+363,CE1102,Foundation of Computer Engineering,Computer Engineering,1,1,2,Other
+364,CE1103,Fundamentals of Programming,Computer Engineering,1,1,2,Programming
+365,CE1104,Programming Laboratory,Computer Engineering,1,1,1,Programming
+366,CE1105,Fundamentals of Databases,Computer Engineering,1,1,2,Database
+367,CE1106,Software Development Methodologies,Computer Engineering,1,1,2,Software Engineering
+368,CE1107,Probability and Statistics,Computer Engineering,1,1,3,Statistics
+369,CE1108,Engineering Mathematics,Computer Engineering,1,1,2,Mathematics
+370,CE1109,English: Basic Study Skills for CS/SE/CE,Computer Engineering,1,1,2,Other
+371,CE1110,Leadership Training,Computer Engineering,1,1,2,Other
+372,CE1111,Group Project in Hardware,Computer Engineering,1,1,1,Systems & Operating Systems
+373,CE1201,Group Project in Hardware II,Computer Engineering,1,2,1,Systems & Operating Systems
+374,CE1202,Fundamentals of Electrical Engineering,Computer Engineering,1,2,2,Systems & Operating Systems
+375,CE1203,Basic Electronics,Computer Engineering,1,2,2,Systems & Operating Systems
+376,CE1204,Object Oriented Programming,Computer Engineering,1,2,3,Programming
+377,CE1205,Web Development,Computer Engineering,1,2,2,Other
+378,CE1206,Computer Networks,Computer Engineering,1,2,3,Networking
+379,CE1207,Discrete Mathematics,Computer Engineering,1,2,2,Mathematics
+380,CE1208,Creative Media Tools,Computer Engineering,1,2,1,Other
+381,CE1209,English: Advanced Study Skills for CS/SE/CE,Computer Engineering,1,2,2,Other
+382,CE2101,Digital Electronics and Systems,Computer Engineering,2,1,3,Systems & Operating Systems
+383,CE2102,Data Structures and Algorithms,Computer Engineering,2,1,2,Algorithms & Data Structures
+384,CE2103,Operating Systems,Computer Engineering,2,1,2,Systems & Operating Systems
+385,CE2104,Advanced Object Oriented Programming,Computer Engineering,2,1,2,Programming
+386,CE2105,Mobile Computing,Computer Engineering,2,1,2,Other
+387,CE2106,Requirements Engineering,Computer Engineering,2,1,2,Software Engineering
+388,CE2107,Calculus,Computer Engineering,2,1,2,Mathematics
+389,CE2108,Statistical Distributions and Inference,Computer Engineering,2,1,2,Statistics
+390,CE2109,Principles of Management,Computer Engineering,2,1,2,Other
+391,CE2110,Writing and Speaking Skills,Computer Engineering,2,1,2,Other
+392,CE2201,Engineering Drawing,Computer Engineering,2,2,2,Other
+393,CE2202,Advanced Computer Architecture,Computer Engineering,2,2,3,Systems & Operating Systems
+394,CE2203,Computer Interfacing and Microprocessors,Computer Engineering,2,2,2,Systems & Operating Systems
+395,CE2204,Rapid Application Development,Computer Engineering,2,2,3,Programming
+396,CE2205,Artificial Intelligence,Computer Engineering,2,2,3,Artificial Intelligence
+397,CE2206,Advanced Data Structures and Algorithms,Computer Engineering,2,2,2,Algorithms & Data Structures
+398,CE2207,Numerical Methods,Computer Engineering,2,2,2,Mathematics
+399,CE2208,Research Writing Skills,Computer Engineering,2,2,2,Other
+400,CE3101,Micro Controllers and Embedded Systems,Computer Engineering,3,1,2,Systems & Operating Systems
+401,CE3102,Embedded Systems Laboratory,Computer Engineering,3,1,1,Systems & Operating Systems
+402,CE3103,Research Methodology,Computer Engineering,3,1,2,Other
+403,CE3104,Digital Signal Processing,Computer Engineering,3,1,2,Systems & Operating Systems
+404,CE3105,Design Project,Computer Engineering,3,1,2,Systems & Operating Systems
+405,CE3106,Computer and Network Security,Computer Engineering,3,1,2,Cyber Security
+406,CE3107,Essentials of Computer Law,Computer Engineering,3,1,2,Other
+407,CE3108,Applied Mechanics,Computer Engineering,3,1,2,Other
+408,CE3109,Enterprise Systems Administration,Computer Engineering,3,1,2,Systems & Operating Systems
+409,CE3110,UX and UI Engineering,Computer Engineering,3,1,2,Software Engineering
+410,CE3111,Data Mining and Business Intelligence,Computer Engineering,3,1,2,Data Analysis
+411,CE3112,Digital Image Processing,Computer Engineering,3,1,2,Artificial Intelligence
+412,CE3113,Expert Systems and Logic Programming,Computer Engineering,3,1,2,Artificial Intelligence
+413,CE3114,Cloud Computing,Computer Engineering,3,1,2,Cloud Computing
+414,CE3115,Big Data Analytics,Computer Engineering,3,1,2,Data Analysis
+415,CE3201,Computer Systems Engineering,Computer Engineering,3,2,2,Systems & Operating Systems
+416,CE3202,Digital Systems Design,Computer Engineering,3,2,2,Systems & Operating Systems
+417,CE3203,Independent Research Study,Computer Engineering,3,2,2,Other
+418,CE3204,Electrical Properties of Materials,Computer Engineering,3,2,2,Systems & Operating Systems
+419,CE3205,Information Security,Computer Engineering,3,2,2,Cyber Security
+420,CE3206,Statistical Tools for Data Analysis,Computer Engineering,3,2,1,Statistics
+421,CE3207,Robotics and Automation,Computer Engineering,3,2,2,Artificial Intelligence
+422,CE3208,Telecommunication Networks,Computer Engineering,3,2,2,Networking
+423,CE3209,Complex Systems and Agent Technology,Computer Engineering,3,2,2,Artificial Intelligence
+424,CE3210,Natural Language Processing,Computer Engineering,3,2,2,Artificial Intelligence
+425,CE3211,Nature Inspired Computing,Computer Engineering,3,2,2,Artificial Intelligence
+426,CE3212,Advanced Mobile Computing,Computer Engineering,3,2,2,Other
+427,CE3213,Machine Learning,Computer Engineering,3,2,2,Artificial Intelligence
+428,CE4101,VLSI Design and Fabrication,Computer Engineering,4,1,3,Systems & Operating Systems
+429,CE4102,Advanced Operating Systems,Computer Engineering,4,1,2,Systems & Operating Systems
+430,CE4103,Semiconductors and Solid State Devices,Computer Engineering,4,1,2,Systems & Operating Systems
+431,CE4104,High Performance Computing,Computer Engineering,4,1,2,Cloud Computing
+432,CE4105,Advanced Robotics,Computer Engineering,4,1,2,Artificial Intelligence
+433,CE4106,Advanced Natural Language Processing,Computer Engineering,4,1,2,Artificial Intelligence
+434,CE4107,Advanced IoT Systems,Computer Engineering,4,1,2,Systems & Operating Systems
+435,CE4108,Deep Learning,Computer Engineering,4,1,2,Artificial Intelligence
+436,CE4109,Agent Based Systems and Community Modeling,Computer Engineering,4,1,2,Artificial Intelligence
+437,CE4110,Location Based Services,Computer Engineering,4,1,2,Other
+438,CE4111,Artificial Cognitive Systems,Computer Engineering,4,1,2,Artificial Intelligence
+439,CE4112,Software Quality Assurance,Computer Engineering,4,1,2,Software Engineering
+440,CE4113,Individual Research Project,Computer Engineering,4,1,2,Other
+441,CE4114,Entrepreneurship and Business Management,Computer Engineering,4,1,2,Other
+442,CE4115,Social Aspects and Professional Practices,Computer Engineering,4,1,2,Other
+443,CE4201,Individual Research Project II,Computer Engineering,4,2,7,Other
+444,CE4202,Industrial Training,Computer Engineering,4,2,6,Other

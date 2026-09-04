@@ -233,6 +233,9 @@ DEGREE_PROGRAMS: List[str] = [
     "Information Technology",
     "Software Engineering",
     "Computer Science",
+    "Data Science & Business Analytics",
+    "Information Systems",
+    "Computer Engineering",
 ]
 
 
