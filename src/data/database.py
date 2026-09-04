@@ -95,14 +95,18 @@ def execute_many(query: str, params_list: List[tuple]) -> None:
 # Domain-specific query functions
 # =============================================================================
 
-def get_all_courses(degree: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Get all courses, optionally filtered by degree."""
+def get_all_courses(degree: Optional[str] = None, course_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Get all courses, optionally filtered by degree and/or course_type."""
+    conditions = []
+    params = []
     if degree:
-        return fetch_all(
-            "SELECT * FROM courses WHERE degree = ? ORDER BY year, semester, course_code",
-            (degree,),
-        )
-    return fetch_all("SELECT * FROM courses ORDER BY year, semester, course_code")
+        conditions.append("degree = ?")
+        params.append(degree)
+    if course_type:
+        conditions.append("course_type = ?")
+        params.append(course_type)
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    return fetch_all(f"SELECT * FROM courses {where_clause} ORDER BY year, semester, course_code", tuple(params))
 
 
 def get_course_by_id(course_id: int) -> Optional[Dict[str, Any]]:
@@ -227,13 +231,39 @@ def get_student_courses(student_id: int) -> List[Dict[str, Any]]:
     return fetch_all(
         """
         SELECT sc.*, c.course_code, c.course_name, c.degree, c.year, c.semester,
-               c.credits, c.subject_area
+               c.credits, c.subject_area, c.course_type
         FROM student_courses sc
         INNER JOIN courses c ON sc.course_id = c.course_id
         WHERE sc.student_id = ?
         ORDER BY c.year, c.semester, c.course_code
         """,
         (student_id,),
+    )
+
+
+def save_custom_course(
+    degree: str,
+    course_code: str,
+    course_name: str,
+    year: int,
+    semester: int,
+    credits: int,
+    subject_area: str,
+    course_type: str = "Core",
+) -> int:
+    """
+    Create or retrieve a custom course for non-KDU / custom degree students.
+    Returns the course_id.
+    """
+    existing = fetch_one("SELECT course_id FROM courses WHERE course_code = ?", (course_code,))
+    if existing:
+        return existing["course_id"]
+    return execute(
+        """
+        INSERT INTO courses (course_code, course_name, degree, year, semester, credits, subject_area, course_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (course_code, course_name, degree, year, semester, credits, subject_area, course_type),
     )
 
 

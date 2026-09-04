@@ -78,6 +78,15 @@ with open(PROJECT_ROOT / "data" / "courses.csv", "r", encoding="utf-8") as f:
 print(f"Total TXT courses: {len(txt_courses)}")
 print(f"Total CSV courses: {len(csv_courses)}")
 
+def map_course_type(raw_type: str) -> str:
+    t = raw_type.strip()
+    if "Elective" in t or "elective" in t:
+        return "Elective"
+    elif "Non-GPA" in t or "Credit not explicitly stated" in t:
+        return "NGPA"
+    else:
+        return "Core"
+
 # Now compare
 mismatches = []
 for i, (tc, cc) in enumerate(zip(txt_courses, csv_courses), start=1):
@@ -92,6 +101,9 @@ for i, (tc, cc) in enumerate(zip(txt_courses, csv_courses), start=1):
         diffs.append(f"name: txt='{tc['name']}' vs csv='{cc['course_name']}'")
     if tc["credits"] != int(cc["credits"]):
         diffs.append(f"credits: txt={tc['credits']} (raw: '{tc['raw_credits']}') vs csv={cc['credits']}")
+    expected_type = map_course_type(tc["type"])
+    if expected_type != cc.get("course_type"):
+        diffs.append(f"course_type: expected='{expected_type}' (raw: '{tc['type']}') vs csv='{cc.get('course_type')}'")
         
     if diffs:
         mismatches.append((i, tc["txt_line"], tc["degree"], tc["name"], diffs))
@@ -103,7 +115,7 @@ if mismatches:
         for d in m[4]:
             print(f"    {d}")
 else:
-    print("[PASS] PERFECT 100% MATCH (TXT vs CSV): Every single course, name, degree, year, semester, and credit matches exactly!")
+    print("[PASS] PERFECT 100% MATCH (TXT vs CSV): Every single course, name, degree, year, semester, credit, and course_type matches exactly!")
 
 # Verify SQLite Database
 import sqlite3
@@ -126,6 +138,9 @@ for i, (tc, db_row) in enumerate(zip(txt_courses, db_rows), start=1):
         diffs.append(f"name: txt='{tc['name']}' vs db='{db_row['course_name']}'")
     if tc["credits"] != db_row["credits"]:
         diffs.append(f"credits: txt={tc['credits']} vs db={db_row['credits']}")
+    expected_type = map_course_type(tc["type"])
+    if expected_type != db_row["course_type"]:
+        diffs.append(f"course_type: expected='{expected_type}' vs db='{db_row['course_type']}'")
     if diffs:
         db_mismatches.append((i, tc["degree"], tc["name"], diffs))
 
@@ -136,5 +151,5 @@ if db_mismatches:
         for d in m[3]:
             print(f"    {d}")
 else:
-    print("[PASS] PERFECT 100% MATCH (TXT vs SQLite DB): All 444 courses in academic.db match the source text line-by-line!")
+    print("[PASS] PERFECT 100% MATCH (TXT vs SQLite DB): All 444 courses in academic.db match the source text line-by-line including course_type!")
 conn.close()

@@ -10,7 +10,9 @@ Build full official KDU Computing curricula for all 6 degree programmes:
 import csv
 from pathlib import Path
 
+import sys
 PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 DATA_DIR = PROJECT_ROOT / "data"
 
 DEGREES = [
@@ -20,6 +22,7 @@ DEGREES = [
     (4, "Data Science & Business Analytics"),
     (5, "Information Systems"),
     (6, "Computer Engineering"),
+    (7, "Custom / Other University Degree"),
 ]
 
 # Raw audited course data: (Degree Name, [(Semester 1..8, Course Name, Credits, Subject Area, Prereq course names)])
@@ -563,6 +566,17 @@ def main():
 
     course_id_counter = 1
 
+    from scripts.verify_curricula_line_by_line import txt_courses
+
+    def map_course_type(raw_type: str) -> str:
+        t = raw_type.strip()
+        if "Elective" in t or "elective" in t:
+            return "Elective"
+        elif "Non-GPA" in t or "Credit not explicitly stated" in t:
+            return "NGPA"
+        else:
+            return "Core"
+
     for degree_name, course_list in RAW_CURRICULA.items():
         prefix = PREFIX_MAP[degree_name]
         sem_counters = {}
@@ -573,6 +587,9 @@ def main():
             code_num = sem_counters[sem_key]
             course_code = f"{prefix}{year}{semester}{code_num:02d}"
 
+            raw_type = txt_courses[course_id_counter - 1]["type"]
+            c_type = map_course_type(raw_type)
+
             course_record = {
                 "course_id": course_id_counter,
                 "course_code": course_code,
@@ -582,6 +599,7 @@ def main():
                 "semester": semester,
                 "credits": credits,
                 "subject_area": subject_area,
+                "course_type": c_type,
                 "prereqs": prereqs,
             }
             courses_out.append(course_record)
@@ -611,7 +629,7 @@ def main():
     courses_path = DATA_DIR / "courses.csv"
     with open(courses_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["course_id", "course_code", "course_name", "degree", "year", "semester", "credits", "subject_area"])
+        writer.writerow(["course_id", "course_code", "course_name", "degree", "year", "semester", "credits", "subject_area", "course_type"])
         for c in courses_out:
             writer.writerow([
                 c["course_id"],
@@ -622,6 +640,7 @@ def main():
                 c["semester"],
                 c["credits"],
                 c["subject_area"],
+                c["course_type"],
             ])
     print(f"[OK] Wrote {len(courses_out)} courses to {courses_path}")
 

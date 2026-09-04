@@ -75,6 +75,14 @@ with st.form("academic_profile_form"):
             help="Your current semester.",
         )
 
+    if degree == "Custom / Other University Degree":
+        st.info(
+            "🏛️ **Universal University Mode Active**: Students from any computing faculty "
+            "(e.g., SLIIT, IIT, Moratuwa, Colombo, Ruhuna, APIIT, etc.) can use this system! "
+            "In Step 2 (Course History), you will be able to input your own university modules and "
+            "map them to canonical computing subject areas for AI specialization analysis."
+        )
+
     submitted = st.form_submit_button("Save Profile", width="stretch", type="primary")
 
     if submitted:

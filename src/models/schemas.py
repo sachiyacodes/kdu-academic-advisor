@@ -26,6 +26,7 @@ class Course:
     semester: int
     credits: int
     subject_area: str
+    course_type: str = "Core"
 
 
 @dataclass
@@ -41,6 +42,7 @@ class StudentCourse:
     grade: str
     grade_point: float
     status: str
+    course_type: str = "Core"
 
 
 @dataclass
@@ -138,6 +140,8 @@ class CourseRecommendation:
     missing_prerequisites: List[str] = field(default_factory=list)
     prerequisite_status: str = "satisfied"
     chain_impact_count: int = 0
+    synergy_score: float = 0.0
+    target_specialization: str = ""
 
 
 @dataclass

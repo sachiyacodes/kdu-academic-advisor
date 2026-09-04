@@ -62,6 +62,7 @@ def create_schema(conn: sqlite3.Connection) -> None:
             semester INTEGER NOT NULL CHECK(semester BETWEEN 1 AND 2),
             credits INTEGER NOT NULL CHECK(credits >= 0),
             subject_area TEXT NOT NULL,
+            course_type TEXT NOT NULL DEFAULT 'Core' CHECK(course_type IN ('Core', 'Elective', 'NGPA')),
             FOREIGN KEY (degree) REFERENCES degrees(name),
             FOREIGN KEY (subject_area) REFERENCES subject_areas(name)
         );
@@ -300,7 +301,7 @@ def main() -> None:
 
     count = seed_table(conn, "courses", "courses.csv",
                        ["course_id", "course_code", "course_name", "degree",
-                        "year", "semester", "credits", "subject_area"])
+                        "year", "semester", "credits", "subject_area", "course_type"])
     print(f"   [OK] courses: {count} rows")
 
     count = seed_table(conn, "specializations", "specializations.csv",

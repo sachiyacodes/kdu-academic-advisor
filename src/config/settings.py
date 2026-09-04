@@ -225,6 +225,13 @@ class CourseStatus(str, Enum):
     IN_PROGRESS = "in_progress"
 
 
+class CourseType(str, Enum):
+    """Classification of academic courses."""
+    CORE = "Core"
+    ELECTIVE = "Elective"
+    NGPA = "NGPA"
+
+
 # =============================================================================
 # DEGREE PROGRAMS (§8)
 # =============================================================================
@@ -236,7 +243,12 @@ DEGREE_PROGRAMS: List[str] = [
     "Data Science & Business Analytics",
     "Information Systems",
     "Computer Engineering",
+    "Custom / Other University Degree",
 ]
+
+# Graduation Credit Benchmarks
+GRADUATION_MIN_GPA_CREDITS: int = 120
+GRADUATION_MIN_NGPA_CREDITS: int = 14
 
 
 # =============================================================================

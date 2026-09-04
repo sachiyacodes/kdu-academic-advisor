@@ -15,13 +15,42 @@ It is NOT machine learning and must not be labeled as such (§43).
 
 from typing import Dict, List, Optional, Set, Tuple
 
-from src.config.settings import CourseStatus, MINIMUM_PASS_MARK
+from src.config.settings import CourseStatus, MINIMUM_PASS_MARK, SPECIALIZATION_WEIGHTS
 from src.models.schemas import (
     AcademicProfile,
     Course,
     CourseRecommendation,
     StudentCourse,
 )
+
+
+def calculate_elective_synergy(
+    subject_area: str,
+    target_specialization: Optional[str] = None,
+) -> float:
+    """
+    Calculate Specialization Synergy Score for an elective course.
+
+    Formula:
+        Synergy(e, s) = (Weight(s, area(e)) / max_a Weight(s, a)) * 100
+
+    Returns:
+        float between 0.0 and 100.0 (rounded to 1 decimal place).
+    """
+    if not target_specialization or target_specialization not in SPECIALIZATION_WEIGHTS:
+        return 0.0
+
+    spec_weights = SPECIALIZATION_WEIGHTS[target_specialization]
+    if not spec_weights:
+        return 0.0
+
+    max_w = max(spec_weights.values()) if spec_weights else 1.0
+    w = spec_weights.get(subject_area, 0.0)
+
+    if max_w <= 0:
+        return 0.0
+
+    return round((w / max_w) * 100.0, 1)
 
 
 def check_prerequisites(
@@ -89,6 +118,7 @@ def categorize_course(
     profile: AcademicProfile,
     all_prerequisites: List[Dict],
     specialization_subject_areas: Set[str],
+    top_specialization_name: Optional[str] = None,
 ) -> CourseRecommendation:
     """
     Categorize a course for recommendation using rule-based reasoning.
@@ -115,7 +145,10 @@ def categorize_course(
         semester=int(course.get("semester", 1)),
         credits=int(course.get("credits", 0)),
         subject_area=course.get("subject_area", ""),
+        course_type=course.get("course_type", "Core"),
     )
+
+    synergy = calculate_elective_synergy(course_obj.subject_area, top_specialization_name)
 
     # Get completed course IDs
     completed_ids = {c.course_id for c in profile.completed_courses}
@@ -127,6 +160,8 @@ def categorize_course(
             category="Completed",
             reason="You have already completed this course.",
             prerequisite_status="not_applicable",
+            synergy_score=synergy,
+            target_specialization=top_specialization_name or "",
         )
 
     # Check relevance to specialization areas
@@ -157,11 +192,17 @@ def categorize_course(
 
     # Rule 3: Relevant, prerequisites satisfied, stage eligible
     if is_relevant and prereqs_satisfied and stage_eligible:
-        reason_text = (
-            f"This {course_obj.subject_area} course is relevant to your "
-            f"target specialization. All prerequisites are satisfied and "
-            f"you are at the appropriate academic stage."
-        )
+        if course_obj.course_type == "Elective" and top_specialization_name:
+            reason_text = (
+                f"Elective with {synergy}% synergy to {top_specialization_name} "
+                f"in {course_obj.subject_area}. Prerequisites satisfied and stage eligible."
+            )
+        else:
+            reason_text = (
+                f"This {course_obj.subject_area} course is relevant to your "
+                f"target specialization. All prerequisites are satisfied and "
+                f"you are at the appropriate academic stage."
+            )
         if chain_impact > 0:
             reason_text += f" (Foundational: unlocks {chain_impact} advanced course{'s' if chain_impact > 1 else ''})."
 
@@ -171,6 +212,8 @@ def categorize_course(
             reason=reason_text,
             prerequisite_status="satisfied",
             chain_impact_count=chain_impact,
+            synergy_score=synergy,
+            target_specialization=top_specialization_name or "",
         )
 
     # Rule 4: Relevant but missing prerequisites or stage
@@ -184,32 +227,65 @@ def categorize_course(
                 f"but you are currently in Year {profile.year} Semester {profile.semester}"
             )
 
+        if course_obj.course_type == "Elective" and top_specialization_name:
+            reason_text = f"Elective with {synergy}% synergy to {top_specialization_name}, but: {'; '.join(reasons)}."
+        else:
+            reason_text = f"This course is relevant to your interests but: {'; '.join(reasons)}."
+
         return CourseRecommendation(
             course=course_obj,
             category="Recommended Later",
-            reason=f"This course is relevant to your interests but: {'; '.join(reasons)}.",
+            reason=reason_text,
             missing_prerequisites=missing_names,
             prerequisite_status="not_satisfied" if not prereqs_satisfied else "satisfied",
+            chain_impact_count=chain_impact,
+            synergy_score=synergy,
+            target_specialization=top_specialization_name or "",
         )
 
     # Rule 5: Not directly relevant but prerequisites ok
     if not is_relevant and prereqs_satisfied and stage_eligible:
+        if course_obj.course_type == "Elective" and top_specialization_name:
+            reason_text = (
+                f"Elective in {course_obj.subject_area} ({synergy}% synergy with {top_specialization_name}) "
+                f"— may broaden your skills."
+            )
+        else:
+            reason_text = (
+                f"This {course_obj.subject_area} course is not directly related "
+                f"to your top specializations but may broaden your skills."
+            )
         return CourseRecommendation(
             course=course_obj,
             category="Low Priority",
-            reason=f"This {course_obj.subject_area} course is not directly related "
-                   f"to your top specializations but may broaden your skills.",
+            reason=reason_text,
             prerequisite_status="satisfied",
+            chain_impact_count=chain_impact,
+            synergy_score=synergy,
+            target_specialization=top_specialization_name or "",
         )
 
     # Not relevant and not eligible
+    if course_obj.course_type == "Elective" and top_specialization_name:
+        reason_text = (
+            f"Elective in {course_obj.subject_area} ({synergy}% synergy with {top_specialization_name}) "
+            f"with unmet requirements."
+        )
+    else:
+        reason_text = (
+            f"This course is not directly related to your target specializations "
+            f"and has unmet requirements."
+        )
+
     return CourseRecommendation(
         course=course_obj,
         category="Low Priority",
-        reason=f"This course is not directly related to your target specializations "
-               f"and has unmet requirements.",
+        reason=reason_text,
         missing_prerequisites=missing_names,
         prerequisite_status="not_satisfied" if not prereqs_satisfied else "satisfied",
+        chain_impact_count=chain_impact,
+        synergy_score=synergy,
+        target_specialization=top_specialization_name or "",
     )
 
 
@@ -219,6 +295,7 @@ def get_course_recommendations(
     all_prerequisites: List[Dict],
     top_specialization_areas: Set[str],
     degree_filter: Optional[str] = None,
+    top_specialization_name: Optional[str] = None,
 ) -> List[CourseRecommendation]:
     """
     Generate course recommendations for a student.
@@ -232,6 +309,7 @@ def get_course_recommendations(
         all_prerequisites: All prerequisite relationships.
         top_specialization_areas: Subject areas relevant to top-ranked specializations.
         degree_filter: Optional degree to filter courses by.
+        top_specialization_name: Optional name of the top-ranked specialization to compute synergy.
 
     Returns:
         List of CourseRecommendation objects, sorted by category priority.
@@ -244,7 +322,11 @@ def get_course_recommendations(
     recommendations = []
     for course in courses:
         rec = categorize_course(
-            course, profile, all_prerequisites, top_specialization_areas
+            course,
+            profile,
+            all_prerequisites,
+            top_specialization_areas,
+            top_specialization_name=top_specialization_name,
         )
         # Skip already-completed courses from the recommendation list
         if rec.category != "Completed":

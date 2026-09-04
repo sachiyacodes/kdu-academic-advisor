@@ -37,6 +37,7 @@ def build_student_courses(course_records: List[Dict]) -> List[StudentCourse]:
             grade=record.get("grade", ""),
             grade_point=float(record.get("grade_point", 0)),
             status=record.get("status", CourseStatus.COMPLETED.value),
+            course_type=record.get("course_type", "Core"),
         )
         student_courses.append(sc)
     return student_courses

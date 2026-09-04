@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.config.settings import APP_TITLE, CourseStatus
+from src.config.settings import APP_TITLE, CourseStatus, CourseType, SUBJECT_AREA_ORDER
 from src.ui.styles import get_custom_css
 from src.ui.components import (
     compute_completed_steps,
@@ -91,7 +91,7 @@ if courses_to_add:
 
         with col1:
             course_options = {
-                f"{c['course_code']} — {c['course_name']} (Y{c['year']}S{c['semester']}, {c['subject_area']})": c
+                f"{c['course_code']} — {c['course_name']} [{c.get('course_type', 'Core')}] (Y{c['year']}S{c['semester']}, {c['subject_area']})": c
                 for c in courses_to_add
             }
             selected_course_key = st.selectbox("Course", options=list(course_options.keys()))
@@ -122,7 +122,72 @@ if courses_to_add:
             st.success(f"Added {selected_course['course_code']} — {mark:g} ({grade}, GP {grade_point})")
             st.rerun()
 else:
-    st.info("All available courses for your degree have been added.")
+    if student["degree"] == "Custom / Other University Degree":
+        st.info("You are using **Custom / Other University Mode**. Add your modules using the form below.")
+    else:
+        st.info("All curriculum courses for your degree have been added.")
+
+is_custom = (student["degree"] == "Custom / Other University Degree")
+with st.expander("➕ Add Custom / Unlisted Course (Any University)", expanded=is_custom and len(existing_records) == 0):
+    st.caption(
+        "Students from any university (SLIIT, IIT, Moratuwa, Colombo, Ruhuna, etc.) or students with transfer credits "
+        "can enter custom courses mapped into the 13 canonical computing subject areas."
+    )
+    with st.form("add_custom_course_form"):
+        col_c1, col_c2 = st.columns([1, 2])
+        with col_c1:
+            custom_code = st.text_input("Course Code *", placeholder="e.g. CS2040", key="c_code").strip().upper()
+        with col_c2:
+            custom_name = st.text_input("Course Name *", placeholder="e.g. Mobile Application Development", key="c_name").strip()
+
+        col_c3, col_c4, col_c5 = st.columns(3)
+        with col_c3:
+            custom_year = st.selectbox("Year", options=[1, 2, 3, 4], index=student["year"] - 1, key="c_year")
+        with col_c4:
+            custom_semester = st.selectbox("Semester", options=[1, 2], index=student["semester"] - 1, key="c_sem")
+        with col_c5:
+            custom_credits = st.number_input("Credits", min_value=1, max_value=8, value=3, step=1, key="c_credits")
+
+        col_c6, col_c7, col_c8 = st.columns([2, 1, 1])
+        with col_c6:
+            custom_area = st.selectbox("Subject Area *", options=SUBJECT_AREA_ORDER, key="c_area")
+        with col_c7:
+            custom_type = st.selectbox("Course Type", options=[ct.value for ct in CourseType], key="c_type")
+        with col_c8:
+            custom_mark = st.number_input("Mark (0–100) *", min_value=0.0, max_value=100.0, value=70.0, step=0.5, key="c_mark")
+
+        custom_submitted = st.form_submit_button("Add Custom Course", width="stretch", type="primary")
+
+        if custom_submitted:
+            if not custom_code or not custom_name:
+                st.error("Please enter both Course Code and Course Name.")
+            else:
+                new_course_id = db.save_custom_course(
+                    degree=student["degree"],
+                    course_code=custom_code,
+                    course_name=custom_name,
+                    year=custom_year,
+                    semester=custom_semester,
+                    credits=int(custom_credits),
+                    subject_area=custom_area,
+                    course_type=custom_type,
+                )
+                c_grade, c_gp = mark_to_grade(custom_mark)
+                c_status = (
+                    CourseStatus.COMPLETED.value
+                    if is_passing(custom_mark)
+                    else CourseStatus.FAILED.value
+                )
+                db.save_student_course(
+                    student_id=student_id,
+                    course_id=new_course_id,
+                    mark=custom_mark,
+                    grade=c_grade,
+                    grade_point=c_gp,
+                    status=c_status,
+                )
+                st.success(f"Added custom course {custom_code} — {custom_name} ({custom_mark:g}, {c_grade})")
+                st.rerun()
 
 st.markdown("## Your Course History")
 
@@ -132,6 +197,7 @@ if existing_records:
         display_data.append({
             "Code": record["course_code"],
             "Course": record["course_name"],
+            "Type": record.get("course_type", "Core"),
             "Year": record["year"],
             "Sem": record["semester"],
             "Subject Area": record["subject_area"],
@@ -148,15 +214,22 @@ if existing_records:
     gpa, credits_earned, credits_attempted = calculate_gpa(existing_records)
     classification = get_gpa_classification(gpa)
 
+    core_credits = sum(int(r["credits"]) for r in existing_records if r.get("course_type", "Core") == "Core" and r["status"] == "completed")
+    elective_credits = sum(int(r["credits"]) for r in existing_records if r.get("course_type", "Core") == "Elective" and r["status"] == "completed")
+    ngpa_credits = sum(int(r["credits"]) for r in existing_records if r.get("course_type", "Core") == "NGPA" and r["status"] == "completed")
+    gpa_credits = core_credits + elective_credits
+
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("GPA", f"{gpa:.2f}")
     with col2:
         st.metric("Classification", classification)
     with col3:
-        st.metric("Credits Earned", credits_earned)
+        st.metric("GPA Credits Earned", gpa_credits, help=f"Core: {core_credits} cr | Elective: {elective_credits} cr")
     with col4:
-        st.metric("Total Courses", len(existing_records))
+        st.metric("NGPA Credits Earned", ngpa_credits, help="Non-GPA modules (English, Sports, Leadership, etc.)")
+
+    st.caption(f"📊 **Credit Breakdown:** Core: **{core_credits}** cr | Elective: **{elective_credits}** cr | NGPA: **{ngpa_credits}** cr | Total Attempted: **{credits_attempted}** cr")
 
     col_m1, col_m2 = st.columns(2)
     with col_m1:
