@@ -80,6 +80,9 @@ with st.form("academic_profile_form"):
 if student:
     st.markdown("## Current Profile")
 
+    import importlib
+    import src.academic.profile
+    importlib.reload(src.academic.profile)
     from src.academic.profile import detect_academic_stage
 
     student_courses = db.get_student_courses(student["student_id"])

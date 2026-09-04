@@ -67,6 +67,9 @@ render_page_header(
 )
 
 if student:
+    import importlib
+    import src.academic.profile
+    importlib.reload(src.academic.profile)
     from src.academic.profile import build_academic_profile
     from src.academic.gpa import get_gpa_classification
 

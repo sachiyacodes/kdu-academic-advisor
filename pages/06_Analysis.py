@@ -23,6 +23,9 @@ from src.ui.components import (
     render_feature_importance_chart,
     render_confusion_matrix_heatmap,
 )
+import importlib
+import src.academic.profile
+importlib.reload(src.academic.profile)
 from src.academic.profile import build_academic_profile
 from src.academic.gpa import calculate_gpa, get_gpa_classification
 from src.ai.recommendation_engine import generate_recommendations
