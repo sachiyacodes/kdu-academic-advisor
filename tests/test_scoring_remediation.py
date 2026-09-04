@@ -59,3 +59,12 @@ class TestScoringRemediation:
         assert len(res["academic_weights"]) == 11
         assert "Software Engineering" in res["trajectories"]
         assert 0.0 <= res["stability_percentage"] <= 100.0
+
+    def test_detect_academic_stage_respects_declared_year_and_sem(self):
+        """When student selects Year 4 Semester 1 with 0 completed credits, stage must be Year 4 - Semester 1."""
+        from src.academic.profile import detect_academic_stage
+        stage = detect_academic_stage(year=4, semester=1, completed_credits=0)
+        assert stage == "Year 4 - Semester 1"
+
+        stage_with_credits = detect_academic_stage(year=2, semester=1, completed_credits=30)
+        assert stage_with_credits == "Year 2 - Semester 1"

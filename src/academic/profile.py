@@ -77,21 +77,28 @@ def aggregate_subject_performance(
 
 
 def detect_academic_stage(
-    year: int, semester: int, completed_credits: int
+    year: int, semester: int, completed_credits: int = 0
 ) -> str:
     """
     Detect academic stage based on year, semester, and completed credits.
 
-    Uses the stage thresholds from settings. Falls back to year/semester
-    if credit-based detection is ambiguous.
+    Authoritative stage is the student's declared enrollment (Year and Semester).
+    If credit accumulation indicates advanced standing beyond declared stage,
+    the accelerated credit stage is returned.
     """
+    declared_stage = f"Year {year} - Semester {semester}"
+
     # Credit-based detection
-    stage = ACADEMIC_STAGE_THRESHOLDS[0][1]  # Default to first stage
+    credit_stage = ACADEMIC_STAGE_THRESHOLDS[0][1]
     for min_credits, stage_name in ACADEMIC_STAGE_THRESHOLDS:
         if completed_credits >= min_credits:
-            stage = stage_name
+            credit_stage = stage_name
 
-    return stage
+    # If no credits entered yet or declared stage is at least as high, use declared stage
+    if completed_credits == 0 or get_stage_numeric(declared_stage) >= get_stage_numeric(credit_stage):
+        return declared_stage
+
+    return credit_stage
 
 
 def get_stage_numeric(stage: str) -> int:
