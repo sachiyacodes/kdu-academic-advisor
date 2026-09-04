@@ -89,31 +89,39 @@ recommendations = get_course_recommendations(
     degree_filter=student["degree"],
 )
 
-categories = ["Recommended Now", "Recommended Later", "Low Priority"]
-tabs = st.tabs([f"{c} ({len([r for r in recommendations if r.category == c])})" for c in categories])
+if not recommendations:
+    st.success(
+        f"### 🎓 Curriculum Complete!\n\n"
+        f"You have completed all available courses in the **{student['degree']}** curriculum "
+        f"({profile.completed_course_count} courses, {profile.total_credits} credits earned, GPA: {profile.gpa:.2f}).\n\n"
+        f"All required and elective courses defined for your degree program have been successfully completed."
+    )
+else:
+    categories = ["Recommended Now", "Recommended Later", "Low Priority"]
+    tabs = st.tabs([f"{c} ({len([r for r in recommendations if r.category == c])})" for c in categories])
 
-for tab, category in zip(tabs, categories):
-    with tab:
-        cat_recs = [r for r in recommendations if r.category == category]
-        if cat_recs:
-            data = []
-            for rec in cat_recs:
-                row = {
-                    "Code": rec.course.course_code,
-                    "Course": rec.course.course_name,
-                    "Year": rec.course.year,
-                    "Sem": rec.course.semester,
-                    "Subject Area": rec.course.subject_area,
-                    "Credits": rec.course.credits,
-                    "Reason": rec.reason,
-                    "Missing Prerequisites": ", ".join(rec.missing_prerequisites) if rec.missing_prerequisites else "-",
-                }
-                data.append(row)
+    for tab, category in zip(tabs, categories):
+        with tab:
+            cat_recs = [r for r in recommendations if r.category == category]
+            if cat_recs:
+                data = []
+                for rec in cat_recs:
+                    row = {
+                        "Code": rec.course.course_code,
+                        "Course": rec.course.course_name,
+                        "Year": rec.course.year,
+                        "Sem": rec.course.semester,
+                        "Subject Area": rec.course.subject_area,
+                        "Credits": rec.course.credits,
+                        "Reason": rec.reason,
+                        "Missing Prerequisites": ", ".join(rec.missing_prerequisites) if rec.missing_prerequisites else "-",
+                    }
+                    data.append(row)
 
-            df = pd.DataFrame(data)
-            st.dataframe(df, width="stretch", hide_index=True)
-        else:
-            st.caption("No courses in this category.")
+                df = pd.DataFrame(data)
+                st.dataframe(df, width="stretch", hide_index=True)
+            else:
+                st.caption("No courses in this category.")
 
 st.markdown("## How Course Recommendations Work")
 st.markdown("""
