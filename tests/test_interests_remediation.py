@@ -1,4 +1,4 @@
-﻿"""
+"""
 Tests for interest matching remediation.
 Verifies continuous 1-5 Likert intensity and cosine breadth non-dilution.
 """

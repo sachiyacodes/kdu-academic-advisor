@@ -69,8 +69,11 @@ profile = build_academic_profile(
 )
 
 student_interests = db.get_student_interests(student_id)
-selected_interest_names = [i["subject_area"] for i in student_interests]
-scores = generate_recommendations(profile, selected_interest_names)
+selected_interest_input = {
+    i["subject_area"]: float(i.get("intensity", 3.0))
+    for i in student_interests
+} if student_interests else {}
+scores = generate_recommendations(profile, selected_interest_input)
 
 top_spec_areas = set()
 for score in scores[:3]:

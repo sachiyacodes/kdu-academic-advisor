@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.config.settings import APP_TITLE, CourseStatus
 from src.ui.styles import get_custom_css
 from src.ui.components import render_disclaimer, render_page_header, render_step_tracker
-from src.academic.grading import mark_to_grade
+from src.academic.grading import is_passing, mark_to_grade
 from src.academic.gpa import calculate_gpa, get_gpa_classification
 from src.data import database as db
 
@@ -91,9 +91,11 @@ if courses_to_add:
             selected_course = course_options[selected_course_key]
             grade, grade_point = mark_to_grade(mark)
 
-            status = CourseStatus.COMPLETED.value
-            if mark < 40:
-                status = CourseStatus.FAILED.value
+            status = (
+                CourseStatus.COMPLETED.value
+                if is_passing(mark)
+                else CourseStatus.FAILED.value
+            )
 
             db.save_student_course(
                 student_id=student_id,

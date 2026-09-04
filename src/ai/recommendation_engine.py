@@ -13,7 +13,7 @@ DISCLOSED ENHANCEMENT (section 4a, row 5):
 This module orchestrates the full recommendation pipeline (section 22).
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from src.ai.interest_matching import score_interests_all_specializations
 from src.ai.weighted_scoring import score_all_specializations

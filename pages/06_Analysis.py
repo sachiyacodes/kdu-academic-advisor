@@ -116,8 +116,11 @@ else:
 st.markdown("## Specialization Fit")
 
 student_interests = db.get_student_interests(student_id)
-selected_interest_names = [i["subject_area"] for i in student_interests]
-scores = generate_recommendations(profile, selected_interest_names)
+selected_interest_input = {
+    i["subject_area"]: float(i.get("intensity", 3.0))
+    for i in student_interests
+} if student_interests else {}
+scores = generate_recommendations(profile, selected_interest_input)
 
 if scores:
     spec_names = [s.specialization_name for s in scores]

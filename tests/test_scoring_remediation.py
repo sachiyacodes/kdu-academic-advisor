@@ -1,4 +1,4 @@
-﻿"""
+"""
 Tests for scoring remediation and sensitivity analysis.
 Verifies calibrated_fit credibility shrinkage and sensitivity curves.
 """

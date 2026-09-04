@@ -112,8 +112,11 @@ if student:
 
         from src.ai.recommendation_engine import generate_recommendations
 
-        selected_interest_names = [i["subject_area"] for i in student_interests] if student_interests else []
-        scores = generate_recommendations(profile, selected_interest_names)
+        selected_interest_input = {
+            i["subject_area"]: float(i.get("intensity", 3.0))
+            for i in student_interests
+        } if student_interests else {}
+        scores = generate_recommendations(profile, selected_interest_input)
 
         if scores:
             top = scores[0]

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Tests for recommendation feedback persistence.
 """
 import pytest

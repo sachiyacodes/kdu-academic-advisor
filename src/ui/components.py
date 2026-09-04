@@ -7,7 +7,7 @@ themed to the design tokens defined in styles.py.
 
 import streamlit as st
 import plotly.graph_objects as go
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from src.config.settings import (
     DISCLAIMER,

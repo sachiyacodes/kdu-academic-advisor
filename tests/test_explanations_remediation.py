@@ -1,4 +1,4 @@
-﻿"""
+"""
 Tests for explanation engine remediations.
 Verifies the fix for the contribution weight weakness bug and counterfactual generation.
 """
