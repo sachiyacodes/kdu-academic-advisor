@@ -45,7 +45,7 @@ RAW_CURRICULA = {
         (1, 2, "Software Analysis and Modeling", 2, "Software Engineering", ["Software Development Methodologies"]),
         (1, 2, "Discrete Mathematics", 2, "Mathematics", ["Mathematics for Computing"]),
         (1, 2, "Fundamentals of Electronics", 1, "Systems & Operating Systems", ["Computer Systems Architecture"]),
-        (1, 2, "Collaborative Hardware Project II", 1, "Systems & Operating Systems", ["Collaborative Hardware Project"]),
+        (1, 2, "Collaborative Hardware Project", 1, "Systems & Operating Systems", ["Collaborative Hardware Project"]),
         (1, 2, "English: Advance Study Skills for CS/SE/CE", 2, "Other", []),
         # Sem 3 (Y2S1)
         (2, 1, "Operating Systems", 2, "Systems & Operating Systems", ["Computer Systems Architecture"]),
@@ -62,7 +62,7 @@ RAW_CURRICULA = {
         # Sem 4 (Y2S2)
         (2, 2, "Advanced Data Structures and Algorithms", 2, "Algorithms & Data Structures", ["Data Structures and Algorithms"]),
         (2, 2, "Artificial Intelligence", 3, "Artificial Intelligence", ["Data Structures and Algorithms", "Probability and Statistics"]),
-        (2, 2, "Group Project in Software Development II", 2, "Software Engineering", ["Group Project in Software Development"]),
+        (2, 2, "Group Project in Software Development", 2, "Software Engineering", ["Group Project in Software Development"]),
         (2, 2, "Software Project Management", 3, "Software Engineering", ["Requirements Engineering"]),
         (2, 2, "Software Architecture", 2, "Software Engineering", ["Requirements Engineering"]),
         (2, 2, "Computer Interfacing and Microprocessors", 2, "Systems & Operating Systems", ["Operating Systems"]),
@@ -121,7 +121,7 @@ RAW_CURRICULA = {
         (4, 1, "Robotics and Automation", 2, "Artificial Intelligence", ["Computer Interfacing and Microprocessors"]),
         (4, 1, "Entrepreneurship and Business Management", 2, "Other", []),
         # Sem 8 (Y4S2)
-        (4, 2, "Individual Research Project II", 7, "Other", ["Individual Research Project"]),
+        (4, 2, "Individual Research Project", 7, "Other", ["Individual Research Project"]),
         (4, 2, "Industrial Training", 6, "Other", []),
     ],
 
@@ -156,7 +156,7 @@ RAW_CURRICULA = {
         (2, 1, "Electronics Systems", 2, "Systems & Operating Systems", ["Basic Electronics"]),
         (2, 1, "Calculus and Numerical Methods", 3, "Mathematics", ["Engineering Mathematics"]),
         (2, 1, "Principles of Management", 3, "Other", []),
-        (2, 1, "Writing and Speaking Skills", 2, "Other", []),
+        (2, 1, "Writing and Speaking Skills", 0, "Other", []),
         # Sem 4 (Y2S2)
         (2, 2, "Data Structures and Algorithms II", 2, "Algorithms & Data Structures", ["Data Structures and Algorithms I"]),
         (2, 2, "Advanced Computer Architecture and Organization", 2, "Systems & Operating Systems", ["Computer Systems Architecture"]),
@@ -166,7 +166,7 @@ RAW_CURRICULA = {
         (2, 2, "Statistical Distributions and Inference", 2, "Statistics", ["Probability and Statistics"]),
         (2, 2, "Computer Interfacing and Microprocessors", 2, "Systems & Operating Systems", ["Operating Systems"]),
         (2, 2, "Group Project in Software Development", 3, "Software Engineering", ["Object Oriented Programming II", "Requirements Engineering"]),
-        (2, 2, "Research Writing Skills", 2, "Other", []),
+        (2, 2, "Research Writing Skills", 0, "Other", []),
         # Sem 5 (Y3S1)
         (3, 1, "Engineering Foundation for Software", 2, "Software Engineering", []),
         (3, 1, "Software Modeling", 2, "Software Engineering", ["Requirements Engineering"]),
@@ -206,7 +206,7 @@ RAW_CURRICULA = {
         (4, 1, "Advanced Topics in Statistics", 2, "Statistics", ["Statistical Distributions and Inference"]),
         (4, 1, "Individual Research Project", 4, "Other", ["Independent Study"]),
         # Sem 8 (Y4S2)
-        (4, 2, "Individual Research Project II", 9, "Other", ["Individual Research Project"]),
+        (4, 2, "Individual Research Project", 9, "Other", ["Individual Research Project"]),
         (4, 2, "Industrial Training", 6, "Other", []),
     ],
 
@@ -257,7 +257,7 @@ RAW_CURRICULA = {
         # Sem 6 (Y3S2)
         (3, 2, "Big Data Analytics", 3, "Data Analysis", ["Data Mining and Data Warehousing"]),
         (3, 2, "Time Series Analysis", 3, "Statistics", ["Regression Analysis"]),
-        (3, 2, "Group Project in Applied Data Analytics II", 3, "Data Analysis", ["Group Project in Applied Data Analytics"]),
+        (3, 2, "Group Project in Applied Data Analytics", 3, "Data Analysis", ["Group Project in Applied Data Analytics"]),
         (3, 2, "Operation Management", 2, "Other", []),
         (3, 2, "Cloud Computing", 2, "Cloud Computing", ["Computer Networks"]),
         (3, 2, "Cyber Security", 2, "Cyber Security", ["Computer Networks"]),
@@ -276,7 +276,7 @@ RAW_CURRICULA = {
         (4, 1, "Strategic Business Analysis", 2, "Data Analysis", ["Business Intelligence and Analytics"]),
         (4, 1, "Individual Research Project", 0, "Other", ["Research Methodology"]),
         # Sem 8 (Y4S2)
-        (4, 2, "Individual Research Project II", 9, "Other", ["Individual Research Project"]),
+        (4, 2, "Individual Research Project", 9, "Other", ["Individual Research Project"]),
         (4, 2, "Industrial Training", 6, "Other", []),
     ],
 
@@ -317,7 +317,7 @@ RAW_CURRICULA = {
         (2, 2, "Operating Systems", 2, "Systems & Operating Systems", ["Computer Systems Architecture"]),
         (2, 2, "Project Management", 2, "Other", []),
         (2, 2, "Research Methodology", 2, "Other", []),
-        (2, 2, "Industry based Software Engineering Project II", 2, "Software Engineering", ["Industry based Software Engineering Project"]),
+        (2, 2, "Industry based Software Engineering Project", 2, "Software Engineering", ["Industry based Software Engineering Project"]),
         (2, 2, "Statistical Distributions and Inference", 2, "Statistics", ["Basic Probability and Statistics"]),
         (2, 2, "Research Writing Skills", 2, "Other", []),
         # Sem 5 (Y3S1)
@@ -356,7 +356,7 @@ RAW_CURRICULA = {
         (4, 1, "Natural Language Processing", 2, "Artificial Intelligence", ["Machine Learning"]),
         (4, 1, "Individual Research Project", 2, "Other", ["Independent Research Study"]),
         # Sem 8 (Y4S2)
-        (4, 2, "Individual Research Project II", 7, "Other", ["Individual Research Project"]),
+        (4, 2, "Individual Research Project", 7, "Other", ["Individual Research Project"]),
         (4, 2, "Industrial Training", 6, "Other", []),
     ],
 
@@ -397,7 +397,7 @@ RAW_CURRICULA = {
         (2, 2, "Operating Systems", 2, "Systems & Operating Systems", ["Computer Systems Architecture"]),
         (2, 2, "Project Management", 2, "Other", []),
         (2, 2, "Research Methodology", 2, "Other", []),
-        (2, 2, "Industry based Software Engineering Project II", 2, "Software Engineering", ["Industry based Software Engineering Project"]),
+        (2, 2, "Industry based Software Engineering Project", 2, "Software Engineering", ["Industry based Software Engineering Project"]),
         (2, 2, "Statistical Distributions and Inference", 2, "Statistics", ["Basic Probability and Statistics"]),
         (2, 2, "Research Writing Skills", 2, "Other", []),
         # Sem 5 (Y3S1)
@@ -436,7 +436,7 @@ RAW_CURRICULA = {
         (4, 1, "Natural Language Processing", 2, "Artificial Intelligence", ["Essentials of Artificial Intelligence"]),
         (4, 1, "Individual Research Project", 2, "Other", ["Independent Research Study"]),
         # Sem 8 (Y4S2)
-        (4, 2, "Individual Research Project II", 7, "Other", ["Individual Research Project"]),
+        (4, 2, "Individual Research Project", 7, "Other", ["Individual Research Project"]),
         (4, 2, "Industrial Training", 6, "Other", []),
     ],
 
@@ -454,7 +454,7 @@ RAW_CURRICULA = {
         (1, 1, "Leadership Training", 2, "Other", []),
         (1, 1, "Group Project in Hardware", 1, "Systems & Operating Systems", []),
         # Sem 2 (Y1S2)
-        (1, 2, "Group Project in Hardware II", 1, "Systems & Operating Systems", ["Group Project in Hardware"]),
+        (1, 2, "Group Project in Hardware", 1, "Systems & Operating Systems", ["Group Project in Hardware"]),
         (1, 2, "Fundamentals of Electrical Engineering", 2, "Systems & Operating Systems", []),
         (1, 2, "Basic Electronics", 2, "Systems & Operating Systems", []),
         (1, 2, "Object Oriented Programming", 3, "Programming", ["Fundamentals of Programming"]),
@@ -530,7 +530,7 @@ RAW_CURRICULA = {
         (4, 1, "Entrepreneurship and Business Management", 2, "Other", []),
         (4, 1, "Social Aspects and Professional Practices", 2, "Other", []),
         # Sem 8 (Y4S2)
-        (4, 2, "Individual Research Project II", 7, "Other", ["Individual Research Project"]),
+        (4, 2, "Individual Research Project", 7, "Other", ["Individual Research Project"]),
         (4, 2, "Industrial Training", 6, "Other", []),
     ],
 }
@@ -585,7 +585,6 @@ def main():
                 "prereqs": prereqs,
             }
             courses_out.append(course_record)
-            course_name_to_id[(degree_name, name)] = course_id_counter
             course_id_counter += 1
 
     # 3. Build prerequisites list
@@ -594,12 +593,15 @@ def main():
         deg = course["degree"]
         c_id = course["course_id"]
         for p_name in course["prereqs"]:
-            if (deg, p_name) in course_name_to_id:
-                p_id = course_name_to_id[(deg, p_name)]
+            matching_candidate = None
+            for candidate in courses_out:
+                if candidate["degree"] == deg and candidate["course_name"] == p_name and candidate["course_id"] < c_id:
+                    matching_candidate = candidate
+            if matching_candidate:
                 prereqs_out.append({
                     "prerequisite_id": prereq_id_counter,
                     "course_id": c_id,
-                    "prerequisite_course_id": p_id,
+                    "prerequisite_course_id": matching_candidate["course_id"],
                 })
                 prereq_id_counter += 1
             else:
