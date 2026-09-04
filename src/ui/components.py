@@ -336,12 +336,13 @@ def render_sensitivity_chart(sensitivity_data: Dict[str, Any]) -> go.Figure:
 
     for i, (spec_name, scores) in enumerate(trajectories.items()):
         color = colors[i % len(colors)]
+        is_top = (spec_name == sensitivity_data.get("baseline_top"))
         fig.add_trace(go.Scatter(
             x=[round(w * 100) for w in weights],
             y=scores,
             mode="lines+markers",
             name=spec_name,
-            line=dict(color=color, width=2.5 if spec_name == sensitivity_data.get("baseline_top") else 1.5),
+            line=dict(color=color, width=3.0 if is_top else 1.8),
             marker=dict(size=5),
         ))
 
@@ -351,17 +352,38 @@ def render_sensitivity_chart(sensitivity_data: Dict[str, Any]) -> go.Figure:
         line_dash="dash",
         line_color=BRASS_LIGHT,
         annotation_text="Default 70/30 Split",
-        annotation_position="top right",
+        annotation_position="top left",
+        annotation_font=dict(size=11, color="#7A6843"),
     )
 
     fig.update_layout(
         _base_layout(
-            title="Recommendation Stability vs. Academic Weight Ratio",
-            xaxis=dict(title="Academic Weight (%) [Interest Weight = 100 - Academic]", range=[-5, 105], gridcolor=GRID),
-            yaxis=dict(title="Final Compatibility Score (0-100)", range=[0, 105], gridcolor=GRID),
-            height=360,
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            margin=dict(l=20, r=20, t=40, b=20),
+            title=dict(
+                text="<b>Recommendation Stability vs. Academic Weight Ratio</b>",
+                font=dict(size=14, color=INK),
+                x=0.0,
+                y=0.98,
+            ),
+            xaxis=dict(
+                title="Academic Fit Weight (%) [Interest Alignment Weight = 100 - Academic]",
+                range=[-2, 102],
+                gridcolor=GRID,
+            ),
+            yaxis=dict(
+                title="Final Compatibility Score (0-100)",
+                range=[0, 105],
+                gridcolor=GRID,
+            ),
+            height=430,
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.22,
+                xanchor="center",
+                x=0.5,
+                font=dict(size=11),
+            ),
+            margin=dict(l=30, r=20, t=50, b=80),
         )
     )
     return fig
