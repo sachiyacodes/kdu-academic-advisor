@@ -231,6 +231,7 @@ def delete_student_course(student_id: int, course_id: int) -> None:
 def clear_student_data() -> None:
     """Clear all student data (reset for new student)."""
     with get_connection() as conn:
+        conn.execute("DELETE FROM student_interests")
         conn.execute("DELETE FROM student_courses")
         conn.execute("DELETE FROM students")
 

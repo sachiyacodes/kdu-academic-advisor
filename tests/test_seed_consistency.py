@@ -134,3 +134,16 @@ class TestSeedConsistency:
         assert weights["Database"] == pytest.approx(0.20)
         assert weights["Mathematics"] == pytest.approx(0.15)
         assert weights["Other"] == pytest.approx(0.10)
+
+    def test_clear_student_data_foreign_keys(self):
+        """clear_student_data should clean up student_interests, courses, and students without FK violation."""
+        from src.data import database as db
+        sid = db.save_student("Software Engineering", 2, 1)
+        db.save_student_course(sid, 35, 80.0, "A", 4.0, "completed")
+        db.save_student_interests(sid, [1, 2])
+
+        # Must succeed without sqlite3.IntegrityError
+        db.clear_student_data()
+        assert db.get_student() is None
+        assert db.get_student_courses(sid) == []
+        assert db.get_student_interests(sid) == []
