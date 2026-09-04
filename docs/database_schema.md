@@ -30,7 +30,7 @@ Supported degree programs.
 | name | TEXT | NOT NULL, UNIQUE |
 
 ### courses
-Curriculum courses (prototype data).
+Curriculum courses (444 courses across 6 KDU computing degrees + Universal Custom Mode).
 
 | Column | Type | Constraints |
 |--------|------|-------------|
@@ -40,8 +40,9 @@ Curriculum courses (prototype data).
 | degree | TEXT | NOT NULL, FK -> degrees.name |
 | year | INTEGER | CHECK(1-4) |
 | semester | INTEGER | CHECK(1-2) |
-| credits | INTEGER | CHECK(>0) |
+| credits | INTEGER | CHECK(credits >= 0) |
 | subject_area | TEXT | NOT NULL, FK -> subject_areas.name |
+| course_type | TEXT | NOT NULL DEFAULT 'Core' CHECK(course_type IN ('Core', 'Elective', 'NGPA')) |
 
 ### specializations
 Specialization categories (6 prototype specializations).
@@ -79,7 +80,7 @@ Interest weight vectors for interest matching (FIX-3).
 **Design:** Uses the same canonical subject-area taxonomy as academic weights — not a separate interest table.
 
 ### prerequisites
-Course prerequisite relationships.
+Course prerequisite relationships (290 prerequisite dependencies).
 
 | Column | Type | Constraints |
 |--------|------|-------------|
@@ -121,16 +122,30 @@ Student course records with marks.
 | | | UNIQUE(student_id, course_id) |
 
 ### student_interests (runtime)
-Student interest selections.
+Student interest selections with continuous intensity weighting.
 
 | Column | Type | Constraints |
 |--------|------|-------------|
 | id | INTEGER | PRIMARY KEY AUTOINCREMENT |
 | student_id | INTEGER | FK -> students |
 | interest_id | INTEGER | FK -> interests |
+| intensity | REAL | DEFAULT 3.0 |
 | | | UNIQUE(student_id, interest_id) |
 
-## Security
+### student_feedback (runtime)
+Human-in-the-loop recommendation feedback.
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| feedback_id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| student_id | INTEGER | FK -> students |
+| specialization_name | TEXT | NOT NULL |
+| rating | INTEGER | NOT NULL (-1 or 1) |
+| comment | TEXT | |
+| created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
+
+## Security & Integrity
 - All queries use parameterized statements (no SQL injection)
 - Foreign keys enforced via `PRAGMA foreign_keys = ON`
-- CHECK constraints validate data ranges
+- CHECK constraints validate data ranges and taxonomy adherence
+- Zero data leakage on reset: `clear_student_data` cleans runtime tables and custom courses

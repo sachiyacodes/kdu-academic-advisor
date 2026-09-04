@@ -282,6 +282,7 @@ def clear_student_data() -> None:
         conn.execute("DELETE FROM student_interests")
         conn.execute("DELETE FROM student_courses")
         conn.execute("DELETE FROM students")
+        conn.execute("DELETE FROM courses WHERE degree = 'Custom / Other University Degree'")
 
 
 def save_student_interests(

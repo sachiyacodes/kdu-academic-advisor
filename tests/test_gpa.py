@@ -81,6 +81,29 @@ class TestCalculateGPA:
         assert earned == 0
         assert attempted == 7
 
+    def test_ngpa_course_excluded_from_gpa(self):
+        """NGPA courses must NOT affect GPA quality points, but count towards earned credits."""
+        records = [
+            {"grade_point": 4.0, "credits": 3, "status": "completed", "course_type": "Core"},
+            {"grade_point": 2.0, "credits": 2, "status": "completed", "course_type": "NGPA"},
+        ]
+        gpa, earned, attempted = calculate_gpa(records)
+        # Only Core course counts in GPA: 4.0 * 3 / 3 = 4.0
+        assert gpa == 4.0
+        assert attempted == 3
+        # Both count in total credits earned: 3 + 2 = 5
+        assert earned == 5
+
+    def test_ngpa_only_courses(self):
+        """Student with only NGPA courses has 0.0 GPA with credits earned counted."""
+        records = [
+            {"grade_point": 3.0, "credits": 2, "status": "completed", "course_type": "NGPA"},
+        ]
+        gpa, earned, attempted = calculate_gpa(records)
+        assert gpa == 0.0
+        assert attempted == 0
+        assert earned == 2
+
 
 class TestGPAClassification:
     def test_first_class(self):

@@ -60,6 +60,15 @@ def calculate_gpa(
         if credits <= 0:
             continue
 
+        course_type = record.get("course_type", "Core")
+
+        # NGPA (Non-GPA) modules do not count toward GPA quality points or attempted credits,
+        # but completed NGPA credits count toward total degree credits earned
+        if course_type == "NGPA":
+            if status == CourseStatus.COMPLETED.value:
+                total_credits_earned += credits
+            continue
+
         # Failed courses
         if status == CourseStatus.FAILED.value:
             if include_failed:
@@ -74,7 +83,7 @@ def calculate_gpa(
             total_credits_earned += credits
 
     if total_credits_attempted == 0:
-        return 0.0, 0, 0
+        return 0.0, total_credits_earned, 0
 
     gpa = total_quality_points / total_credits_attempted
     return round(gpa, 2), total_credits_earned, total_credits_attempted

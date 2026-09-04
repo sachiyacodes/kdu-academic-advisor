@@ -162,13 +162,23 @@ def generate_explanation(
             # Find strongest relevant subject area to boost
             top_area = max(score.subject_contributions.items(), key=lambda x: x[1])[0]
             curr_mark = score.subject_marks.get(top_area, 75.0) if score.subject_marks else 75.0
-            if curr_mark < 95.0:
-                acad_weight = ACADEMIC_WEIGHT if ACADEMIC_WEIGHT > 0 else 0.70
-                needed_boost = min(round(score_diff / acad_weight, 1), round(100.0 - curr_mark, 1))
-                if needed_boost > 0:
+            contrib = score.subject_contributions.get(top_area, 0.0)
+            norm_weight = (contrib / curr_mark) if curr_mark > 0 else 0.25
+            acad_weight = ACADEMIC_WEIGHT if ACADEMIC_WEIGHT > 0 else 0.70
+            effective_factor = acad_weight * norm_weight
+
+            if effective_factor > 0:
+                needed_boost = round(score_diff / effective_factor, 1)
+                if curr_mark + needed_boost <= 100.0:
                     counterfactuals.append(
                         f"Actionable Pathway: Raising your {top_area} performance by ~{needed_boost:.1f}% "
-                        f"would bridge the {score_diff:.1f} pt gap to reach the #1 recommendation spot."
+                        f"(to ~{curr_mark + needed_boost:.1f}%) would bridge the {score_diff:.1f} pt gap to reach the #1 recommendation spot."
+                    )
+                else:
+                    overall_boost = round(score_diff / acad_weight, 1)
+                    counterfactuals.append(
+                        f"Actionable Pathway: An overall performance improvement of ~{overall_boost:.1f}% "
+                        f"across your core subjects would bridge the {score_diff:.1f} pt gap to reach the #1 recommendation spot."
                     )
 
     return Explanation(

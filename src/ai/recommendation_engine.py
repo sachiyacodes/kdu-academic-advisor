@@ -13,7 +13,7 @@ DISCLOSED ENHANCEMENT (section 4a, row 5):
 This module orchestrates the full recommendation pipeline (section 22).
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from src.ai.interest_matching import score_interests_all_specializations
 from src.ai.weighted_scoring import score_all_specializations
@@ -52,7 +52,7 @@ def combine_scores(
 
 def generate_recommendations(
     profile: AcademicProfile,
-    selected_interests: List[str],
+    selected_interests: Union[List[str], Dict[str, float], Any],
     specialization_weights: Optional[Dict[str, Dict[str, float]]] = None,
     specialization_interests: Optional[Dict[str, Dict[str, float]]] = None,
     academic_weight: float = ACADEMIC_WEIGHT,

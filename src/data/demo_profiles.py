@@ -73,6 +73,21 @@ DEMO_PROFILES: Dict[str, Dict[str, Any]] = {
         ],
         "interests": [],
     },
+    "student_f": {
+        "title": "Student F — Universal / Non-KDU Student (SLIIT / IIT / Moratuwa)",
+        "description": "Student from another computing faculty with custom modules mapped to standard subject areas.",
+        "degree": "Custom / Other University Degree",
+        "year": 2,
+        "semester": 2,
+        "courses": [
+            ("CS2010", 88.0, "Object Oriented Programming", "Programming", "Core", 3),
+            ("IT2040", 85.0, "Database Systems & Design", "Database", "Core", 3),
+            ("MA2020", 78.0, "Probability & Statistics", "Statistics", "Core", 3),
+            ("EL2050", 90.0, "Machine Learning Fundamentals", "Artificial Intelligence", "Elective", 3),
+            ("NG2010", 80.0, "Professional Communication", "Other", "NGPA", 2),
+        ],
+        "interests": ["Artificial Intelligence", "Statistics"],
+    },
 }
 
 
@@ -85,11 +100,27 @@ def load_demo_profile(profile_key: str) -> bool:
     sid = db.save_student(data["degree"], data["year"], data["semester"])
 
     all_courses = {c["course_code"]: c for c in db.get_all_courses(degree=data["degree"])}
-    for code, mark in data["courses"]:
-        if code in all_courses:
-            course = all_courses[code]
+    for entry in data["courses"]:
+        if len(entry) == 2:
+            code, mark = entry
+            if code in all_courses:
+                course = all_courses[code]
+                grade, gp = mark_to_grade(mark)
+                db.save_student_course(sid, course["course_id"], mark, grade, gp, "completed")
+        elif len(entry) == 6:
+            code, mark, name, area, course_type, credits = entry
+            cid = db.save_custom_course(
+                degree=data["degree"],
+                course_code=code,
+                course_name=name,
+                year=data["year"],
+                semester=data["semester"],
+                credits=credits,
+                subject_area=area,
+                course_type=course_type,
+            )
             grade, gp = mark_to_grade(mark)
-            db.save_student_course(sid, course["course_id"], mark, grade, gp, "completed")
+            db.save_student_course(sid, cid, mark, grade, gp, "completed")
 
     if data["interests"]:
         all_interests = {i["name"]: i["interest_id"] for i in db.get_all_interests()}

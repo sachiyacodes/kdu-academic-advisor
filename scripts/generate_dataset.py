@@ -129,8 +129,9 @@ def generate_mark(rng: random.Random, base_mean: float, noise_std: float = 12.0)
 
 def generate_student(rng: random.Random, student_id: int, courses: list) -> list:
     """Generate course records for one synthetic student."""
-    # Pick a degree
-    degree = rng.choice(DEGREE_PROGRAMS)
+    # Pick a degree from available catalog curricula
+    curricula_degrees = sorted(list({c["degree"] for c in courses}))
+    degree = rng.choice(curricula_degrees)
 
     # Filter courses for this degree
     degree_courses = [c for c in courses if c["degree"] == degree]
