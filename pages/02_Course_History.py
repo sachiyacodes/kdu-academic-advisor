@@ -14,7 +14,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.config.settings import APP_TITLE, CourseStatus
 from src.ui.styles import get_custom_css
-from src.ui.components import render_disclaimer, render_page_header, render_step_tracker
+from src.ui.components import (
+    compute_completed_steps,
+    render_disclaimer,
+    render_page_header,
+    render_step_tracker,
+)
 from src.academic.grading import is_passing, mark_to_grade
 from src.academic.gpa import calculate_gpa, get_gpa_classification
 from src.data import database as db
@@ -28,26 +33,35 @@ except FileNotFoundError:
     st.error("Database not found. Run `python scripts/seed_database.py` first.")
     st.stop()
 
+if not student:
+    with st.sidebar:
+        st.markdown("### Recommendation System")
+        st.markdown("---")
+        render_step_tracker(current_step=2, completed_steps=[])
+    render_page_header(
+        "Course History",
+        "Add your completed courses with marks. GPA, grades, and subject-area strengths are calculated automatically.",
+        kicker="STEP 2 OF 6",
+    )
+    st.warning("Please set up your **Academic Profile** first.")
+    st.stop()
+
+student_id = student["student_id"]
+available_courses = db.get_all_courses(degree=student["degree"])
+existing_records = db.get_student_courses(student_id)
+existing_course_ids = {r["course_id"] for r in existing_records}
+
 with st.sidebar:
     st.markdown("### Recommendation System")
     st.markdown("---")
-    render_step_tracker(current_step=2, completed_steps=[1] if student else [])
+    completed = compute_completed_steps(student, existing_records)
+    render_step_tracker(current_step=2, completed_steps=completed)
 
 render_page_header(
     "Course History",
     "Add your completed courses with marks. GPA, grades, and subject-area strengths are calculated automatically.",
     kicker="STEP 2 OF 6",
 )
-
-if not student:
-    st.warning("Please set up your **Academic Profile** first.")
-    st.stop()
-
-student_id = student["student_id"]
-
-available_courses = db.get_all_courses(degree=student["degree"])
-existing_records = db.get_student_courses(student_id)
-existing_course_ids = {r["course_id"] for r in existing_records}
 
 with st.expander("⚡ Fast-Track Demo: Load Sample Student Profile", expanded=False):
     st.caption("Quickly populate a pre-configured student archetype from our test benchmark for rapid presentation and live evaluation.")
@@ -144,18 +158,63 @@ if existing_records:
     with col4:
         st.metric("Total Courses", len(existing_records))
 
-    with st.expander("Remove a course"):
-        course_to_remove = st.selectbox(
-            "Select course to remove",
-            options=[f"{r['course_code']} — {r['course_name']}" for r in existing_records],
-            key="remove_select",
-        )
-        if st.button("Remove Selected Course", type="secondary"):
-            idx = [f"{r['course_code']} — {r['course_name']}" for r in existing_records].index(course_to_remove)
-            record = existing_records[idx]
-            db.delete_student_course(student_id, record["course_id"])
-            st.success(f"Removed {record['course_code']}")
-            st.rerun()
+    col_m1, col_m2 = st.columns(2)
+    with col_m1:
+        with st.expander("✏️ Edit / Retake a Course"):
+            edit_options = {
+                f"{r['course_code']} — {r['course_name']} (Current: {r['mark']:g}, {r['grade']})": r
+                for r in existing_records
+            }
+            edit_key = st.selectbox(
+                "Select course to update mark",
+                options=list(edit_options.keys()),
+                key="edit_select",
+            )
+            if edit_key:
+                rec_to_edit = edit_options[edit_key]
+                new_mark = st.number_input(
+                    "New Mark (0–100)",
+                    min_value=0.0,
+                    max_value=100.0,
+                    value=float(rec_to_edit["mark"]),
+                    step=0.5,
+                    key="edit_mark_input",
+                )
+                if st.button("Update Mark", type="primary", key="btn_update_mark"):
+                    new_grade, new_gp = mark_to_grade(new_mark)
+                    new_status = (
+                        CourseStatus.COMPLETED.value
+                        if is_passing(new_mark)
+                        else CourseStatus.FAILED.value
+                    )
+                    db.save_student_course(
+                        student_id=student_id,
+                        course_id=rec_to_edit["course_id"],
+                        mark=new_mark,
+                        grade=new_grade,
+                        grade_point=new_gp,
+                        status=new_status,
+                    )
+                    st.success(f"Updated {rec_to_edit['course_code']} to {new_mark:g} ({new_grade}, GP {new_gp})")
+                    st.rerun()
+
+    with col_m2:
+        with st.expander("🗑️ Remove a Course"):
+            remove_options = {
+                f"{r['course_code']} — {r['course_name']}": r
+                for r in existing_records
+            }
+            remove_key = st.selectbox(
+                "Select course to remove",
+                options=list(remove_options.keys()),
+                key="remove_select",
+            )
+            if st.button("Remove Selected Course", type="secondary", key="btn_remove_course"):
+                if remove_key and remove_key in remove_options:
+                    rec = remove_options[remove_key]
+                    db.delete_student_course(student_id, rec["course_id"])
+                    st.success(f"Removed {rec['course_code']}")
+                    st.rerun()
 
 else:
     st.info("No courses added yet. Use the form above to add your completed courses.")

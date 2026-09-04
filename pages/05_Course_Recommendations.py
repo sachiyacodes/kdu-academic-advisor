@@ -16,7 +16,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.config.settings import APP_TITLE, SPECIALIZATION_WEIGHTS
 from src.ui.styles import get_custom_css
-from src.ui.components import render_disclaimer, render_empty_state, render_page_header, render_step_tracker
+from src.ui.components import (
+    compute_completed_steps,
+    render_disclaimer,
+    render_empty_state,
+    render_page_header,
+    render_step_tracker,
+)
 from src.academic.profile import build_academic_profile
 from src.ai.recommendation_engine import generate_recommendations
 from src.ai.rule_engine import get_course_recommendations
@@ -31,16 +37,26 @@ except FileNotFoundError:
     st.error("Database not found. Run `python scripts/seed_database.py` first.")
     st.stop()
 
+if not student:
+    with st.sidebar:
+        st.markdown("### Recommendation System")
+        st.markdown("---")
+        render_step_tracker(current_step=5, completed_steps=[])
+    render_page_header(
+        "Course Recommendations",
+        "Rule-based course guidance based on prerequisites, academic stage, and relevance to your top specialization matches.",
+        kicker="STEP 5 OF 6",
+    )
+    st.warning("Please set up your **Academic Profile** first.")
+    st.stop()
+
+student_id = student["student_id"]
+student_courses = db.get_student_courses(student_id)
+
 with st.sidebar:
     st.markdown("### Recommendation System")
     st.markdown("---")
-    completed = []
-    if student:
-        completed.append(1)
-        if db.get_student_courses(student["student_id"]):
-            completed += [2, 4]
-        if db.get_student_interests(student["student_id"]):
-            completed.append(3)
+    completed = compute_completed_steps(student, student_courses)
     render_step_tracker(current_step=5, completed_steps=completed)
 
 render_page_header(
@@ -48,13 +64,6 @@ render_page_header(
     "Rule-based course guidance based on prerequisites, academic stage, and relevance to your top specialization matches.",
     kicker="STEP 5 OF 6",
 )
-
-if not student:
-    st.warning("Please set up your **Academic Profile** first.")
-    st.stop()
-
-student_id = student["student_id"]
-student_courses = db.get_student_courses(student_id)
 
 if not student_courses:
     render_empty_state("No course history found. Add courses in **Course History** first.")

@@ -13,7 +13,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.config.settings import APP_TITLE
 from src.ui.styles import get_custom_css
-from src.ui.components import render_disclaimer, render_page_header, render_step_tracker
+from src.ui.components import (
+    compute_completed_steps,
+    render_disclaimer,
+    render_page_header,
+    render_step_tracker,
+)
 from src.data import database as db
 
 st.set_page_config(page_title=f"Interests - {APP_TITLE}", page_icon="🎓", layout="wide")
@@ -25,14 +30,29 @@ except FileNotFoundError:
     st.error("Database not found. Run `python scripts/seed_database.py` first.")
     st.stop()
 
+if not student:
+    with st.sidebar:
+        st.markdown("### Recommendation System")
+        st.markdown("---")
+        render_step_tracker(current_step=3, completed_steps=[])
+    render_page_header(
+        "Academic Interests",
+        "Select the subject areas you're drawn to. These are compared against each "
+        "specialization's interest profile using content-based matching.",
+        kicker="STEP 3 OF 6",
+    )
+    st.warning("Please set up your **Academic Profile** first.")
+    st.stop()
+
+student_id = student["student_id"]
+all_interests = db.get_all_interests()
+current_interests = db.get_student_interests(student_id)
+current_interest_ids = {i["interest_id"] for i in current_interests}
+
 with st.sidebar:
     st.markdown("### Recommendation System")
     st.markdown("---")
-    completed = []
-    if student:
-        completed.append(1)
-        if db.get_student_courses(student["student_id"]):
-            completed.append(2)
+    completed = compute_completed_steps(student, interests=current_interests)
     render_step_tracker(current_step=3, completed_steps=completed)
 
 render_page_header(
@@ -41,16 +61,6 @@ render_page_header(
     "specialization's interest profile using content-based matching.",
     kicker="STEP 3 OF 6",
 )
-
-if not student:
-    st.warning("Please set up your **Academic Profile** first.")
-    st.stop()
-
-student_id = student["student_id"]
-
-all_interests = db.get_all_interests()
-current_interests = db.get_student_interests(student_id)
-current_interest_ids = {i["interest_id"] for i in current_interests}
 
 st.caption(
     "Select as many as apply — or none. Recommendations will fall back to "

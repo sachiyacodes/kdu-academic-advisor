@@ -68,7 +68,7 @@ def predict_specialization(
         return None
 
     # Calculate student baseline mean across available subjects
-    valid_marks = [m for m in subject_area_averages.values() if m is not None and m > 0]
+    valid_marks = [m for m in subject_area_averages.values() if m is not None and m >= 0]
     student_mean = float(np.mean(valid_marks)) if valid_marks else 65.0
 
     # Build feature vector: impute missing subjects with student mean (not 0.0)
@@ -110,7 +110,7 @@ def predict_with_consensus(
 
     # Confidence check
     top_prob = max(rf_probs.values()) if rf_probs else 0.0
-    known_subject_count = len([m for m in subject_area_averages.values() if m is not None and m > 0])
+    known_subject_count = len([m for m in subject_area_averages.values() if m is not None and m >= 0])
 
     is_preliminary = known_subject_count < 3 or top_prob < 0.35
     confidence_label = "Preliminary / Limited" if is_preliminary else ("High Confidence" if top_prob >= 0.50 else "Moderate Confidence")

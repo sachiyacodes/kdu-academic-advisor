@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.config.settings import APP_TITLE
 from src.ui.styles import get_custom_css
 from src.ui.components import (
+    compute_completed_steps,
     render_disclaimer,
     render_subject_strengths_chart,
     render_empty_state,
@@ -44,16 +45,26 @@ except FileNotFoundError:
     st.error("Database not found. Run `python scripts/seed_database.py` first.")
     st.stop()
 
+if not student:
+    with st.sidebar:
+        st.markdown("### Recommendation System")
+        st.markdown("---")
+        render_step_tracker(current_step=6, completed_steps=[])
+    render_page_header(
+        "Academic Analysis",
+        "Detailed analytics across subject-area performance, mark distribution, and specialization fit.",
+        kicker="STEP 6 OF 6",
+    )
+    st.warning("Please set up your **Academic Profile** first.")
+    st.stop()
+
+student_id = student["student_id"]
+student_courses = db.get_student_courses(student_id)
+
 with st.sidebar:
     st.markdown("### Recommendation System")
     st.markdown("---")
-    completed = []
-    if student:
-        completed.append(1)
-        if db.get_student_courses(student["student_id"]):
-            completed += [2, 4, 5]
-        if db.get_student_interests(student["student_id"]):
-            completed.append(3)
+    completed = compute_completed_steps(student, student_courses)
     render_step_tracker(current_step=6, completed_steps=completed)
 
 render_page_header(
@@ -61,13 +72,6 @@ render_page_header(
     "Detailed analytics across subject-area performance, mark distribution, and specialization fit.",
     kicker="STEP 6 OF 6",
 )
-
-if not student:
-    st.warning("Please set up your **Academic Profile** first.")
-    st.stop()
-
-student_id = student["student_id"]
-student_courses = db.get_student_courses(student_id)
 
 if not student_courses:
     render_empty_state("No course history found. Add courses in **Course History** first.")
@@ -141,8 +145,8 @@ if scores:
     ))
     fig.update_layout(
         polar=dict(radialaxis=dict(range=[0, 100], gridcolor=GRID)),
-        height=450, margin=dict(l=40, r=40, t=20, b=30),
-        legend=dict(orientation="h", yanchor="bottom", y=-0.15),
+        height=450, margin=dict(l=40, r=40, t=25, b=55),
+        legend=dict(orientation="h", yanchor="top", y=-0.12, xanchor="center", x=0.5),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, sans-serif", color="#4A5468"),
     )

@@ -145,7 +145,7 @@ def categorize_course(
 
     # Format missing prerequisite names
     missing_names = [
-        p.get("prereq_name", p.get("prereq_code", f"Course {p['prerequisite_course_id']}"))
+        str(p.get("prereq_name") or p.get("prereq_code") or f"Course {p.get('prerequisite_course_id', '')}")
         for p in missing_prereqs
     ]
 

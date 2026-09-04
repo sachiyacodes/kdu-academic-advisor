@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from src.config.settings import APP_TITLE, APP_SUBTITLE, DISCLAIMER
 from src.ui.styles import get_custom_css
 from src.ui.components import (
+    compute_completed_steps,
     render_metric_card,
     render_disclaimer,
     render_empty_state,
@@ -49,15 +50,7 @@ with st.sidebar:
     st.markdown("### Recommendation System")
     st.caption(APP_SUBTITLE)
     st.markdown("---")
-    completed = []
-    if student:
-        completed.append(1)
-    if student_courses:
-        completed.append(2)
-    if student_interests:
-        completed.append(3)
-    if student_courses:
-        completed += [4, 5, 6]
+    completed = compute_completed_steps(student, student_courses, student_interests)
     render_step_tracker(current_step=0, completed_steps=completed)
 
 render_page_header(

@@ -13,7 +13,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.config.settings import APP_TITLE, DEGREE_PROGRAMS
 from src.ui.styles import get_custom_css
-from src.ui.components import render_disclaimer, render_page_header, render_step_tracker
+from src.ui.components import (
+    compute_completed_steps,
+    render_disclaimer,
+    render_page_header,
+    render_step_tracker,
+)
 from src.data import database as db
 
 st.set_page_config(page_title=f"Academic Profile - {APP_TITLE}", page_icon="🎓", layout="wide")
@@ -28,7 +33,7 @@ except FileNotFoundError:
 with st.sidebar:
     st.markdown("### Recommendation System")
     st.markdown("---")
-    completed = [1] if student else []
+    completed = compute_completed_steps(student)
     render_step_tracker(current_step=1, completed_steps=completed)
 
 render_page_header(
@@ -73,6 +78,13 @@ with st.form("academic_profile_form"):
     submitted = st.form_submit_button("Save Profile", width="stretch", type="primary")
 
     if submitted:
+        if student and student.get("degree") != degree:
+            existing_courses = db.get_student_courses(student["student_id"])
+            if existing_courses:
+                st.info(
+                    f"Degree program updated to **{degree}**. Note: You have {len(existing_courses)} "
+                    f"existing course records from **{student['degree']}**."
+                )
         student_id = db.save_student(degree, year, semester)
         st.success(f"Profile saved — Student ID {student_id}")
         st.rerun()

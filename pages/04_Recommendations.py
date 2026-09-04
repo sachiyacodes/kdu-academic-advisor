@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.config.settings import APP_TITLE, ACADEMIC_WEIGHT, INTEREST_WEIGHT
 from src.ui.styles import get_custom_css
 from src.ui.components import (
+    compute_completed_steps,
     render_disclaimer,
     render_weight_disclosure,
     render_score_breakdown,
@@ -40,16 +41,26 @@ except FileNotFoundError:
     st.error("Database not found. Run `python scripts/seed_database.py` first.")
     st.stop()
 
+if not student:
+    with st.sidebar:
+        st.markdown("### Recommendation System")
+        st.markdown("---")
+        render_step_tracker(current_step=4, completed_steps=[])
+    render_page_header(
+        "Specialization Recommendations",
+        "Ranked matches combining weighted academic scoring and content-based interest matching.",
+        kicker="STEP 4 OF 6",
+    )
+    st.warning("Please set up your **Academic Profile** first.")
+    st.stop()
+
+student_id = student["student_id"]
+student_courses = db.get_student_courses(student_id)
+
 with st.sidebar:
     st.markdown("### Recommendation System")
     st.markdown("---")
-    completed = []
-    if student:
-        completed.append(1)
-        if db.get_student_courses(student["student_id"]):
-            completed += [2]
-        if db.get_student_interests(student["student_id"]):
-            completed += [3]
+    completed = compute_completed_steps(student, student_courses)
     render_step_tracker(current_step=4, completed_steps=completed)
 
 render_page_header(
@@ -57,13 +68,6 @@ render_page_header(
     "Ranked matches combining weighted academic scoring and content-based interest matching.",
     kicker="STEP 4 OF 6",
 )
-
-if not student:
-    st.warning("Please set up your **Academic Profile** first.")
-    st.stop()
-
-student_id = student["student_id"]
-student_courses = db.get_student_courses(student_id)
 
 if not student_courses:
     render_empty_state(
@@ -154,11 +158,16 @@ with st.container():
     with fb_col1:
         if st.button("👍 Helpful", key="fb_thumbs_up", width="stretch"):
             db.save_student_feedback(student_id, top_spec_name, 1, "Helpful recommendation")
+            st.session_state[f"fb_{student_id}_{top_spec_name}"] = "positive"
             st.success("Thank you for your feedback!")
     with fb_col2:
         if st.button("👎 Needs Tuning", key="fb_thumbs_down", width="stretch"):
             db.save_student_feedback(student_id, top_spec_name, -1, "Needs tuning")
+            st.session_state[f"fb_{student_id}_{top_spec_name}"] = "tuning"
             st.info("Thank you! Your feedback helps calibrate future recommendations.")
+    with fb_col3:
+        if st.session_state.get(f"fb_{student_id}_{top_spec_name}"):
+            st.caption(f"✓ Feedback recorded for **{top_spec_name}**.")
 
 st.markdown("## How This Works")
 st.markdown(f"""

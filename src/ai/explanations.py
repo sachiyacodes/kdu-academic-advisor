@@ -18,6 +18,7 @@ Every recommendation explains:
 from typing import Dict, List, Optional
 
 from src.config.settings import (
+    ACADEMIC_WEIGHT,
     HIGH_MATCH_THRESHOLD,
     MODERATE_MATCH_THRESHOLD,
     HYBRID_WEIGHT_DISCLOSURE,
@@ -162,7 +163,8 @@ def generate_explanation(
             top_area = max(score.subject_contributions.items(), key=lambda x: x[1])[0]
             curr_mark = score.subject_marks.get(top_area, 75.0) if score.subject_marks else 75.0
             if curr_mark < 95.0:
-                needed_boost = min(round(score_diff / 0.70, 1), round(100.0 - curr_mark, 1))
+                acad_weight = ACADEMIC_WEIGHT if ACADEMIC_WEIGHT > 0 else 0.70
+                needed_boost = min(round(score_diff / acad_weight, 1), round(100.0 - curr_mark, 1))
                 if needed_boost > 0:
                     counterfactuals.append(
                         f"Actionable Pathway: Raising your {top_area} performance by ~{needed_boost:.1f}% "

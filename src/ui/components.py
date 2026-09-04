@@ -111,6 +111,37 @@ def render_weight_disclosure() -> None:
     st.caption(HYBRID_WEIGHT_DISCLOSURE)
 
 
+def compute_completed_steps(
+    student: Optional[Dict],
+    courses: Optional[List[Dict]] = None,
+    interests: Optional[List[Dict]] = None,
+) -> List[int]:
+    """Uniformly calculate completed workflow steps for the sidebar step tracker."""
+    completed = []
+    if not student:
+        return completed
+    completed.append(1)
+    if courses is None:
+        try:
+            from src.data import database as db
+            courses = db.get_student_courses(student["student_id"])
+        except Exception:
+            courses = []
+    if courses:
+        completed.append(2)
+    if interests is None:
+        try:
+            from src.data import database as db
+            interests = db.get_student_interests(student["student_id"])
+        except Exception:
+            interests = []
+    if interests:
+        completed.append(3)
+    if courses:
+        completed.extend([4, 5, 6])
+    return completed
+
+
 def render_step_tracker(current_step: int, completed_steps: List[int]) -> None:
     """Render a sidebar step tracker showing progress through the main flow (§31)."""
     steps = [
@@ -149,6 +180,7 @@ def render_specialization_comparison_chart(scores: List[SpecializationScore]) ->
     """
     Create a horizontal bar chart comparing all specializations.
     Shows Academic Fit and Interest Alignment as stacked components.
+    Uses autorange="reversed" so #1 ranked specialization appears at top.
     """
     names = [s.specialization_name for s in scores]
     academic = [s.academic_fit * ACADEMIC_WEIGHT for s in scores]
@@ -168,9 +200,10 @@ def render_specialization_comparison_chart(scores: List[SpecializationScore]) ->
         barmode="stack",
         title="Specialization Compatibility Comparison",
         xaxis_title="Compatibility Score",
-        yaxis_title="",
-        height=350,
-        legend=dict(orientation="h", yanchor="bottom", y=-0.25),
+        yaxis=dict(autorange="reversed"),
+        height=360,
+        legend=dict(orientation="h", yanchor="top", y=-0.22, xanchor="center", x=0.5),
+        margin=dict(l=20, r=20, t=45, b=65),
     ))
     return fig
 
