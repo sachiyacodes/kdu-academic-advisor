@@ -49,6 +49,24 @@ available_courses = db.get_all_courses(degree=student["degree"])
 existing_records = db.get_student_courses(student_id)
 existing_course_ids = {r["course_id"] for r in existing_records}
 
+with st.expander("⚡ Fast-Track Demo: Load Sample Student Profile", expanded=False):
+    st.caption("Quickly populate a pre-configured student archetype from our test benchmark for rapid presentation and live evaluation.")
+    from src.data.demo_profiles import DEMO_PROFILES, load_demo_profile
+    demo_keys = list(DEMO_PROFILES.keys())
+    demo_labels = [DEMO_PROFILES[k]["title"] for k in demo_keys]
+
+    col_d1, col_d2 = st.columns([3, 1])
+    with col_d1:
+        selected_idx = st.selectbox("Select Archetype", range(len(demo_keys)), format_func=lambda i: demo_labels[i])
+    with col_d2:
+        st.write("")
+        st.write("")
+        if st.button("Load Profile", type="primary", use_container_width=True):
+            load_demo_profile(demo_keys[selected_idx])
+            st.success(f"Loaded {DEMO_PROFILES[demo_keys[selected_idx]]['title']}!")
+            st.rerun()
+    st.info(DEMO_PROFILES[demo_keys[selected_idx]]["description"])
+
 st.markdown("## Add a Course")
 
 courses_to_add = [c for c in available_courses if c["course_id"] not in existing_course_ids]

@@ -24,6 +24,7 @@ from src.ui.components import (
     render_empty_state,
     render_page_header,
     render_step_tracker,
+    render_ml_prediction_card,
 )
 from src.academic.profile import build_academic_profile
 from src.ai.recommendation_engine import generate_recommendations
@@ -112,6 +113,19 @@ for score in scores:
         explanation = explanations.get(score.specialization_name)
         if explanation:
             render_explanation(explanation)
+
+from ml.predict import is_model_available, predict_specialization
+
+if is_model_available() and profile.subject_performances:
+    st.markdown("## Experimental ML Cross-Check")
+    st.caption("Side-by-side comparison using our Decision Tree model trained on 750 synthetic student profiles.")
+
+    subj_averages = {area: perf.average_mark for area, perf in profile.subject_performances.items()}
+    pred_result = predict_specialization(subj_averages)
+    if pred_result:
+        pred_spec, probs = pred_result
+        top_rule_spec = scores[0].specialization_name if scores else ""
+        render_ml_prediction_card(pred_spec, probs, top_rule_spec)
 
 st.markdown("## How This Works")
 st.markdown(f"""

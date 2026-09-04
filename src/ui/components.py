@@ -253,3 +253,109 @@ def render_explanation(explanation: Explanation) -> None:
 def render_empty_state(message: str, icon: str = "info") -> None:
     """Render a helpful empty state message."""
     st.info(message)
+
+
+def render_ml_prediction_card(
+    prediction: str,
+    probabilities: Dict[str, float],
+    top_rule_spec: str,
+) -> None:
+    """Render the Decision Tree prediction with agreement status and probability distribution."""
+    prediction_str = str(prediction)
+    confidence = float(probabilities.get(prediction, 0.0)) * 100
+    is_agreement = (prediction_str == str(top_rule_spec))
+
+    st.markdown(f"""
+    <div style="background: var(--paper-raised); border: 1px solid var(--line); border-left: 4px solid var(--brass); border-radius: var(--radius); padding: 1.1rem 1.3rem; margin-top: 1.5rem; margin-bottom: 1.2rem;">
+        <div style="font-size: 0.78rem; font-weight: 600; color: var(--brass-strong); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+            🤖 Machine Learning Cross-Check (Decision Tree Classifier)
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem;">
+            <span style="font-family: 'Source Serif 4', serif; font-size: 1.35rem; font-weight: 700; color: var(--ink);">{prediction_str}</span>
+            <span style="font-size: 0.92rem; font-weight: 600; color: var(--brass);">{confidence:.1f}% confidence</span>
+        </div>
+        <div style="font-size: 0.88rem; color: var(--ink-soft); line-height: 1.5;">
+            {"✅ <b>Model Agreement:</b> The Decision Tree independently concurs with the Knowledge-Based Recommender's top choice." if is_agreement else f"ℹ️ <b>Divergent Insight:</b> The Decision Tree suggests <b>{prediction_str}</b> based on overall subject correlations learned from 750 training records."}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    sorted_probs = sorted(probabilities.items(), key=lambda x: x[1], reverse=True)
+    specs = [str(p[0]) for p in sorted_probs]
+    probs = [float(p[1]) * 100 for p in sorted_probs]
+
+    fig = go.Figure(go.Bar(
+        x=probs,
+        y=specs,
+        orientation="h",
+        marker=dict(color=[BRASS if s == prediction_str else INK for s in specs]),
+        text=[f"{v:.1f}%" for v in probs],
+        textposition="outside",
+    ))
+    fig.update_layout(
+        _base_layout(
+            title="Decision Tree Class Probabilities",
+            xaxis=dict(title="Probability (%)", range=[0, 110], gridcolor=GRID),
+            yaxis=dict(autorange="reversed"),
+            height=280,
+            margin=dict(l=20, r=20, t=35, b=20),
+        )
+    )
+    st.plotly_chart(fig, width="stretch")
+
+
+def render_feature_importance_chart(feature_importance: Dict[str, float]) -> go.Figure:
+    """Render Decision Tree feature importance horizontal bar chart."""
+    sorted_items = sorted(feature_importance.items(), key=lambda x: x[1], reverse=False)
+    features = [str(k) for k, v in sorted_items]
+    scores = [float(v) * 100 for k, v in sorted_items]
+
+    fig = go.Figure(go.Bar(
+        x=scores,
+        y=features,
+        orientation="h",
+        marker_color=BRASS,
+        text=[f"{v:.1f}%" for v in scores],
+        textposition="outside",
+    ))
+    fig.update_layout(
+        _base_layout(
+            xaxis=dict(title="Importance Weight (%)", gridcolor=GRID),
+            margin=dict(l=20, r=30, t=20, b=20),
+            height=360,
+        )
+    )
+    return fig
+
+
+def render_confusion_matrix_heatmap(conf_matrix: List[List[int]], class_labels: List[str]) -> go.Figure:
+    """Render confusion matrix heatmap."""
+    short_labels = [
+        str(label)
+        .replace("Artificial Intelligence / Machine Learning", "AI/ML")
+        .replace("Networking & Cloud Computing", "Networks/Cloud")
+        .replace("Database & Data Engineering", "Database")
+        .replace("Software Engineering", "SE")
+        for label in class_labels
+    ]
+
+    fig = go.Figure(data=go.Heatmap(
+        z=conf_matrix,
+        x=short_labels,
+        y=short_labels,
+        colorscale=[[0, "#FAF9F5"], [0.5, "#F1E9D8"], [1.0, "#9C7A3C"]],
+        text=[[str(val) for val in row] for row in conf_matrix],
+        texttemplate="%{text}",
+        textfont=dict(family=FONT_FAMILY, size=12, color=INK),
+        showscale=False,
+    ))
+    fig.update_layout(
+        _base_layout(
+            xaxis=dict(title="Predicted Class"),
+            yaxis=dict(title="Actual Class", autorange="reversed"),
+            height=360,
+            margin=dict(l=20, r=20, t=20, b=20),
+        )
+    )
+    return fig
+
