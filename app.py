@@ -10,15 +10,19 @@ import streamlit as st
 import sys
 from pathlib import Path
 
-# Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.config.settings import APP_TITLE, APP_SUBTITLE, DISCLAIMER
 from src.ui.styles import get_custom_css
-from src.ui.components import render_metric_card, render_disclaimer, render_empty_state
+from src.ui.components import (
+    render_metric_card,
+    render_disclaimer,
+    render_empty_state,
+    render_page_header,
+    render_step_tracker,
+)
 from src.data import database as db
 
-# Page configuration
 st.set_page_config(
     page_title=APP_TITLE,
     page_icon="🎓",
@@ -26,30 +30,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Apply custom CSS
 st.markdown(get_custom_css(), unsafe_allow_html=True)
-
-# Sidebar navigation
-with st.sidebar:
-    st.title("🎓 Navigation")
-    st.markdown("---")
-    st.markdown("""
-    **Steps:**
-    1. 📋 Set Academic Profile
-    2. 📚 Enter Course History
-    3. 💡 Select Interests
-    4. 🎯 View Recommendations
-    5. 📖 Course Recommendations
-    6. 📊 Analysis
-    """)
-    st.markdown("---")
-    st.caption(APP_SUBTITLE)
-
-# Main Dashboard
-st.title("🎓 " + APP_TITLE)
-st.markdown("*Academic decision support powered by AI-based recommendation techniques.*")
-
-st.markdown("---")
 
 # Try to load existing student data
 try:
@@ -61,11 +42,31 @@ except FileNotFoundError:
     )
     st.stop()
 
-if student:
-    student_courses = db.get_student_courses(student["student_id"])
-    student_interests = db.get_student_interests(student["student_id"])
+student_courses = db.get_student_courses(student["student_id"]) if student else []
+student_interests = db.get_student_interests(student["student_id"]) if student else []
 
-    # Build profile for dashboard summary
+with st.sidebar:
+    st.markdown("### Recommendation System")
+    st.caption(APP_SUBTITLE)
+    st.markdown("---")
+    completed = []
+    if student:
+        completed.append(1)
+    if student_courses:
+        completed.append(2)
+    if student_interests:
+        completed.append(3)
+    if student_courses:
+        completed += [4, 5, 6]
+    render_step_tracker(current_step=0, completed_steps=completed)
+
+render_page_header(
+    APP_TITLE,
+    "Academic decision support powered by rule-based reasoning, weighted knowledge-based scoring, and content-based interest matching.",
+    kicker="DASHBOARD",
+)
+
+if student:
     from src.academic.profile import build_academic_profile
     from src.academic.gpa import get_gpa_classification
 
@@ -77,8 +78,7 @@ if student:
         course_records=student_courses,
     )
 
-    # Dashboard metrics
-    st.subheader("📊 Academic Summary")
+    st.markdown("## Academic Summary")
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -90,11 +90,8 @@ if student:
     with col4:
         render_metric_card("Academic Stage", profile.academic_stage, student["degree"])
 
-    st.markdown("---")
-
-    # Strongest subject areas
     if profile.subject_performances:
-        st.subheader("📈 Strongest Subject Areas")
+        st.markdown("## Strongest Subject Areas")
         sorted_subjects = sorted(
             profile.subject_performances.items(),
             key=lambda x: x[1].average_mark,
@@ -103,23 +100,15 @@ if student:
         cols = st.columns(min(len(sorted_subjects), 4))
         for i, (area, perf) in enumerate(sorted_subjects[:4]):
             with cols[i]:
-                color = "🟢" if perf.average_mark >= 75 else "🟡" if perf.average_mark >= 50 else "🔴"
-                st.metric(
-                    f"{color} {area}",
-                    f"{perf.average_mark:.1f}",
-                    f"{perf.course_count} courses",
-                )
+                render_metric_card(area, f"{perf.average_mark:.1f}", f"{perf.course_count} courses")
 
-    # Selected interests
     if student_interests:
-        st.subheader("💡 Selected Interests")
+        st.markdown("## Selected Interests")
         interest_names = [i["name"] for i in student_interests]
-        st.markdown(" | ".join([f"**{name}**" for name in interest_names]))
+        st.write(", ".join(interest_names))
 
-    # Quick recommendation preview
     if student_courses:
-        st.markdown("---")
-        st.subheader("🎯 Quick Recommendation Preview")
+        st.markdown("## Top Match Preview")
 
         from src.ai.recommendation_engine import generate_recommendations
 
@@ -129,31 +118,24 @@ if student:
         if scores:
             top = scores[0]
             st.success(
-                f"**Top Match: {top.specialization_name}** "
-                f"(Compatibility Score: {top.final_score:.1f}/100, "
-                f"{top.evidence_level})"
+                f"**{top.specialization_name}** — Compatibility Score {top.final_score:.1f}/100 · {top.evidence_level}"
             )
-            st.caption("Go to **Recommendations** page for full details and explanations.")
+            st.caption("Open **Recommendations** in the sidebar for the full breakdown and explanation.")
 
 else:
-    # Empty state — no student data yet
-    st.subheader("Welcome!")
     render_empty_state(
-        "No student data found. Start by setting up your academic profile "
-        "using the **Academic Profile** page in the sidebar.",
-        icon="start",
+        "No student data found yet. Start by setting up your academic profile "
+        "using **Academic Profile** in the sidebar."
     )
 
-    st.markdown("### How to Use This System")
+    st.markdown("## How This Works")
     st.markdown("""
-    1. **Academic Profile** — Enter your degree, year, and semester
-    2. **Course History** — Add your completed courses with marks
-    3. **Interests** — Select your academic interests
-    4. **Recommendations** — View AI-generated specialization recommendations
-    5. **Course Recommendations** — See which courses to take next
-    6. **Analysis** — Explore detailed academic analytics
+    1. **Academic Profile** — enter your degree, year, and semester
+    2. **Course History** — add completed courses with marks
+    3. **Interests** — select the subject areas you're drawn to
+    4. **Recommendations** — see AI-generated specialization matches
+    5. **Course Recommendations** — see which courses to take next
+    6. **Analysis** — explore detailed academic analytics
     """)
 
-# Footer
-st.markdown("---")
 render_disclaimer()

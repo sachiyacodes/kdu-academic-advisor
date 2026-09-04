@@ -1,7 +1,16 @@
 """
-Custom CSS styles for professional UI appearance.
+Custom CSS for the application.
 
-Provides a modern academic analytics look, avoiding default Streamlit styling.
+Design direction: a university records/registrar aesthetic rather than a
+generic SaaS dashboard — deep ink-navy for structure and authority, a muted
+brass accent (the one place color is spent), warm paper background, a serif
+display face for headings (academic, transcript-like) paired with a clean
+sans for data and body text. No gradients, no pill badges, no emoji chrome.
+
+Targets stable `[data-testid]` hooks rather than Streamlit's internal
+auto-generated hash classes (e.g. `.css-xxxxx`), which change between
+versions and silently stop working — the previous version of this file did
+that and the rules had gone dead.
 """
 
 
@@ -9,156 +18,320 @@ def get_custom_css() -> str:
     """Return custom CSS for the application."""
     return """
     <style>
-        /* Main page styling */
-        .main .block-container {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-            max-width: 1200px;
+        @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --ink: #1A2333;
+            --ink-soft: #4A5468;
+            --ink-faint: #7C8598;
+            --paper: #FAF9F5;
+            --paper-raised: #FFFFFF;
+            --line: #E4E0D6;
+            --line-soft: #EDEAE1;
+            --brass: #9C7A3C;
+            --brass-soft: #F1E9D8;
+            --brass-strong: #7A5F2C;
+            --good: #2F6844;
+            --good-bg: #E8F1EA;
+            --warn: #96650F;
+            --warn-bg: #F7EFDD;
+            --bad: #A13D3D;
+            --bad-bg: #F6E9E7;
+            --radius: 6px;
         }
 
-        /* Header styling */
+        html, body, [class*="css"] {
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        /* ---------- Layout ---------- */
+        .stApp {
+            background: var(--paper);
+        }
+
+        .main .block-container {
+            padding-top: 2.25rem;
+            padding-bottom: 3rem;
+            max-width: 1120px;
+        }
+
+        [data-testid="stSidebar"] {
+            background: var(--ink);
+            border-right: none;
+        }
+
+        [data-testid="stSidebar"] * {
+            color: #E7E4DA !important;
+        }
+
+        [data-testid="stSidebar"] hr {
+            border-color: rgba(231, 228, 218, 0.16);
+        }
+
+        /* ---------- Typography ---------- */
+        h1, h2, h3 {
+            font-family: 'Source Serif 4', Georgia, serif;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+        }
+
         h1 {
-            color: #1a1a2e;
             font-weight: 700;
-            border-bottom: 3px solid #16213e;
-            padding-bottom: 0.5rem;
+            font-size: 2.1rem;
+            margin-bottom: 0.15rem;
         }
 
         h2 {
-            color: #16213e;
             font-weight: 600;
-            margin-top: 1.5rem;
+            font-size: 1.4rem;
+            margin-top: 2rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--line);
         }
 
         h3 {
-            color: #0f3460;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--ink-soft);
         }
 
-        /* Card container */
-        .metric-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 1.5rem;
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1rem;
+        p, li, span, label, div {
+            color: var(--ink-soft);
         }
 
-        .metric-card h3 {
-            color: white;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            opacity: 0.9;
+        .app-kicker {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--brass-strong);
+            margin-bottom: 0.35rem;
         }
 
-        .metric-card .value {
-            font-size: 2rem;
-            font-weight: 700;
+        .app-subtitle {
+            font-size: 1.02rem;
+            color: var(--ink-faint);
+            margin-top: 0.1rem;
+            margin-bottom: 1.5rem;
         }
 
-        /* Info card */
-        .info-card {
-            background: #f8f9fa;
-            border-left: 4px solid #0f3460;
-            border-radius: 0 8px 8px 0;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1rem;
+        /* ---------- Buttons ---------- */
+        .stButton button, .stFormSubmitButton button {
+            border-radius: var(--radius);
+            font-weight: 600;
+            border: 1px solid var(--line);
+            transition: none;
         }
 
-        /* Score display */
-        .score-high {
-            color: #28a745;
-            font-weight: 700;
+        button[data-testid^="stBaseButton-primary"] {
+            background: var(--ink);
+            border-color: var(--ink);
+            color: var(--paper) !important;
         }
 
-        .score-medium {
-            color: #ffc107;
-            font-weight: 700;
+        button[data-testid^="stBaseButton-primary"]:hover {
+            background: var(--brass-strong);
+            border-color: var(--brass-strong);
         }
 
-        .score-low {
-            color: #dc3545;
-            font-weight: 700;
+        button[data-testid^="stBaseButton-primary"] p {
+            color: var(--paper) !important;
         }
 
-        /* Evidence badge */
-        .evidence-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
+        button[data-testid^="stBaseButton-secondary"] {
+            background: var(--paper-raised);
+            color: var(--bad);
+            border-color: var(--line);
         }
 
-        .evidence-strong {
-            background: #d4edda;
-            color: #155724;
+        button[data-testid^="stBaseButton-secondary"] p {
+            color: var(--bad) !important;
         }
 
-        .evidence-moderate {
-            background: #fff3cd;
-            color: #856404;
+        /* ---------- Inputs ---------- */
+        [data-testid="stTextInput"] input,
+        [data-testid="stNumberInput"] input,
+        [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+            border-radius: var(--radius) !important;
+            border-color: var(--line) !important;
+            background: var(--paper-raised) !important;
         }
 
-        .evidence-limited {
-            background: #f8d7da;
-            color: #721c24;
+        /* ---------- Forms & containers ---------- */
+        [data-testid="stForm"] {
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 1.5rem 1.75rem;
         }
 
-        /* Recommendation category badges */
-        .rec-now {
-            background: #d4edda;
-            color: #155724;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-weight: 500;
+        [data-testid="stExpander"] {
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            border-radius: 10px;
         }
 
-        .rec-later {
-            background: #fff3cd;
-            color: #856404;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-weight: 500;
+        [data-testid="stExpander"] summary {
+            font-family: 'Source Serif 4', serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--ink);
         }
 
-        .rec-low {
-            background: #e2e3e5;
-            color: #383d41;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-weight: 500;
+        /* ---------- Metrics ---------- */
+        [data-testid="stMetric"] {
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--brass);
+            border-radius: var(--radius);
+            padding: 0.85rem 1rem 0.7rem;
         }
 
-        /* Disclaimer */
-        .disclaimer {
-            background: #e8eaf6;
-            border-radius: 8px;
-            padding: 1rem;
-            font-size: 0.85rem;
-            color: #283593;
-            margin-top: 2rem;
-            border: 1px solid #c5cae9;
+        [data-testid="stMetricLabel"] {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: none;
+            color: var(--ink-faint) !important;
         }
 
-        /* Table styling */
-        .stDataFrame {
-            border-radius: 8px;
+        [data-testid="stMetricValue"] {
+            font-size: 1.4rem;
+            font-family: 'Source Serif 4', serif;
+            color: var(--ink) !important;
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            line-height: 1.25;
+        }
+
+        /* ---------- Tables ---------- */
+        [data-testid="stDataFrame"] {
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
             overflow: hidden;
         }
 
-        /* Sidebar styling */
-        .css-1d391kg {
-            padding-top: 2rem;
+        /* ---------- Alerts ---------- */
+        [data-testid="stAlertContentInfo"], [data-testid="stAlertContentSuccess"],
+        [data-testid="stAlertContentWarning"], [data-testid="stAlertContentError"] {
+            font-size: 0.92rem;
         }
 
-        /* Streamlit metric override */
-        [data-testid="stMetricValue"] {
-            font-size: 1.8rem;
+        div[data-testid="stNotification"] {
+            border-radius: var(--radius);
+            border: 1px solid var(--line);
         }
 
-        /* Hide Streamlit branding */
+        /* ---------- Tabs ---------- */
+        [data-testid="stTabs"] [role="tablist"] {
+            border-bottom: 1px solid var(--line);
+            gap: 1.5rem;
+        }
+
+        [data-testid="stTab"] {
+            color: var(--ink-faint);
+        }
+
+        [data-testid="stTab"] p {
+            font-weight: 600;
+        }
+
+        [data-testid="stTab"][aria-selected="true"] {
+            color: var(--ink) !important;
+        }
+
+        [data-testid="stTab"] .react-aria-SelectionIndicator {
+            background: var(--brass) !important;
+        }
+
+        /* ---------- Custom components ---------- */
+        .card {
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 1.1rem 1.3rem;
+        }
+
+        .stat-block {
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--brass);
+            border-radius: var(--radius);
+            padding: 0.85rem 1rem 0.7rem;
+        }
+
+        .stat-block .stat-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--ink-faint);
+        }
+
+        .stat-block .stat-value {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.25;
+        }
+
+        .stat-block .stat-sub {
+            font-size: 0.78rem;
+            color: var(--ink-faint);
+            margin-top: 0.1rem;
+        }
+
+        .info-card {
+            background: var(--brass-soft);
+            border-left: 3px solid var(--brass);
+            border-radius: 0 6px 6px 0;
+            padding: 0.85rem 1.1rem;
+            font-size: 0.92rem;
+            color: var(--brass-strong);
+        }
+
+        .score-high { color: var(--good); font-weight: 700; }
+        .score-medium { color: var(--warn); font-weight: 700; }
+        .score-low { color: var(--bad); font-weight: 700; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .badge-strong { background: var(--good-bg); color: var(--good); border-color: rgba(47,104,68,0.2); }
+        .badge-moderate { background: var(--warn-bg); color: var(--warn); border-color: rgba(150,101,15,0.2); }
+        .badge-limited { background: var(--bad-bg); color: var(--bad); border-color: rgba(161,61,61,0.2); }
+        .badge-now { background: var(--good-bg); color: var(--good); border-color: rgba(47,104,68,0.2); }
+        .badge-later { background: var(--warn-bg); color: var(--warn); border-color: rgba(150,101,15,0.2); }
+        .badge-low { background: var(--line-soft); color: var(--ink-faint); border-color: var(--line); }
+
+        .disclaimer {
+            background: var(--paper-raised);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0.95rem 1.2rem;
+            font-size: 0.82rem;
+            color: var(--ink-faint);
+            margin-top: 2.5rem;
+            line-height: 1.55;
+        }
+
+        .step-track {
+            font-size: 0.85rem;
+            line-height: 2.1;
+        }
+
+        .step-track .step-done { color: #C9C4B4; }
+        .step-track .step-done::before { content: "✓  "; color: var(--brass); font-weight: 700; }
+        .step-track .step-pending { color: #7C8598; }
+        .step-track .step-pending::before { content: "○  "; }
+        .step-track .step-current { color: #FFFFFF; font-weight: 600; }
+        .step-track .step-current::before { content: "→  "; color: var(--brass); }
+
+        /* Hide default chrome */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
     </style>

@@ -13,30 +13,36 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.config.settings import APP_TITLE, DEGREE_PROGRAMS
 from src.ui.styles import get_custom_css
-from src.ui.components import render_disclaimer
+from src.ui.components import render_disclaimer, render_page_header, render_step_tracker
 from src.data import database as db
 
-st.set_page_config(page_title=f"Academic Profile - {APP_TITLE}", page_icon="📋", layout="wide")
+st.set_page_config(page_title=f"Academic Profile - {APP_TITLE}", page_icon="🎓", layout="wide")
 st.markdown(get_custom_css(), unsafe_allow_html=True)
 
-st.title("📋 Academic Profile")
-st.markdown("*Set up your academic profile to receive personalized recommendations.*")
-st.markdown("---")
-
-# Load existing student data
 try:
     student = db.get_student()
 except FileNotFoundError:
     st.error("Database not found. Run `python scripts/seed_database.py` first.")
     st.stop()
 
-# Pre-fill from existing data
+with st.sidebar:
+    st.markdown("### Recommendation System")
+    st.markdown("---")
+    completed = [1] if student else []
+    render_step_tracker(current_step=1, completed_steps=completed)
+
+render_page_header(
+    "Academic Profile",
+    "Set up your degree, year, and semester. Everything else builds on this.",
+    kicker="STEP 1 OF 6",
+)
+
 default_degree = student["degree"] if student else DEGREE_PROGRAMS[0]
 default_year = student["year"] if student else 1
 default_semester = student["semester"] if student else 1
 
 with st.form("academic_profile_form"):
-    st.subheader("Your Academic Details")
+    st.markdown("**Your academic details**")
 
     col1, col2, col3 = st.columns(3)
 
@@ -64,21 +70,18 @@ with st.form("academic_profile_form"):
             help="Your current semester.",
         )
 
-    submitted = st.form_submit_button("Save Profile", use_container_width=True, type="primary")
+    submitted = st.form_submit_button("Save Profile", width="stretch", type="primary")
 
     if submitted:
         student_id = db.save_student(degree, year, semester)
-        st.success(f"Profile saved! Student ID: {student_id}")
+        st.success(f"Profile saved — Student ID {student_id}")
         st.rerun()
 
-# Show current profile
 if student:
-    st.markdown("---")
-    st.subheader("Current Profile")
+    st.markdown("## Current Profile")
 
     from src.academic.profile import detect_academic_stage
 
-    # Calculate stage
     student_courses = db.get_student_courses(student["student_id"])
     completed_credits = sum(
         int(c["credits"]) for c in student_courses
@@ -96,12 +99,11 @@ if student:
     with col4:
         st.metric("Academic Stage", stage)
 
-    st.markdown("---")
-
-    # Reset option
-    if st.button("Reset All Data", type="secondary"):
-        db.clear_student_data()
-        st.success("All student data cleared.")
-        st.rerun()
+    with st.expander("Reset all student data"):
+        st.caption("This clears your profile, course history, and interests. This cannot be undone.")
+        if st.button("Reset All Data", type="secondary"):
+            db.clear_student_data()
+            st.success("All student data cleared.")
+            st.rerun()
 
 render_disclaimer()
