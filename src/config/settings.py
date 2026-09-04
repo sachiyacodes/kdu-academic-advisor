@@ -287,11 +287,15 @@ SYNTHETIC_STUDENT_COUNT: int = 750
 
 
 # =============================================================================
-# ML ENHANCEMENT
+# ML ENHANCEMENT & BENCHMARKING
 # =============================================================================
 
 ML_TEST_SIZE: float = 0.2
 ML_RANDOM_STATE: int = 42
+ML_CV_FOLDS: int = 5
+MIN_ML_CONFIDENCE_THRESHOLD: float = 0.35
+PRIOR_ACADEMIC_MEAN: float = 65.0
+INTEREST_DEFAULT_INTENSITY: float = 3.0
 
 
 # =============================================================================

@@ -16,33 +16,40 @@ with the academic fit score. This is documented in docs/ai_methodology.md.
 """
 
 import math
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple, Union
 
 from src.config.settings import SUBJECT_AREA_ORDER, SubjectArea
 
 
 def build_student_interest_vector(
-    selected_interests: List[str],
+    selected_interests: Union[List[str], Dict[str, float], Any],
 ) -> List[float]:
     """
     Build a student interest vector over the canonical subject-area taxonomy.
 
     Each dimension corresponds to a subject area (in SUBJECT_AREA_ORDER).
-    Selected interests activate their corresponding dimension with 1.0,
-    unselected dimensions are 0.0.
+    Supports either a list of subject areas (1.0 for each) or a dict of {area: intensity (1.0-5.0)}.
 
     Args:
-        selected_interests: List of subject area names the student selected.
+        selected_interests: List of subject area names or dict mapping area -> intensity.
 
     Returns:
         List of floats (length 13), one per subject area in canonical order.
     """
     vector = []
-    for area in SUBJECT_AREA_ORDER:
-        if area in selected_interests:
-            vector.append(1.0)
-        else:
-            vector.append(0.0)
+    if isinstance(selected_interests, dict):
+        for area in SUBJECT_AREA_ORDER:
+            val = float(selected_interests.get(area, 0.0))
+            if val > 1.0:
+                vector.append(min(1.0, val / 5.0))
+            else:
+                vector.append(val)
+    else:
+        for area in SUBJECT_AREA_ORDER:
+            if area in selected_interests:
+                vector.append(1.0)
+            else:
+                vector.append(0.0)
     return vector
 
 
@@ -93,25 +100,22 @@ def cosine_similarity(vec_a: List[float], vec_b: List[float]) -> float:
 
 
 def calculate_interest_score(
-    selected_interests: List[str],
+    selected_interests: Union[List[str], Dict[str, float], Any],
     specialization_interest_weights: Dict[str, float],
+    mitigate_dilution: bool = True,
 ) -> Tuple[float, Dict[str, float]]:
     """
     Calculate the interest alignment score for one specialization.
 
     Args:
-        selected_interests: List of subject area names the student selected.
+        selected_interests: List of subject area names or dict mapping area -> intensity.
         specialization_interest_weights: {subject_area: weight} for this spec.
+        mitigate_dilution: Whether to reward breadth coverage to avoid cosine L2 dilution penalty.
 
     Returns:
         Tuple of:
             - interest_score (0-100, cosine similarity * 100)
             - interest_contributions: {area: contribution} for areas that matched
-
-    FIX-3 formula:
-        student_vector = [1 if interest in selected else 0, for each area]
-        spec_vector = [interest_weight for each area]
-        InterestScore = cosine_similarity(student_vector, spec_vector) * 100
     """
     if not selected_interests:
         return 0.0, {}
@@ -120,7 +124,20 @@ def calculate_interest_score(
     spec_vec = build_specialization_interest_vector(specialization_interest_weights)
 
     similarity = cosine_similarity(student_vec, spec_vec)
-    score = round(similarity * 100, 2)
+    base_score = similarity * 100
+
+    # Avoid cosine L2 dilution penalty for students with broad curiosity:
+    # If student has multiple matching areas in this specialization, apply breadth coverage reward
+    matched_areas = [
+        SUBJECT_AREA_ORDER[i] for i in range(len(SUBJECT_AREA_ORDER))
+        if student_vec[i] > 0 and spec_vec[i] > 0
+    ]
+    if mitigate_dilution and len(matched_areas) > 1 and len(specialization_interest_weights) > 0:
+        coverage = min(1.0, len(matched_areas) / len(specialization_interest_weights))
+        boosted = base_score * (1.0 + 0.15 * coverage)
+        score = round(min(100.0, boosted), 2)
+    else:
+        score = round(base_score, 2)
 
     # Identify which interests contributed to the match
     contributions = {}
@@ -132,8 +149,9 @@ def calculate_interest_score(
 
 
 def score_interests_all_specializations(
-    selected_interests: List[str],
+    selected_interests: Union[List[str], Dict[str, float], Any],
     all_specialization_interests: Dict[str, Dict[str, float]],
+    mitigate_dilution: bool = True,
 ) -> Dict[str, Tuple[float, Dict[str, float]]]:
     """
     Calculate interest scores for all specializations.

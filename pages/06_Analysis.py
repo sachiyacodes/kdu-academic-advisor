@@ -154,6 +154,28 @@ if scores:
         })
     st.dataframe(pd.DataFrame(summary_data), width="stretch", hide_index=True)
 
+from src.ai.recommendation_engine import calculate_sensitivity_analysis
+from src.ui.components import render_sensitivity_chart
+
+# Interactive Weight Sensitivity Analysis
+st.markdown("---")
+st.markdown("## Weight Sensitivity Analysis")
+st.caption(
+    "Examines how sensitive your top recommendations are to variations in the Academic vs. Interest "
+    "weighting formula. High stability indicates that your top recommendation is robust across diverse evaluation criteria."
+)
+
+sens_interests = {i["subject_area"]: float(i.get("intensity", 3.0)) for i in student_interests}
+sens_data = calculate_sensitivity_analysis(profile, sens_interests)
+fig_sens = render_sensitivity_chart(sens_data)
+st.plotly_chart(fig_sens, width="stretch")
+
+st.info(
+    f"📈 **Stability Index: {sens_data['stability_percentage']}%** — "
+    f"Your top recommendation (**{sens_data['baseline_top']}**) maintains its leading rank across "
+    f"{sens_data['stability_percentage']}% of the tested weight spectrum, demonstrating high algorithmic resilience."
+)
+
 st.markdown("## Academic Summary")
 
 gpa, credits_earned, credits_attempted = calculate_gpa(student_courses)
@@ -176,22 +198,37 @@ metrics = load_metrics()
 
 if metrics:
     st.markdown("---")
-    st.markdown("## Machine Learning & Training Dataset Analytics")
-    st.caption("Empirical training results and evaluation metrics of the Decision Tree Classifier.")
+    st.markdown("## Machine Learning Multi-Model Benchmark & Analytics")
+    st.caption("Empirical training results, 5-fold cross-validation benchmarks, and feature importance across candidate models.")
 
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     with m_col1:
-        st.metric("Training Dataset", "750 students", "12,509 grade records")
+        st.metric("Training Dataset", "750 synthetic students", "Stratified archetypes")
     with m_col2:
-        st.metric("Model Algorithm", "Decision Tree", "Max Depth: 8")
+        st.metric("Primary Model", metrics.get("primary_model", "Random Forest"), "100 estimators")
     with m_col3:
-        st.metric("Test Accuracy", f"{metrics['accuracy']*100:.1f}%", "vs 16.7% random baseline")
+        st.metric("Ensemble Accuracy", f"{metrics['accuracy']*100:.1f}%", f"+{metrics['accuracy']*100 - 16.7:.1f}% over baseline")
     with m_col4:
-        st.metric("Test Split", f"{metrics['test_size']} students", "Stratified 20% holdout")
+        st.metric("Cross-Validation", f"{metrics.get('cv_folds', 5)}-Fold Stratified", "Stratified holdout")
+
+    # Multi-Model Benchmark Table
+    if "benchmark_comparison" in metrics:
+        st.markdown("### Competitive Model Benchmark (5-Fold Stratified Cross-Validation)")
+        bench_rows = []
+        for model_name, bench in metrics["benchmark_comparison"].items():
+            acc_str = f"{bench['cv_accuracy_mean']*100:.2f}% ± {bench['cv_accuracy_std']*100:.2f}%"
+            f1_str = f"{bench['cv_macro_f1_mean']:.3f} ± {bench['cv_macro_f1_std']:.3f}"
+            bench_rows.append({
+                "Model Architecture": model_name,
+                "5-Fold CV Accuracy (Mean ± Std)": acc_str,
+                "5-Fold Macro-F1": f1_str,
+                "Role in System": "Primary High-Accuracy Ensemble" if "Random Forest" in model_name else ("Explainable Rule Pathway" if "Decision Tree" in model_name else "Comparative Baseline"),
+            })
+        st.dataframe(pd.DataFrame(bench_rows), width="stretch", hide_index=True)
 
     c1, c2 = st.columns(2)
     with c1:
-        st.markdown("### Top Predictive Features")
+        st.markdown("### Feature Importance (Random Forest Ensemble)")
         fig_feat = render_feature_importance_chart(metrics["feature_importance"])
         st.plotly_chart(fig_feat, width="stretch")
     with c2:

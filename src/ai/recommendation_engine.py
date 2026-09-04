@@ -112,3 +112,39 @@ def generate_recommendations(
         score.rank = i + 1
 
     return academic_scores
+
+
+def calculate_sensitivity_analysis(
+    profile: AcademicProfile,
+    selected_interests: Any,
+) -> Dict[str, Any]:
+    """
+    Evaluate stability of recommendations as Academic Weight varies from 0.0 to 1.0 (steps of 0.1).
+    Returns weight points, per-specialization trajectories, and stability score.
+    """
+    weight_points = [round(w * 0.1, 1) for w in range(11)]  # 0.0 to 1.0
+    trajectories: Dict[str, List[float]] = {s: [] for s in SPECIALIZATION_WEIGHTS.keys()}
+    top_picks: List[str] = []
+
+    for w_acad in weight_points:
+        w_int = round(1.0 - w_acad, 2)
+        recs = generate_recommendations(
+            profile, selected_interests,
+            academic_weight=w_acad, interest_weight=w_int
+        )
+        for r in recs:
+            trajectories[r.specialization_name].append(r.final_score)
+        if recs:
+            top_picks.append(recs[0].specialization_name)
+
+    # Baseline top pick at standard 0.70 weight (index 7 in [0.0..1.0])
+    baseline_top = top_picks[7] if len(top_picks) > 7 else (top_picks[0] if top_picks else "")
+    stability_pct = round((top_picks.count(baseline_top) / len(top_picks)) * 100, 1) if top_picks else 100.0
+
+    return {
+        "academic_weights": weight_points,
+        "trajectories": trajectories,
+        "top_picks": top_picks,
+        "baseline_top": baseline_top,
+        "stability_percentage": stability_pct,
+    }

@@ -58,8 +58,10 @@ st.caption(
 )
 
 selected_ids = []
-cols = st.columns(3)
+selected_intensities = {}
+current_intensities = {i["interest_id"]: float(i.get("intensity", 3.0)) for i in current_interests}
 
+cols = st.columns(3)
 for i, interest in enumerate(all_interests):
     col = cols[i % 3]
     with col:
@@ -70,16 +72,42 @@ for i, interest in enumerate(all_interests):
         )
         if checked:
             selected_ids.append(interest["interest_id"])
+            selected_intensities[interest["interest_id"]] = current_intensities.get(interest["interest_id"], 3.0)
+
+# Optional fine-tuning of interest intensity
+if selected_ids:
+    with st.expander("🎯 Fine-Tune Interest Intensity (1–5 Likert Scale)", expanded=False):
+        st.caption(
+            "Customize the relative weight of your interests: "
+            "1 = Casual Curiosity, 3 = Strong Interest (Default), 5 = Primary Career Aspiration."
+        )
+        slider_cols = st.columns(2)
+        for idx, iid in enumerate(selected_ids):
+            int_obj = next(it for it in all_interests if it["interest_id"] == iid)
+            scol = slider_cols[idx % 2]
+            with scol:
+                val = st.slider(
+                    f"{int_obj['name']}",
+                    min_value=1.0,
+                    max_value=5.0,
+                    value=current_intensities.get(iid, 3.0),
+                    step=0.5,
+                    key=f"intensity_{iid}",
+                )
+                selected_intensities[iid] = val
 
 if st.button("Save Interests", width="stretch", type="primary"):
-    db.save_student_interests(student_id, selected_ids)
-    st.success(f"Saved {len(selected_ids)} interest(s).")
+    db.save_student_interests(student_id, selected_intensities if selected_intensities else selected_ids)
+    st.success(f"Saved {len(selected_ids)} interest(s) with preference weighting.")
     st.rerun()
 
 if current_interests:
     st.markdown("## Current Selection")
-    interest_names = [i["name"] for i in current_interests]
-    st.write(", ".join(interest_names))
+    summary_items = [
+        f"**{i['name']}** (Weight: {float(i.get('intensity', 3.0)):.1f}/5.0)"
+        for i in current_interests
+    ]
+    st.markdown(" • ".join(summary_items))
 else:
     st.info(
         "No interests selected. Recommendations will be based solely on "

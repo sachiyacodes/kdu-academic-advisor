@@ -259,23 +259,45 @@ def render_ml_prediction_card(
     prediction: str,
     probabilities: Dict[str, float],
     top_rule_spec: str,
+    consensus_info: Optional[Dict[str, Any]] = None,
 ) -> None:
-    """Render the Decision Tree prediction with agreement status and probability distribution."""
+    """Render the machine learning prediction with multi-model consensus, confidence, and probability distribution."""
     prediction_str = str(prediction)
     confidence = float(probabilities.get(prediction, 0.0)) * 100
     is_agreement = (prediction_str == str(top_rule_spec))
 
+    # Details from consensus if available
+    dt_pred = consensus_info.get("dt_prediction", "") if consensus_info else ""
+    is_consensus = consensus_info.get("consensus", False) if consensus_info else False
+    is_preliminary = consensus_info.get("is_preliminary", False) if consensus_info else False
+    confidence_label = consensus_info.get("confidence_label", "Standard") if consensus_info else "Standard"
+
+    consensus_text = ""
+    if consensus_info:
+        if is_consensus:
+            consensus_text = f"<br>🎯 <b>Ensemble Consensus:</b> Both Random Forest and Decision Tree independently predict <b>{prediction_str}</b>."
+        else:
+            consensus_text = f"<br>📊 <b>Model Comparison:</b> Primary Random Forest predicts <b>{prediction_str}</b>, while Decision Tree highlights <b>{dt_pred}</b>."
+
+    preliminary_badge = ""
+    if is_preliminary:
+        preliminary_badge = '<span style="background: var(--warn-bg); color: var(--warn); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem;">⚠️ Preliminary / Early-Stage</span>'
+
     st.markdown(f"""
     <div style="background: var(--paper-raised); border: 1px solid var(--line); border-left: 4px solid var(--brass); border-radius: var(--radius); padding: 1.1rem 1.3rem; margin-top: 1.5rem; margin-bottom: 1.2rem;">
-        <div style="font-size: 0.78rem; font-weight: 600; color: var(--brass-strong); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
-            🤖 Machine Learning Cross-Check (Decision Tree Classifier)
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.78rem; font-weight: 600; color: var(--brass-strong); text-transform: uppercase; letter-spacing: 0.05em;">
+                🤖 Machine Learning Cross-Check (Random Forest & Decision Tree Benchmark)
+            </span>
+            {preliminary_badge}
         </div>
         <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem;">
             <span style="font-family: 'Source Serif 4', serif; font-size: 1.35rem; font-weight: 700; color: var(--ink);">{prediction_str}</span>
-            <span style="font-size: 0.92rem; font-weight: 600; color: var(--brass);">{confidence:.1f}% confidence</span>
+            <span style="font-size: 0.92rem; font-weight: 600; color: var(--brass);">{confidence:.1f}% confidence ({confidence_label})</span>
         </div>
         <div style="font-size: 0.88rem; color: var(--ink-soft); line-height: 1.5;">
-            {"✅ <b>Model Agreement:</b> The Decision Tree independently concurs with the Knowledge-Based Recommender's top choice." if is_agreement else f"ℹ️ <b>Divergent Insight:</b> The Decision Tree suggests <b>{prediction_str}</b> based on overall subject correlations learned from 750 training records."}
+            {"✅ <b>Model Agreement:</b> The Machine Learning benchmark independently concurs with the Knowledge-Based Recommender's top choice." if is_agreement else f"ℹ️ <b>Divergent Insight:</b> The ML benchmark indicates high statistical affinity with <b>{prediction_str}</b> based on non-linear curriculum patterns."}
+            {consensus_text}
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -294,7 +316,7 @@ def render_ml_prediction_card(
     ))
     fig.update_layout(
         _base_layout(
-            title="Decision Tree Class Probabilities",
+            title="Class Probability Distribution",
             xaxis=dict(title="Probability (%)", range=[0, 110], gridcolor=GRID),
             yaxis=dict(autorange="reversed"),
             height=280,
@@ -302,6 +324,47 @@ def render_ml_prediction_card(
         )
     )
     st.plotly_chart(fig, width="stretch")
+
+
+def render_sensitivity_chart(sensitivity_data: Dict[str, Any]) -> go.Figure:
+    """Render interactive sensitivity curves showing how recommendations vary with Academic Weight."""
+    weights = sensitivity_data["academic_weights"]
+    trajectories = sensitivity_data["trajectories"]
+
+    fig = go.Figure()
+    colors = [BRASS, "#2F6844", "#2B5C8F", "#8C3B68", "#96650F", INK]
+
+    for i, (spec_name, scores) in enumerate(trajectories.items()):
+        color = colors[i % len(colors)]
+        fig.add_trace(go.Scatter(
+            x=[round(w * 100) for w in weights],
+            y=scores,
+            mode="lines+markers",
+            name=spec_name,
+            line=dict(color=color, width=2.5 if spec_name == sensitivity_data.get("baseline_top") else 1.5),
+            marker=dict(size=5),
+        ))
+
+    # Add reference line at current default (70% Academic / 30% Interest)
+    fig.add_vline(
+        x=70,
+        line_dash="dash",
+        line_color=BRASS_LIGHT,
+        annotation_text="Default 70/30 Split",
+        annotation_position="top right",
+    )
+
+    fig.update_layout(
+        _base_layout(
+            title="Recommendation Stability vs. Academic Weight Ratio",
+            xaxis=dict(title="Academic Weight (%) [Interest Weight = 100 - Academic]", range=[-5, 105], gridcolor=GRID),
+            yaxis=dict(title="Final Compatibility Score (0-100)", range=[0, 105], gridcolor=GRID),
+            height=360,
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            margin=dict(l=20, r=20, t=40, b=20),
+        )
+    )
+    return fig
 
 
 def render_feature_importance_chart(feature_importance: Dict[str, float]) -> go.Figure:

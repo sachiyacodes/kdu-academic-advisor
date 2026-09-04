@@ -36,6 +36,23 @@ def get_connection():
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
+    # Ensure feedback table exists
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS student_feedback (
+            feedback_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER,
+            specialization_name TEXT NOT NULL,
+            rating INTEGER NOT NULL,
+            comment TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (student_id) REFERENCES students(student_id)
+        );
+    """)
+    # Ensure intensity column exists on student_interests
+    try:
+        conn.execute("ALTER TABLE student_interests ADD COLUMN intensity REAL DEFAULT 3.0")
+    except sqlite3.OperationalError:
+        pass  # column already exists
     try:
         yield conn
         conn.commit()
@@ -231,33 +248,75 @@ def delete_student_course(student_id: int, course_id: int) -> None:
 def clear_student_data() -> None:
     """Clear all student data (reset for new student)."""
     with get_connection() as conn:
+        conn.execute("DELETE FROM student_feedback")
         conn.execute("DELETE FROM student_interests")
         conn.execute("DELETE FROM student_courses")
         conn.execute("DELETE FROM students")
 
 
-def save_student_interests(student_id: int, interest_ids: List[int]) -> None:
-    """Save selected interests for a student. Replaces existing selections."""
+def save_student_interests(
+    student_id: int,
+    interests: Any,
+) -> None:
+    """
+    Save selected interests for a student. Replaces existing selections.
+    Supports either a list of interest_ids (default intensity 3.0) or
+    a dict mapping interest_id -> intensity (1.0 - 5.0).
+    """
     with get_connection() as conn:
         conn.execute(
             "DELETE FROM student_interests WHERE student_id = ?",
             (student_id,),
         )
-        for interest_id in interest_ids:
-            conn.execute(
-                "INSERT INTO student_interests (student_id, interest_id) VALUES (?, ?)",
-                (student_id, interest_id),
-            )
+        if isinstance(interests, dict):
+            for interest_id, intensity in interests.items():
+                conn.execute(
+                    "INSERT INTO student_interests (student_id, interest_id, intensity) VALUES (?, ?, ?)",
+                    (student_id, int(interest_id), float(intensity)),
+                )
+        else:
+            for interest_id in interests:
+                conn.execute(
+                    "INSERT INTO student_interests (student_id, interest_id, intensity) VALUES (?, ?, 3.0)",
+                    (student_id, int(interest_id)),
+                )
 
 
 def get_student_interests(student_id: int) -> List[Dict[str, Any]]:
-    """Get selected interests for a student, joined with interest details."""
+    """Get selected interests for a student, joined with interest details and intensity."""
     return fetch_all(
         """
-        SELECT i.* FROM interests i
+        SELECT i.*, COALESCE(si.intensity, 3.0) as intensity
+        FROM interests i
         INNER JOIN student_interests si ON i.interest_id = si.interest_id
         WHERE si.student_id = ?
         ORDER BY i.interest_id
         """,
         (student_id,),
     )
+
+
+def save_student_feedback(
+    student_id: Optional[int],
+    specialization_name: str,
+    rating: int,
+    comment: str = "",
+) -> int:
+    """Save recommendation feedback from student."""
+    return execute(
+        """
+        INSERT INTO student_feedback (student_id, specialization_name, rating, comment)
+        VALUES (?, ?, ?, ?)
+        """,
+        (student_id, specialization_name, rating, comment),
+    )
+
+
+def get_student_feedback(student_id: Optional[int] = None) -> List[Dict[str, Any]]:
+    """Get feedback entries, optionally filtered by student_id."""
+    if student_id is not None:
+        return fetch_all(
+            "SELECT * FROM student_feedback WHERE student_id = ? ORDER BY created_at DESC",
+            (student_id,),
+        )
+    return fetch_all("SELECT * FROM student_feedback ORDER BY created_at DESC")

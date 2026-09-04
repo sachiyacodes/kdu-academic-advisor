@@ -21,6 +21,7 @@ from typing import Dict, List, Optional, Set, Tuple
 from src.config.settings import (
     LIMITED_EVIDENCE_MAX,
     MODERATE_EVIDENCE_MAX,
+    PRIOR_ACADEMIC_MEAN,
     STRONG_EVIDENCE_MIN,
     SubjectArea,
 )
@@ -142,6 +143,24 @@ def score_all_specializations(
         relevant_count = count_relevant_courses(profile, weights)
         evidence = determine_evidence_level(relevant_count)
 
+        # Populate actual student subject marks for explainability
+        subject_marks = {
+            area: round(profile.subject_performances[area].average_mark, 2)
+            for area in available
+            if area in profile.subject_performances
+        }
+
+        # Evidence credibility weighting (shrinkage towards prior mean for sparse evidence)
+        credibility = min(1.0, round(relevant_count / STRONG_EVIDENCE_MIN, 4)) if STRONG_EVIDENCE_MIN > 0 else 1.0
+        calibrated_fit = round(credibility * academic_fit + (1.0 - credibility) * PRIOR_ACADEMIC_MEAN, 2)
+
+        if relevant_count >= STRONG_EVIDENCE_MIN:
+            conf_level = "High Evidence"
+        elif relevant_count > LIMITED_EVIDENCE_MAX:
+            conf_level = "Moderate Evidence"
+        else:
+            conf_level = "Preliminary / Limited"
+
         score = SpecializationScore(
             specialization_name=spec_name,
             academic_fit=academic_fit,
@@ -150,6 +169,10 @@ def score_all_specializations(
             available_subject_areas=available,
             missing_subject_areas=missing,
             subject_contributions=contributions,
+            subject_marks=subject_marks,
+            calibrated_fit=calibrated_fit,
+            confidence_score=credibility,
+            confidence_level=conf_level,
         )
         scores.append(score)
 

@@ -81,9 +81,13 @@ profile = build_academic_profile(
 )
 
 student_interests = db.get_student_interests(student_id)
-selected_interest_names = [i["subject_area"] for i in student_interests]
+# Support continuous intensity mapping if available
+selected_interests_input = {
+    i["subject_area"]: float(i.get("intensity", 3.0))
+    for i in student_interests
+}
 
-scores = generate_recommendations(profile, selected_interest_names)
+scores = generate_recommendations(profile, selected_interests_input)
 explanations = generate_all_explanations(scores)
 
 st.markdown("## Comparison")
@@ -103,37 +107,66 @@ for score in scores:
         fig = render_recommendation_breakdown_chart(score)
         st.plotly_chart(fig, width="stretch")
 
-        st.markdown(
-            f"**Evidence Level:** {render_evidence_badge(score.evidence_level)}",
-            unsafe_allow_html=True,
-        )
-        st.caption(f"{score.relevant_course_count} relevant completed courses.")
+        col_ev1, col_ev2 = st.columns([1, 1])
+        with col_ev1:
+            st.markdown(
+                f"**Evidence Level:** {render_evidence_badge(score.evidence_level)}",
+                unsafe_allow_html=True,
+            )
+            st.caption(f"{score.relevant_course_count} relevant completed courses.")
+        with col_ev2:
+            if score.evidence_level != "Strong Evidence":
+                st.caption(f"ℹ️ **Evidence-Calibrated Fit:** {score.calibrated_fit:.1f}/100 (Adjusted for transcript sample size)")
 
         st.markdown("**Explanation**")
         explanation = explanations.get(score.specialization_name)
         if explanation:
             render_explanation(explanation)
+            if explanation.counterfactuals:
+                st.markdown("---")
+                st.markdown("**Actionable Progression Advice**")
+                for cf in explanation.counterfactuals:
+                    st.info(cf)
 
-from ml.predict import is_model_available, predict_specialization
+from ml.predict import is_model_available, predict_with_consensus
 
 if is_model_available() and profile.subject_performances:
-    st.markdown("## Experimental ML Cross-Check")
-    st.caption("Side-by-side comparison using our Decision Tree model trained on 750 synthetic student profiles.")
+    st.markdown("## Machine Learning Cross-Check & Consensus")
+    st.caption("Side-by-side empirical benchmark using Random Forest and Decision Tree models trained with 5-Fold Cross-Validation.")
 
     subj_averages = {area: perf.average_mark for area, perf in profile.subject_performances.items()}
-    pred_result = predict_specialization(subj_averages)
-    if pred_result:
-        pred_spec, probs = pred_result
+    consensus_info = predict_with_consensus(subj_averages)
+    if consensus_info:
         top_rule_spec = scores[0].specialization_name if scores else ""
-        render_ml_prediction_card(pred_spec, probs, top_rule_spec)
+        render_ml_prediction_card(
+            prediction=consensus_info["prediction"],
+            probabilities=consensus_info["probabilities"],
+            top_rule_spec=top_rule_spec,
+            consensus_info=consensus_info,
+        )
+
+# Human-in-the-Loop Recommendation Feedback
+st.markdown("## Recommendation Feedback")
+st.caption("Help us improve the recommendation engine by providing feedback on your results.")
+with st.container():
+    top_spec_name = scores[0].specialization_name if scores else "General"
+    fb_col1, fb_col2, fb_col3 = st.columns([1, 1, 3])
+    with fb_col1:
+        if st.button("👍 Helpful", key="fb_thumbs_up", width="stretch"):
+            db.save_student_feedback(student_id, top_spec_name, 1, "Helpful recommendation")
+            st.success("Thank you for your feedback!")
+    with fb_col2:
+        if st.button("👎 Needs Tuning", key="fb_thumbs_down", width="stretch"):
+            db.save_student_feedback(student_id, top_spec_name, -1, "Needs tuning")
+            st.info("Thank you! Your feedback helps calibrate future recommendations.")
 
 st.markdown("## How This Works")
 st.markdown(f"""
 This recommendation combines three AI techniques:
 
-1. **Rule-Based Reasoning** — checks prerequisites, academic stage, and eligibility
-2. **Weighted Knowledge-Based Scoring** — evaluates academic fit using specialization-specific subject weights
-3. **Content-Based Interest Matching** — matches your interests against specialization profiles using cosine similarity
+1. **Rule-Based Reasoning** — checks prerequisites, academic stage, and course eligibility
+2. **Weighted Knowledge-Based Scoring** — evaluates academic fit using specialization-specific subject weights with missing-data renormalization
+3. **Content-Based Interest Matching** — matches your interests with continuous intensity scaling against specialization profiles using cosine similarity
 
 The final score combines **Academic Fit** ({int(ACADEMIC_WEIGHT*100)}% weight) and
 **Interest Alignment** ({int(INTEREST_WEIGHT*100)}% weight).

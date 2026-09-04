@@ -75,17 +75,32 @@ def generate_explanation(
                 f"to the academic fit score."
             )
 
-    # --- Weaknesses: lowest contributing areas or missing areas ---
-    if score.subject_contributions:
-        sorted_contribs = sorted(
-            score.subject_contributions.items(),
-            key=lambda x: x[1],
-        )
-        for area, contrib in sorted_contribs[:2]:
-            if contrib < 10:
+    # --- Weaknesses: low performance or missing areas ---
+    if score.subject_marks:
+        # Evaluate based on actual grades, NOT contribution weights
+        low_perf = [
+            (area, mark) for area, mark in score.subject_marks.items()
+            if mark < 60.0
+        ]
+        low_perf.sort(key=lambda x: x[1])
+        for area, mark in low_perf[:2]:
+            if mark < 50.0:
                 weaknesses.append(
-                    f"Your {area} performance is relatively low, contributing "
-                    f"only {contrib:.1f} points."
+                    f"Your average mark in {area} ({mark:.1f}%) is below optimal passing standing, "
+                    f"representing a foundational area to strengthen."
+                )
+            else:
+                weaknesses.append(
+                    f"Your average mark in {area} ({mark:.1f}%) is relatively low compared to the strong "
+                    f"foundation recommended for {spec_name}."
+                )
+    elif score.subject_contributions and score.academic_fit < 50.0:
+        # Fallback only when fit is low and marks unavailable
+        sorted_contribs = sorted(score.subject_contributions.items(), key=lambda x: x[1])
+        for area, contrib in sorted_contribs[:2]:
+            if contrib < 5.0:
+                weaknesses.append(
+                    f"Your {area} contribution ({contrib:.1f} pts) is limited."
                 )
 
     if score.missing_subject_areas:
@@ -127,7 +142,8 @@ def generate_explanation(
     if score.missing_subject_areas:
         missing_areas_note = MISSING_EVIDENCE_DISCLOSURE
 
-    # --- Comparison with higher-ranked specializations ---
+    # --- Comparison with higher-ranked specializations & Counterfactuals ---
+    counterfactuals = []
     if score.rank > 1:
         higher = [s for s in all_scores if s.rank < score.rank]
         for h in higher[:2]:
@@ -138,6 +154,21 @@ def generate_explanation(
                 f"Interest Alignment: {h.interest_alignment:.1f} vs {score.interest_alignment:.1f})."
             )
 
+        # Counterfactual: What would it take for this specialization to be #1?
+        top_score = all_scores[0].final_score if all_scores else score.final_score
+        score_diff = round(top_score - score.final_score + 0.5, 1)
+        if 0 < score_diff <= 25 and score.subject_contributions:
+            # Find strongest relevant subject area to boost
+            top_area = max(score.subject_contributions.items(), key=lambda x: x[1])[0]
+            curr_mark = score.subject_marks.get(top_area, 75.0) if score.subject_marks else 75.0
+            if curr_mark < 95.0:
+                needed_boost = min(round(score_diff / 0.70, 1), round(100.0 - curr_mark, 1))
+                if needed_boost > 0:
+                    counterfactuals.append(
+                        f"Actionable Pathway: Raising your {top_area} performance by ~{needed_boost:.1f}% "
+                        f"would bridge the {score_diff:.1f} pt gap to reach the #1 recommendation spot."
+                    )
+
     return Explanation(
         specialization_name=spec_name,
         summary=summary,
@@ -147,6 +178,7 @@ def generate_explanation(
         evidence_note=evidence_note,
         missing_areas_note=missing_areas_note,
         comparison_notes=comparison_notes,
+        counterfactuals=counterfactuals,
     )
 
 

@@ -149,15 +149,28 @@ def categorize_course(
         for p in missing_prereqs
     ]
 
+    # Chain impact: how many future courses require this course as prerequisite
+    chain_impact = len([
+        p for p in all_prerequisites
+        if p.get("prerequisite_course_id") == course_id
+    ])
+
     # Rule 3: Relevant, prerequisites satisfied, stage eligible
     if is_relevant and prereqs_satisfied and stage_eligible:
+        reason_text = (
+            f"This {course_obj.subject_area} course is relevant to your "
+            f"target specialization. All prerequisites are satisfied and "
+            f"you are at the appropriate academic stage."
+        )
+        if chain_impact > 0:
+            reason_text += f" (Foundational: unlocks {chain_impact} advanced course{'s' if chain_impact > 1 else ''})."
+
         return CourseRecommendation(
             course=course_obj,
             category="Recommended Now",
-            reason=f"This {course_obj.subject_area} course is relevant to your "
-                   f"target specialization. All prerequisites are satisfied and "
-                   f"you are at the appropriate academic stage.",
+            reason=reason_text,
             prerequisite_status="satisfied",
+            chain_impact_count=chain_impact,
         )
 
     # Rule 4: Relevant but missing prerequisites or stage

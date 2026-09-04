@@ -121,8 +121,12 @@ class SpecializationScore:
     available_subject_areas: List[str] = field(default_factory=list)
     missing_subject_areas: List[str] = field(default_factory=list)
     subject_contributions: Dict[str, float] = field(default_factory=dict)
+    subject_marks: Dict[str, float] = field(default_factory=dict)
     interest_contributions: Dict[str, float] = field(default_factory=dict)
     rank: int = 0
+    calibrated_fit: float = 0.0
+    confidence_score: float = 1.0
+    confidence_level: str = "High Evidence"
 
 
 @dataclass
@@ -133,6 +137,7 @@ class CourseRecommendation:
     reason: str
     missing_prerequisites: List[str] = field(default_factory=list)
     prerequisite_status: str = "satisfied"
+    chain_impact_count: int = 0
 
 
 @dataclass
@@ -146,11 +151,19 @@ class Explanation:
     evidence_note: str = ""
     missing_areas_note: str = ""
     comparison_notes: List[str] = field(default_factory=list)
+    counterfactuals: List[str] = field(default_factory=list)
 
 
 # =============================================================================
 # Validated Input Models (Pydantic — genuine validation value)
 # =============================================================================
+
+class FeedbackInput(BaseModel):
+    """Validated recommendation feedback input from the UI."""
+    student_id: Optional[int] = None
+    specialization_name: str
+    rating: int = Field(ge=-1, le=1)  # 1 for helpful, -1 for not helpful
+    comment: str = ""
 
 class StudentInput(BaseModel):
     """Validated student profile input from the UI."""

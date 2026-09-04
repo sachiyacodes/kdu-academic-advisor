@@ -141,9 +141,21 @@ def create_schema(conn: sqlite3.Connection) -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             student_id INTEGER NOT NULL,
             interest_id INTEGER NOT NULL,
+            intensity REAL DEFAULT 3.0,
             FOREIGN KEY (student_id) REFERENCES students(student_id),
             FOREIGN KEY (interest_id) REFERENCES interests(interest_id),
             UNIQUE(student_id, interest_id)
+        );
+
+        -- Recommendation feedback (runtime data)
+        CREATE TABLE IF NOT EXISTS student_feedback (
+            feedback_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_id INTEGER,
+            specialization_name TEXT NOT NULL,
+            rating INTEGER NOT NULL,
+            comment TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (student_id) REFERENCES students(student_id)
         );
     """)
 
