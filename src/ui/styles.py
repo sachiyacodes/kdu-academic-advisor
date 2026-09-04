@@ -147,13 +147,120 @@ def get_custom_css() -> str:
             color: var(--bad) !important;
         }
 
-        /* ---------- Inputs ---------- */
-        [data-testid="stTextInput"] input,
+        /* ---------- Inputs & Form Controls ---------- */
+        [data-testid="stNumberInput"] div[data-testid="stNumberInputContainer"],
+        [data-testid="stNumberInput"] div[data-baseweb="input"],
+        [data-testid="stTextInput"] div[data-testid="stTextInputContainer"],
+        [data-testid="stTextInput"] div[data-baseweb="input"],
+        [data-testid="stTextArea"] div[data-baseweb="textarea"] {
+            background-color: var(--paper-raised) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius) !important;
+        }
+
         [data-testid="stNumberInput"] input,
-        [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        [data-testid="stTextInput"] input,
+        [data-testid="stTextArea"] textarea {
+            background-color: var(--paper-raised) !important;
+            color: var(--ink) !important;
+            caret-color: var(--ink) !important;
+            font-weight: 500 !important;
+            border: none !important;
+        }
+
+        [data-testid="stNumberInput"] input::placeholder,
+        [data-testid="stTextInput"] input::placeholder,
+        [data-testid="stTextArea"] textarea::placeholder {
+            color: var(--ink-faint) !important;
+        }
+
+        /* Number input step buttons (+ / -) */
+        [data-testid="stNumberInput"] button,
+        [data-testid="stNumberInputStepDown"],
+        [data-testid="stNumberInputStepUp"] {
+            background: var(--paper-raised) !important;
+            color: var(--ink) !important;
+            border: none !important;
+        }
+
+        [data-testid="stNumberInput"] button:hover,
+        [data-testid="stNumberInputStepDown"]:hover,
+        [data-testid="stNumberInputStepUp"]:hover {
+            background: var(--line-soft) !important;
+        }
+
+        [data-testid="stNumberInput"] button svg,
+        [data-testid="stNumberInput"] button path {
+            fill: var(--ink) !important;
+            stroke: var(--ink) !important;
+            color: var(--ink) !important;
+        }
+
+        /* ---------- Selectbox ---------- */
+        [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        [data-testid="stSelectbox"] div[class*="stSelectbox"] > div,
+        [data-testid="stSelectbox"] div[role="combobox"] {
             border-radius: var(--radius) !important;
             border-color: var(--line) !important;
             background: var(--paper-raised) !important;
+            color: var(--ink) !important;
+        }
+
+        [data-testid="stSelectbox"] div[data-baseweb="select"] *,
+        [data-testid="stSelectbox"] [role="combobox"] * {
+            color: var(--ink) !important;
+        }
+
+        [data-testid="stSelectbox"] svg {
+            fill: var(--ink-soft) !important;
+            color: var(--ink-soft) !important;
+        }
+
+        /* ---------- Dropdown Menus & Popovers ---------- */
+        [data-testid="stSelectboxVirtualDropdown"],
+        div[data-baseweb="popover"],
+        ul[role="listbox"],
+        ul[data-baseweb="menu"] {
+            background-color: var(--paper-raised) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: var(--radius) !important;
+            box-shadow: 0 4px 16px rgba(26, 35, 51, 0.12) !important;
+        }
+
+        /* Individual option items */
+        [data-testid="stSelectboxVirtualDropdown"] li,
+        [data-testid="stSelectboxVirtualDropdown"] [role="option"],
+        ul[role="listbox"] li,
+        ul[role="listbox"] [role="option"],
+        ul[data-baseweb="menu"] li,
+        li[data-baseweb="menu-item"] {
+            background-color: var(--paper-raised) !important;
+            color: var(--ink) !important;
+        }
+
+        [data-testid="stSelectboxVirtualDropdown"] [role="option"] *,
+        ul[role="listbox"] [role="option"] *,
+        ul[data-baseweb="menu"] li *,
+        li[data-baseweb="menu-item"] * {
+            color: var(--ink) !important;
+        }
+
+        /* Hovered, focused, or selected option state */
+        [data-testid="stSelectboxVirtualDropdown"] [role="option"]:hover,
+        [data-testid="stSelectboxVirtualDropdown"] [role="option"][aria-selected="true"],
+        [data-testid="stSelectboxVirtualDropdown"] [role="option"][data-focused="true"],
+        ul[role="listbox"] [role="option"]:hover,
+        ul[role="listbox"] [role="option"][aria-selected="true"],
+        ul[data-baseweb="menu"] li:hover,
+        li[data-baseweb="menu-item"]:hover {
+            background-color: var(--brass-soft) !important;
+            color: var(--brass-strong) !important;
+        }
+
+        [data-testid="stSelectboxVirtualDropdown"] [role="option"]:hover *,
+        [data-testid="stSelectboxVirtualDropdown"] [role="option"][aria-selected="true"] *,
+        ul[role="listbox"] [role="option"]:hover * {
+            color: var(--brass-strong) !important;
         }
 
         /* ---------- Forms & containers ---------- */
