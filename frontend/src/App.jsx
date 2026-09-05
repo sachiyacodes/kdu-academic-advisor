@@ -60,7 +60,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
       {/* Global Navbar */}
       <Navbar
         currentStep={currentStep}
@@ -73,10 +73,10 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         {error && (
-          <div className="mb-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-center space-x-3">
-            <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0" />
+          <div className="mb-6 p-4 rounded-xl bg-danger-subtle border border-danger-border text-danger text-xs flex items-center space-x-3">
+            <AlertCircle className="w-5 h-5 text-danger shrink-0" />
             <div className="flex-1">
               <strong className="block font-semibold">Service Notice:</strong>
               <span>{error}</span>
@@ -151,7 +151,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-500">
+      <footer className="border-t border-border-subtle bg-bg-secondary py-6 text-center text-xs text-text-muted">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>
             AI-Based IT Specialization & Course Recommendation System · KDU Faculty of Computing

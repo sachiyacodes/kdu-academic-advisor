@@ -1,5 +1,7 @@
 import React from 'react';
-import { GraduationCap, RotateCcw, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
+import { GraduationCap, RotateCcw, Sparkles, Check } from 'lucide-react';
+import Badge from './ui/Badge';
+import IconButton from './ui/IconButton';
 
 export default function Navbar({
   currentStep,
@@ -15,41 +17,65 @@ export default function Navbar({
     { id: 2, label: 'Courses' },
     { id: 3, label: 'Interests' },
     { id: 4, label: 'Recommendations' },
-    { id: 5, label: 'Elective Advisor' },
-    { id: 6, label: 'Graduation Audit' },
+    { id: 5, label: 'Electives' },
+    { id: 6, label: 'Graduation' },
   ];
 
+  const currentStepObj = steps.find((s) => s.id === currentStep) || steps[0];
+
   return (
-    <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+    <header className="border-b border-border bg-bg-secondary/95 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top Header Row */}
         <div className="flex items-center justify-between h-16">
-          {/* Logo & Title */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentStep(1)}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <GraduationCap className="w-6 h-6 text-white" />
+          {/* Brand Mark & Academic Meta */}
+          <div
+            className="flex items-center space-x-3 cursor-pointer select-none focus-ring rounded-lg p-1 -ml-1"
+            onClick={() => setCurrentStep(1)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && setCurrentStep(1)}
+            aria-label="Go to Step 1: Student Profile"
+          >
+            <div className="w-9 h-9 rounded-lg bg-primary-subtle border border-primary-border flex items-center justify-center text-primary shrink-0 shadow-xs">
+              <GraduationCap className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-bold text-lg text-white tracking-tight">KDU Academic Advisor</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium">
-                  AI Recommender
+                <span className="font-semibold text-base text-text-primary tracking-tight">
+                  KDU Academic Advisor
                 </span>
+                <Badge variant="teal" size="sm" icon={Sparkles}>
+                  Advisor
+                </Badge>
               </div>
-              <p className="text-xs text-slate-400">IT3182 Essentials of AI · Group 22</p>
+              <p className="text-xs text-text-secondary hidden sm:block">
+                Faculty of Computing · IT3182 Essentials of AI
+              </p>
             </div>
           </div>
 
-          {/* Actions: Demo Profile Dropdown + Reset */}
-          <div className="flex items-center space-x-3">
-            {/* Backend status */}
-            <div className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs">
-              <div className={`w-2 h-2 rounded-full ${backendOnline ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-              <span className="text-slate-400">{backendOnline ? 'API Connected' : 'Connecting...'}</span>
+          {/* Header Controls: System Status, Archetype Selector, Reset */}
+          <div className="flex items-center space-x-2.5">
+            {/* Backend Connectivity Status */}
+            <div
+              className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-surface border border-border text-xs"
+              title={backendOnline ? 'Backend service online' : 'Backend service unreachable'}
+            >
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  backendOnline ? 'bg-success animate-pulse' : 'bg-warning'
+                }`}
+              />
+              <span className="text-text-secondary text-xs">
+                {backendOnline ? 'API Connected' : 'Connecting...'}
+              </span>
             </div>
 
-            {/* Quick Demo Profiles */}
+            {/* Quick Demo Archetype Selector */}
             <div className="relative inline-block">
               <select
+                aria-label="Load benchmark student archetype"
                 onChange={(e) => {
                   if (e.target.value) {
                     onLoadDemo(e.target.value);
@@ -57,58 +83,95 @@ export default function Navbar({
                   }
                 }}
                 defaultValue=""
-                className="bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-700/50 text-indigo-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition font-medium"
+                className="bg-surface hover:bg-surface-hover border border-border text-text-primary text-xs rounded-lg px-3 py-1.5 focus-ring cursor-pointer transition font-medium"
               >
-                <option value="" disabled>✨ Load Demo Profile...</option>
-                {demoProfiles && Object.entries(demoProfiles).map(([k, p]) => (
-                  <option key={k} value={k} className="bg-slate-900 text-slate-200">
-                    {p.title}
-                  </option>
-                ))}
+                <option value="" disabled>
+                  Load Student Archetype...
+                </option>
+                {demoProfiles &&
+                  Object.entries(demoProfiles).map(([k, p]) => (
+                    <option key={k} value={k} className="bg-surface-elevated text-text-primary">
+                      {p.title}
+                    </option>
+                  ))}
               </select>
             </div>
 
-            {/* Reset Button */}
-            <button
+            {/* Reset State Button */}
+            <IconButton
+              icon={RotateCcw}
+              label="Reset profile and courses"
+              variant="destructive"
+              size="sm"
               onClick={onReset}
-              title="Reset profile and courses"
-              className="p-1.5 rounded-lg border border-slate-800 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
+            />
           </div>
         </div>
 
-        {/* Step Navigation Bar */}
-        <div className="flex items-center justify-between border-t border-slate-800/80 py-2.5 overflow-x-auto no-scrollbar">
+        {/* Responsive Stepper: Desktop & Tablet */}
+        <nav
+          aria-label="Academic planning steps"
+          className="hidden md:flex items-center justify-between border-t border-border-subtle py-2.5 overflow-x-auto"
+        >
           {steps.map((s) => {
             const isActive = currentStep === s.id;
             const isCompleted = completedSteps.includes(s.id);
             return (
               <button
                 key={s.id}
+                type="button"
                 onClick={() => setCurrentStep(s.id)}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
+                aria-current={isActive ? 'step' : undefined}
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs transition whitespace-nowrap cursor-pointer focus-ring ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                    ? 'bg-primary-subtle text-primary border border-primary-border font-semibold shadow-xs'
                     : isCompleted
-                    ? 'text-emerald-400 hover:bg-slate-900'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+                    ? 'text-success hover:bg-surface hover:text-success font-medium'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
                 }`}
               >
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                  isActive
-                    ? 'bg-white text-indigo-700'
-                    : isCompleted
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-slate-800 text-slate-400'
-                }`}>
-                  {isCompleted && !isActive ? '✓' : s.id}
+                <span
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                    isActive
+                      ? 'bg-primary text-white'
+                      : isCompleted
+                      ? 'bg-success-subtle text-success border border-success-border'
+                      : 'bg-surface-elevated text-text-secondary border border-border'
+                  }`}
+                >
+                  {isCompleted && !isActive ? <Check className="w-3 h-3" /> : s.id}
                 </span>
                 <span>{s.label}</span>
               </button>
             );
           })}
+        </nav>
+
+        {/* Responsive Mobile Stepper (< 768px) */}
+        <div className="md:hidden border-t border-border-subtle py-2.5 flex items-center justify-between text-xs">
+          <div className="flex items-center space-x-2">
+            <span className="font-semibold text-primary">
+              Step {currentStep} of {steps.length}:
+            </span>
+            <span className="text-text-primary font-medium">{currentStepObj.label}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            {steps.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setCurrentStep(s.id)}
+                aria-label={`Go to step ${s.id}: ${s.label}`}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  s.id === currentStep
+                    ? 'w-6 bg-primary'
+                    : completedSteps.includes(s.id)
+                    ? 'w-2 bg-success'
+                    : 'w-2 bg-border'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </header>

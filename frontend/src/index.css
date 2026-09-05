@@ -1,31 +1,197 @@
 @import "tailwindcss";
 
-:root {
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'Playfair Display', Georgia, Cambria, serif;
+@theme {
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-surface: var(--color-surface);
+  --color-surface-elevated: var(--color-surface-elevated);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-border: var(--color-border);
+  --color-border-subtle: var(--color-border-subtle);
+
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-active: var(--color-primary-active);
+  --color-primary-subtle: var(--color-primary-subtle);
+  --color-primary-border: var(--color-primary-border);
+
+  --color-teal: var(--color-teal);
+  --color-teal-hover: var(--color-teal-hover);
+  --color-teal-subtle: var(--color-teal-subtle);
+  --color-teal-border: var(--color-teal-border);
+
+  --color-success: var(--color-success);
+  --color-success-subtle: var(--color-success-subtle);
+  --color-success-border: var(--color-success-border);
+
+  --color-warning: var(--color-warning);
+  --color-warning-subtle: var(--color-warning-subtle);
+  --color-warning-border: var(--color-warning-border);
+
+  --color-danger: var(--color-danger);
+  --color-danger-subtle: var(--color-danger-subtle);
+  --color-danger-border: var(--color-danger-border);
+
+  --color-info: var(--color-info);
+  --color-info-subtle: var(--color-info-subtle);
+
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-disabled: var(--color-text-disabled);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN SYSTEM TOKENS: DARK THEME (DEFAULT)
+   Linear × Vercel × Modern Academic Data Platform
+   Deep Navy canvas + Ocean Blue interaction + Intelligence Teal analytical
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Canvas & Structural Backgrounds */
+  --color-bg-primary: #07111F;
+  --color-bg-secondary: #0B1728;
+  --color-surface: #101D2E;
+  --color-surface-elevated: #16263A;
+  --color-surface-hover: #1B2D43;
+
+  /* Borders & Dividers */
+  --color-border: #203149;
+  --color-border-subtle: #17263A;
+
+  /* Primary Interaction Accent: Ocean Blue */
+  --color-primary: #3B82F6;
+  --color-primary-hover: #60A5FA;
+  --color-primary-active: #2563EB;
+  --color-primary-subtle: rgba(59, 130, 246, 0.10);
+  --color-primary-border: rgba(59, 130, 246, 0.30);
+
+  /* Analytical & AI Accent: Intelligence Teal */
+  --color-teal: #14B8A6;
+  --color-teal-hover: #2DD4BF;
+  --color-teal-subtle: rgba(20, 184, 166, 0.10);
+  --color-teal-border: rgba(20, 184, 166, 0.30);
+
+  /* Semantic Feedback Statuses */
+  --color-success: #22C55E;
+  --color-success-subtle: rgba(34, 197, 94, 0.10);
+  --color-success-border: rgba(34, 197, 94, 0.25);
+
+  --color-warning: #F59E0B;
+  --color-warning-subtle: rgba(245, 158, 11, 0.10);
+  --color-warning-border: rgba(245, 158, 11, 0.25);
+
+  --color-danger: #EF4444;
+  --color-danger-subtle: rgba(239, 68, 68, 0.10);
+  --color-danger-border: rgba(239, 68, 68, 0.25);
+
+  --color-info: #38BDF8;
+  --color-info-subtle: rgba(56, 189, 248, 0.10);
+
+  /* High-Contrast Readable Typography Hierarchy */
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #A8B4C5;
+  --color-text-muted: #718096;
+  --color-text-disabled: #4B5A6D;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN SYSTEM TOKENS: LIGHT THEME
+   Crisp, high-contrast daylight academic theme
+   ───────────────────────────────────────────────────────────────────────────── */
+:root[data-theme="light"],
+.light {
+  /* Canvas & Structural Backgrounds */
+  --color-bg-primary: #F6F8FB;
+  --color-bg-secondary: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #F8FAFC;
+  --color-surface-hover: #F1F5F9;
+
+  /* Borders & Dividers */
+  --color-border: #E2E8F0;
+  --color-border-subtle: #EDF2F7;
+
+  /* Primary Interaction Accent: Ocean Blue */
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-active: #1E40AF;
+  --color-primary-subtle: rgba(37, 99, 235, 0.08);
+  --color-primary-border: rgba(37, 99, 235, 0.25);
+
+  /* Analytical & AI Accent: Intelligence Teal */
+  --color-teal: #0F766E;
+  --color-teal-hover: #115E59;
+  --color-teal-subtle: rgba(15, 118, 110, 0.08);
+  --color-teal-border: rgba(15, 118, 110, 0.25);
+
+  /* Semantic Feedback Statuses */
+  --color-success: #16A34A;
+  --color-success-subtle: rgba(22, 163, 74, 0.08);
+  --color-success-border: rgba(22, 163, 74, 0.25);
+
+  --color-warning: #D97706;
+  --color-warning-subtle: rgba(217, 119, 6, 0.08);
+  --color-warning-border: rgba(217, 119, 6, 0.25);
+
+  --color-danger: #DC2626;
+  --color-danger-subtle: rgba(220, 38, 38, 0.08);
+  --color-danger-border: rgba(220, 38, 38, 0.25);
+
+  --color-info: #0284C7;
+  --color-info-subtle: rgba(2, 132, 199, 0.08);
+
+  /* High-Contrast Readable Typography Hierarchy */
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748B;
+  --color-text-disabled: #94A3B8;
+}
+
+/* Global Application Base */
 body {
   margin: 0;
   padding: 0;
-  background-color: #0B0F19;
-  color: #F1F5F9;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbars */
+/* Focus Ring Accessibility Utility */
+.focus-ring {
+  outline: none;
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Subtle, Calm Scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: var(--color-bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
+  background: var(--color-border);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: var(--color-border-subtle);
 }

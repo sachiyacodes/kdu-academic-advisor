@@ -1,15 +1,15 @@
 import React from 'react';
 import {
   GraduationCap,
-  Award,
-  CheckCircle2,
+  Check,
   AlertTriangle,
   BarChart3,
   ArrowLeft,
   RotateCcw,
-  Sparkles,
   BookOpen,
+  Info,
 } from 'lucide-react';
+import { Card, Button, Progress, Skeleton } from './ui';
 
 export default function StepGraduation({
   auditData,
@@ -20,22 +20,35 @@ export default function StepGraduation({
 }) {
   if (loading) {
     return (
-      <div className="py-24 text-center space-y-4 animate-fadeIn">
-        <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin mx-auto" />
-        <h2 className="text-base font-bold text-white">Running Graduation Credit Audit...</h2>
+      <div className="space-y-6 md:space-y-8 animate-fadeIn">
+        <div className="border-b border-border pb-5 space-y-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-8 w-80" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-36 w-full" />
+          <Skeleton className="h-36 w-full" />
+        </div>
       </div>
     );
   }
 
   if (!auditData) {
     return (
-      <div className="py-20 text-center space-y-4">
-        <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto" />
-        <h2 className="text-base font-bold text-white">No Audit Data</h2>
-        <button onClick={onPrev} className="text-xs bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold">
+      <Card className="py-16 text-center space-y-4 max-w-lg mx-auto">
+        <AlertTriangle className="w-10 h-10 text-warning mx-auto" />
+        <h2 className="text-base font-semibold text-text-primary">No Audit Data Available</h2>
+        <Button variant="primary" size="md" onClick={onPrev}>
           Back to Elective Advisor
-        </button>
-      </div>
+        </Button>
+      </Card>
     );
   }
 
@@ -59,202 +72,226 @@ export default function StepGraduation({
   const subjectPerfs = profile?.subject_performances || [];
 
   return (
-    <div className="space-y-8 animate-fadeIn">
+    <div className="space-y-6 md:space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="border-b border-slate-800 pb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="border-b border-border pb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-1">
-            <span>Step 6 of 6 · Degree Completion</span>
+          <div className="flex items-center space-x-2 text-primary text-xs font-semibold uppercase tracking-wider mb-1">
+            <span>Step 6 of 6 · Degree Completion Audit</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
             Graduation Credit Audit & Analytics
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Official evaluation against KDU graduation requirements: 120 GPA credits and 14 NGPA credits.
+          <p className="text-sm text-text-secondary mt-1">
+            Evaluation against official degree requirements: 120 GPA credits and 14 NGPA credits.
           </p>
         </div>
 
-        {/* Eligibility Banner */}
-        <div className={`flex items-center space-x-3 px-5 py-3 rounded-2xl border shadow-lg ${
-          is_eligible
-            ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
-            : 'bg-indigo-950/40 border-indigo-800/60 text-indigo-300'
-        }`}>
-          <GraduationCap className={`w-8 h-8 ${is_eligible ? 'text-emerald-400' : 'text-indigo-400'}`} />
+        {/* Graduation Clearance Status Banner */}
+        <Card
+          padding="sm"
+          className={`flex items-center space-x-3 px-4 shrink-0 shadow-xs ${
+            is_eligible ? 'border-success-border bg-success-subtle' : 'border-border'
+          }`}
+        >
+          <div
+            className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+              is_eligible ? 'bg-success text-white' : 'bg-primary-subtle text-primary border border-primary-border'
+            }`}
+          >
+            <GraduationCap className="w-5 h-5" />
+          </div>
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-wider block">
+            <span className="text-[10px] uppercase font-semibold text-text-secondary block tracking-wider">
               Graduation Clearance
             </span>
-            <strong className="text-sm text-white font-bold">
-              {is_eligible ? 'All Credit Targets Met 🎉' : 'Degree In Progress'}
+            <strong className={`text-xs font-bold ${is_eligible ? 'text-success' : 'text-text-primary'}`}>
+              {is_eligible ? 'All Graduation Requirements Met' : 'Degree In Progress'}
             </strong>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Academic Standing Summary Metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+        <Card padding="sm" className="space-y-1">
+          <span className="text-[10px] uppercase font-semibold text-text-muted block tracking-wider">
             Academic Stage
           </span>
-          <span className="text-sm font-bold text-white mt-1 block">
-            {profile ? `Year ${profile.year}, Sem ${profile.semester}` : 'In Progress'}
+          <span className="text-sm font-bold text-text-primary block">
+            {profile ? `Year ${profile.year}, Sem ${profile.semester}` : 'Enrolled'}
           </span>
-        </div>
+        </Card>
 
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+        <Card padding="sm" className="space-y-1">
+          <span className="text-[10px] uppercase font-semibold text-text-muted block tracking-wider">
             Cumulative GPA
           </span>
-          <span className="text-sm font-bold text-indigo-400 mt-1 block">
+          <span className="text-sm font-bold text-primary block">
             {gpa ? gpa.toFixed(2) : '0.00'}
           </span>
-        </div>
+        </Card>
 
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-            GPA Standing
+        <Card padding="sm" className="space-y-1">
+          <span className="text-[10px] uppercase font-semibold text-text-muted block tracking-wider">
+            Classification
           </span>
-          <span className="text-sm font-bold text-emerald-400 mt-1 block truncate">
-            {classification || 'First Class Honours'}
+          <span className="text-sm font-bold text-success block truncate">
+            {classification || 'Good Standing'}
           </span>
-        </div>
+        </Card>
 
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
-          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+        <Card padding="sm" className="space-y-1">
+          <span className="text-[10px] uppercase font-semibold text-text-muted block tracking-wider">
             Total Credits Earned
           </span>
-          <span className="text-sm font-bold text-white mt-1 block">
+          <span className="text-sm font-bold text-text-primary block">
             {total_credits_earned || gpa_credits_earned + ngpa_credits_earned} cr
           </span>
-        </div>
+        </Card>
       </div>
 
-      {/* Credit Gauges Grid */}
+      {/* Credit Progress Gauges */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* GPA Credits Card */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
-          <div className="flex justify-between items-center">
+        <Card className="space-y-4 shadow-xs">
+          <div className="flex justify-between items-start">
             <div>
-              <span className="text-xs font-bold text-slate-200 block">
+              <span className="text-xs font-semibold text-text-primary block">
                 Core & Elective GPA Credits
               </span>
-              <p className="text-[11px] text-slate-400">
-                Core: <strong className="text-slate-200">{core_credits}</strong> cr · Elective: <strong className="text-slate-200">{elective_credits}</strong> cr
+              <p className="text-[11px] text-text-secondary mt-0.5">
+                Core: <strong className="text-text-primary">{core_credits}</strong> cr · Elective: <strong className="text-text-primary">{elective_credits}</strong> cr
               </p>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-black text-white">{gpa_credits_earned}</span>
-              <span className="text-xs text-slate-500 font-bold"> / {gpa_target}</span>
+              <span className="text-xl font-black text-text-primary">{gpa_credits_earned}</span>
+              <span className="text-xs text-text-muted font-medium"> / {gpa_target}</span>
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-500"
-                style={{ width: `${gpa_progress_pct}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-              <span>{gpa_progress_pct}% Complete</span>
+          <div className="space-y-2">
+            <Progress
+              value={gpa_progress_pct}
+              max={100}
+              variant="primary"
+              size="md"
+            />
+            <div className="flex justify-between text-[11px] text-text-secondary">
+              <span className="font-semibold text-primary">{gpa_progress_pct}% Complete</span>
               <span>{Math.max(0, gpa_target - gpa_credits_earned)} credits remaining</span>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* NGPA Credits Card */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
-          <div className="flex justify-between items-center">
+        <Card className="space-y-4 shadow-xs">
+          <div className="flex justify-between items-start">
             <div>
-              <span className="text-xs font-bold text-slate-200 block">
-                Non-GPA (NGPA) Credits
+              <span className="text-xs font-semibold text-text-primary block">
+                Non-GPA (NGPA) Auxiliary Credits
               </span>
-              <p className="text-[11px] text-slate-400">
-                Auxiliary modules (English, Internship, Leadership)
+              <p className="text-[11px] text-text-secondary mt-0.5">
+                English, Industrial Internship, and Leadership modules
               </p>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-black text-white">{ngpa_credits_earned}</span>
-              <span className="text-xs text-slate-500 font-bold"> / {ngpa_target}</span>
+              <span className="text-xl font-black text-text-primary">{ngpa_credits_earned}</span>
+              <span className="text-xs text-text-muted font-medium"> / {ngpa_target}</span>
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
-                style={{ width: `${ngpa_progress_pct}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-[11px] text-slate-400 font-medium">
-              <span>{ngpa_progress_pct}% Complete</span>
+          <div className="space-y-2">
+            <Progress
+              value={ngpa_progress_pct}
+              max={100}
+              variant="teal"
+              size="md"
+            />
+            <div className="flex justify-between text-[11px] text-text-secondary">
+              <span className="font-semibold text-teal">{ngpa_progress_pct}% Complete</span>
               <span>{Math.max(0, ngpa_target - ngpa_credits_earned)} credits remaining</span>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* Curriculum & Benchmark Explanatory Badges */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 text-slate-400 leading-relaxed">
-          <strong className="text-slate-200 block mb-0.5">📚 KDU Electives Policy:</strong>
-          In the KDU computing curricula, electives begin in <strong>Year 3, Semester 2</strong> and continue into Year 4. All modules taken in Years 1 & 2 are Core degree requirements.
-        </div>
-        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 text-slate-400 leading-relaxed">
-          <strong className="text-slate-200 block mb-0.5">✨ Stage-Aware Auto-fill:</strong>
-          Demo profiles dynamically populate all completed courses prior to your current stage ({gpa_credits_earned} GPA credits, {ngpa_credits_earned} NGPA credits). You can modify or add courses in <strong>Step 2</strong>.
-        </div>
-      </div>
-
-      {/* Prerequisite Bottlenecks Detector */}
-      {bottlenecks.length > 0 ? (
-        <div className="bg-amber-950/25 border border-amber-800/50 rounded-2xl p-5 space-y-3 shadow-md">
-          <div className="flex items-center space-x-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-            <AlertTriangle className="w-4 h-4" />
-            <span>Critical Prerequisite Bottlenecks Detected</span>
+      {/* Curriculum & Benchmark Information Notice */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+        <Card padding="sm" className="space-y-1">
+          <div className="flex items-center space-x-1.5 font-semibold text-text-primary">
+            <BookOpen className="w-3.5 h-3.5 text-primary" />
+            <span>KDU Electives Policy</span>
           </div>
-          <p className="text-xs text-slate-300 leading-relaxed">
-            The following uncompleted courses are required prerequisites for multiple upcoming courses in your degree curriculum. Prioritize these to avoid academic progression delays:
+          <p className="text-text-secondary text-[11px] leading-relaxed">
+            In the KDU computing curriculum, elective options begin in <strong>Year 3, Semester 2</strong> and extend into Year 4. Modules in Years 1 & 2 are mandatory degree core foundations.
           </p>
-          <ul className="space-y-1.5 text-xs text-slate-300 list-disc list-inside">
+        </Card>
+
+        <Card padding="sm" className="space-y-1">
+          <div className="flex items-center space-x-1.5 font-semibold text-text-primary">
+            <Info className="w-3.5 h-3.5 text-teal" />
+            <span>Stage-Aware Verification</span>
+          </div>
+          <p className="text-text-secondary text-[11px] leading-relaxed">
+            Transcript evaluations dynamically incorporate all completed prior courses ({gpa_credits_earned} GPA credits, {ngpa_credits_earned} NGPA credits). You can adjust any grade in <strong>Step 2</strong>.
+          </p>
+        </Card>
+      </div>
+
+      {/* Prerequisite Bottlenecks Alert */}
+      {bottlenecks.length > 0 ? (
+        <Card className="border-warning-border bg-warning-subtle space-y-2.5">
+          <div className="flex items-center space-x-2 text-warning font-semibold text-xs uppercase tracking-wider">
+            <AlertTriangle className="w-4 h-4" />
+            <span>Prerequisite Bottlenecks Detected</span>
+          </div>
+          <p className="text-xs text-text-primary leading-relaxed">
+            The following courses serve as prerequisite foundations for multiple upcoming subjects. Completing them is essential to prevent curriculum progression delays:
+          </p>
+          <ul className="space-y-1 text-xs text-text-secondary list-disc list-inside">
             {bottlenecks.map((b, i) => (
-              <li key={i} className="leading-relaxed">
+              <li key={i} className="leading-relaxed font-medium">
                 {b}
               </li>
             ))}
           </ul>
-        </div>
+        </Card>
       ) : (
-        <div className="bg-emerald-950/20 border border-emerald-800/40 rounded-2xl p-4 flex items-center space-x-3 text-emerald-300 text-xs shadow-sm">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-          <div>
-            <strong className="block text-white font-semibold">No Prerequisite Bottlenecks:</strong>
-            <span>All upstream prerequisites for your current curriculum stage are satisfied.</span>
+        <Card className="border-success-border bg-success-subtle flex items-center space-x-3 p-4">
+          <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success shrink-0">
+            <Check className="w-4 h-4" />
           </div>
-        </div>
+          <div>
+            <strong className="block text-xs font-semibold text-text-primary">
+              No Prerequisite Bottlenecks
+            </strong>
+            <span className="text-xs text-text-secondary">
+              All prerequisite chains for your current curriculum stage are satisfied.
+            </span>
+          </div>
+        </Card>
       )}
 
-      {/* Subject Area Performance Chart / Distribution */}
+      {/* Subject Area Performance Distribution */}
       {subjectPerfs.length > 0 && (
-        <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white flex items-center space-x-2">
-              <BarChart3 className="w-4 h-4 text-indigo-400" />
-              <span>Academic Performance by Subject Area</span>
+        <Card className="space-y-4 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
+            <h3 className="text-sm font-semibold text-text-primary flex items-center space-x-2">
+              <BarChart3 className="w-4 h-4 text-primary" />
+              <span>Academic Performance by Subject Taxonomy Area</span>
             </h3>
-            <span className="text-xs text-slate-400 font-medium">
-              Evaluated Areas: <strong className="text-indigo-400">{subjectPerfs.length}</strong>
+            <span className="text-xs text-text-muted font-medium">
+              Taxonomy Areas: <strong className="text-primary">{subjectPerfs.length}</strong>
             </span>
           </div>
 
-          <div className="space-y-3 pt-2">
+          <div className="space-y-3 pt-1">
             {subjectPerfs.map((p) => {
               const mark = p.average_mark;
-              let barColor = 'from-indigo-500 to-violet-500';
-              if (mark >= 80) barColor = 'from-emerald-500 to-teal-500';
-              else if (mark < 60) barColor = 'from-amber-500 to-rose-500';
+              let variant = 'primary';
+              if (mark >= 80) variant = 'success';
+              else if (mark < 55) variant = 'warning';
 
               const courseCountText =
                 p.course_count === 1 ? '1 course' : `${p.course_count} courses`;
@@ -262,14 +299,20 @@ export default function StepGraduation({
               return (
                 <div key={p.subject_area} className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-slate-300 font-medium">{p.subject_area}</span>
-                    <span className="font-mono text-slate-300 font-bold">
-                      {mark.toFixed(1)}% <span className="text-slate-500 font-normal">({courseCountText})</span>
+                    <span className="text-text-primary font-medium">{p.subject_area}</span>
+                    <span className="font-mono text-text-secondary font-semibold">
+                      {mark.toFixed(1)}% <span className="text-text-muted font-normal">({courseCountText})</span>
                     </span>
                   </div>
-                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
                     <div
-                      className={`h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-500`}
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        variant === 'success'
+                          ? 'bg-success'
+                          : variant === 'warning'
+                          ? 'bg-warning'
+                          : 'bg-primary'
+                      }`}
                       style={{ width: `${Math.min(100, mark)}%` }}
                     />
                   </div>
@@ -277,26 +320,28 @@ export default function StepGraduation({
               );
             })}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Footer Controls */}
-      <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
-        <button
+      <div className="pt-6 border-t border-border flex items-center justify-between">
+        <Button
+          variant="secondary"
+          size="md"
+          icon={ArrowLeft}
           onClick={onPrev}
-          className="flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-white px-4 py-2 rounded-xl hover:bg-slate-900 transition"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Elective Advisor</span>
-        </button>
+          Back to Elective Advisor
+        </Button>
 
-        <button
+        <Button
+          variant="secondary"
+          size="md"
+          icon={RotateCcw}
           onClick={onReset}
-          className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-5 py-2.5 rounded-xl transition"
         >
-          <RotateCcw className="w-4 h-4" />
-          <span>Reset & Start New Evaluation</span>
-        </button>
+          Reset & Start New Evaluation
+        </Button>
       </div>
     </div>
   );

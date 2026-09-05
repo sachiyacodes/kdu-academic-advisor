@@ -3,29 +3,27 @@ import {
   BookOpen,
   Plus,
   Trash2,
-  Award,
-  CheckCircle2,
+  Sparkles,
   ArrowRight,
   ArrowLeft,
-  Search,
-  Filter,
-  Layers,
-  Sparkles,
+  X,
 } from 'lucide-react';
+import { Card, Button, Badge, IconButton } from './ui';
 
 function getGradeInfo(mark) {
-  if (mark >= 85) return { grade: 'A+', gp: 4.0, color: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/50' };
-  if (mark >= 75) return { grade: 'A', gp: 4.0, color: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/50' };
-  if (mark >= 70) return { grade: 'A-', gp: 3.7, color: 'text-emerald-300 bg-emerald-950/40 border-emerald-800/50' };
-  if (mark >= 65) return { grade: 'B+', gp: 3.3, color: 'text-indigo-300 bg-indigo-950/40 border-indigo-800/50' };
-  if (mark >= 60) return { grade: 'B', gp: 3.0, color: 'text-indigo-400 bg-indigo-950/40 border-indigo-800/50' };
-  if (mark >= 55) return { grade: 'B-', gp: 2.7, color: 'text-indigo-400 bg-indigo-950/40 border-indigo-800/50' };
-  if (mark >= 50) return { grade: 'C+', gp: 2.3, color: 'text-amber-300 bg-amber-950/40 border-amber-800/50' };
-  if (mark >= 45) return { grade: 'C', gp: 2.0, color: 'text-amber-400 bg-amber-950/40 border-amber-800/50' };
-  if (mark >= 40) return { grade: 'C-', gp: 1.7, color: 'text-amber-500 bg-amber-950/40 border-amber-800/50' };
-  if (mark >= 35) return { grade: 'D+', gp: 1.3, color: 'text-rose-400 bg-rose-950/40 border-rose-800/50' };
-  if (mark >= 30) return { grade: 'D', gp: 1.0, color: 'text-rose-400 bg-rose-950/40 border-rose-800/50' };
-  return { grade: 'E', gp: 0.0, color: 'text-rose-500 bg-rose-950/40 border-rose-800/50' };
+  const numMark = parseFloat(mark) || 0;
+  if (numMark >= 85) return { grade: 'A+', gp: 4.0, variant: 'success' };
+  if (numMark >= 75) return { grade: 'A', gp: 4.0, variant: 'success' };
+  if (numMark >= 70) return { grade: 'A-', gp: 3.7, variant: 'success' };
+  if (numMark >= 65) return { grade: 'B+', gp: 3.3, variant: 'primary' };
+  if (numMark >= 60) return { grade: 'B', gp: 3.0, variant: 'primary' };
+  if (numMark >= 55) return { grade: 'B-', gp: 2.7, variant: 'primary' };
+  if (numMark >= 50) return { grade: 'C+', gp: 2.3, variant: 'warning' };
+  if (numMark >= 45) return { grade: 'C', gp: 2.0, variant: 'warning' };
+  if (numMark >= 40) return { grade: 'C-', gp: 1.7, variant: 'warning' };
+  if (numMark >= 35) return { grade: 'D+', gp: 1.3, variant: 'danger' };
+  if (numMark >= 30) return { grade: 'D', gp: 1.0, variant: 'danger' };
+  return { grade: 'E', gp: 0.0, variant: 'danger' };
 }
 
 export default function StepCourseHistory({
@@ -40,10 +38,8 @@ export default function StepCourseHistory({
 }) {
   const [selectedCourseCode, setSelectedCourseCode] = useState('');
   const [markInput, setMarkInput] = useState(75);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterYear, setFilterYear] = useState('all');
 
-  // Custom Course Form Modal State
+  // Custom Course Modal State
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [customCourse, setCustomCourse] = useState({
     code: '',
@@ -60,20 +56,8 @@ export default function StepCourseHistory({
     if (profile.degree !== 'Custom / Other University Degree') {
       list = list.filter((c) => c.degree === profile.degree);
     }
-    if (filterYear !== 'all') {
-      list = list.filter((c) => c.year === parseInt(filterYear, 10));
-    }
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      list = list.filter(
-        (c) =>
-          c.course_code.toLowerCase().includes(q) ||
-          c.course_name.toLowerCase().includes(q) ||
-          c.subject_area.toLowerCase().includes(q)
-      );
-    }
     return list;
-  }, [catalogCourses, profile.degree, filterYear, searchTerm]);
+  }, [catalogCourses, profile.degree]);
 
   // Already added course codes
   const addedCodes = useMemo(
@@ -148,7 +132,7 @@ export default function StepCourseHistory({
   const priorSemestersText = useMemo(() => {
     const y = profile.year || 2;
     const s = profile.semester || 2;
-    if (y === 1 && s === 1) return 'Year 1 Sem 1 is your current initial semester (no prior completed semesters)';
+    if (y === 1 && s === 1) return 'Year 1 Sem 1 is your initial semester (no prior completed semesters)';
     if (y === 1 && s === 2) return 'Year 1 Semester 1';
     if (y === 2 && s === 1) return 'Year 1 (Semester 1 & 2)';
     if (y === 2 && s === 2) return 'Year 1 (Sem 1 & 2) + Year 2 Sem 1';
@@ -158,124 +142,126 @@ export default function StepCourseHistory({
   }, [profile.year, profile.semester]);
 
   return (
-    <div className="space-y-8 animate-fadeIn">
+    <div className="space-y-6 md:space-y-8 animate-fadeIn">
       {/* Header */}
-      <div className="border-b border-slate-800 pb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="border-b border-border pb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-1">
+          <div className="flex items-center space-x-2 text-primary text-xs font-semibold uppercase tracking-wider mb-1">
             <span>Step 2 of 6</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
             Completed Course History
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Enter marks for completed courses. The system automatically computes GPA, stage standing, and subject area proficiencies.
+          <p className="text-sm text-text-secondary mt-1">
+            Enter marks for completed courses. The engine automatically computes GPA, stage credits, and subject proficiencies.
           </p>
         </div>
 
         {/* GPA & Credits Stats Card */}
         {gpaData && (
-          <div className="flex items-center space-x-4 bg-slate-900 border border-slate-800 rounded-2xl p-3.5 px-5 shadow-lg">
+          <Card padding="sm" className="flex items-center space-x-5 px-5 shrink-0">
             <div className="text-right">
-              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">
+              <span className="text-[11px] uppercase tracking-wider text-text-secondary font-semibold block">
                 Current GPA
               </span>
-              <span className="text-2xl font-black text-indigo-400">
+              <span className="text-2xl font-black text-primary">
                 {gpaData.gpa.toFixed(2)}
               </span>
             </div>
-            <div className="h-8 w-px bg-slate-800" />
+            <div className="h-8 w-px bg-border" />
             <div>
-              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">
+              <span className="text-[11px] uppercase tracking-wider text-text-secondary font-semibold block">
                 Credits Earned
               </span>
-              <span className="text-lg font-bold text-slate-200">
-                {gpaData.credits_earned} <span className="text-xs text-slate-500">/ 134</span>
+              <span className="text-lg font-bold text-text-primary">
+                {gpaData.credits_earned} <span className="text-xs text-text-muted">/ 134</span>
               </span>
             </div>
-          </div>
+          </Card>
         )}
       </div>
 
       {/* Stage Context & Quick Autofill Banner */}
-      <div className="bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-slate-900 border border-indigo-800/40 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-5 h-5 text-indigo-400" />
+      <Card padding="normal" className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-10 h-10 rounded-lg bg-teal-subtle border border-teal-border flex items-center justify-center text-teal shrink-0">
+            <Sparkles className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold text-slate-200">
+              <span className="text-xs font-semibold text-text-primary">
                 Current Stage: Year {profile.year}, Semester {profile.semester}
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-900/60 text-indigo-300 border border-indigo-700/50">
+              <Badge variant="neutral" size="sm">
                 {profile.degree}
-              </span>
+              </Badge>
             </div>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              Completed semesters: <strong className="text-slate-300">{priorSemestersText}</strong>. Marks for current semester are pending since you are currently studying it.
+            <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
+              Completed semesters: <strong className="text-text-primary">{priorSemestersText}</strong>. Marks for current semester are pending since you are currently enrolled.
             </p>
           </div>
         </div>
 
         {onAutofillPriorCourses && (
-          <div className="flex items-center space-x-2 w-full sm:w-auto">
-            <button
-              type="button"
+          <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
+            <Button
+              variant="primary"
+              size="md"
+              icon={Sparkles}
               onClick={() => onAutofillPriorCourses('student_a')}
-              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 transition cursor-pointer"
               title="Auto-fill all completed prior courses with benchmark marks"
+              className="flex-1 sm:flex-none"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Auto-fill Prior Semesters</span>
-            </button>
+              Auto-fill Prior Semesters
+            </Button>
             {courses.length > 0 && (
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => setCourses([])}
-                className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-rose-950/50 hover:text-rose-300 hover:border-rose-800/50 border border-slate-700 text-slate-400 text-xs font-medium transition cursor-pointer"
                 title="Clear all course records"
               >
                 Clear
-              </button>
+              </Button>
             )}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Add Course Form Section */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white flex items-center space-x-2">
-            <Plus className="w-4 h-4 text-indigo-400" />
+      <Card className="space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
+          <h2 className="text-sm font-semibold text-text-primary flex items-center space-x-2">
+            <Plus className="w-4 h-4 text-primary" />
             <span>Record Course Grade</span>
           </h2>
           <button
             type="button"
             onClick={() => setIsCustomModalOpen(true)}
-            className="text-xs text-indigo-400 hover:text-indigo-300 font-medium hover:underline flex items-center space-x-1"
+            className="text-xs text-primary hover:text-primary-hover font-medium hover:underline flex items-center space-x-1 cursor-pointer"
           >
             <span>+ Add Custom Course</span>
           </button>
         </div>
 
-        <form onSubmit={handleAddCourse} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+        <form onSubmit={handleAddCourse} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
           {/* Course Selector */}
           <div className="sm:col-span-6 space-y-1.5">
-            <label className="block text-xs font-medium text-slate-300">
+            <label htmlFor="course-catalog-select" className="block text-xs font-semibold text-text-secondary">
               Select Course from Curriculum
             </label>
             <select
+              id="course-catalog-select"
               value={selectedCourseCode}
               onChange={(e) => setSelectedCourseCode(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full h-11 bg-bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-text-primary focus-ring transition cursor-pointer"
             >
-              <option value="">-- Choose Course --</option>
+              <option value="">-- Choose Course from Catalog --</option>
               {availableCatalogCourses.map((c) => {
                 const isAdded = addedCodes.has(c.course_code);
                 return (
-                  <option key={c.course_code} value={c.course_code} disabled={isAdded}>
-                    {c.course_code} - {c.course_name} ({c.credits} cr · {c.subject_area}) {isAdded ? '✓ Already Added' : ''}
+                  <option key={c.course_code} value={c.course_code} disabled={isAdded} className="bg-surface text-text-primary">
+                    {c.course_code} - {c.course_name} ({c.credits} cr · {c.subject_area}) {isAdded ? '✓ Added' : ''}
                   </option>
                 );
               })}
@@ -285,221 +271,261 @@ export default function StepCourseHistory({
           {/* Mark Input */}
           <div className="sm:col-span-3 space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <label className="font-medium text-slate-300">Mark (0 - 100%)</label>
-              <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${currentGrade.color}`}>
-                Grade: {currentGrade.grade} ({currentGrade.gp.toFixed(1)})
-              </span>
+              <label htmlFor="mark-input" className="font-semibold text-text-secondary">Mark (0 - 100%)</label>
+              <Badge variant={currentGrade.variant} size="sm">
+                {currentGrade.grade} ({currentGrade.gp.toFixed(1)})
+              </Badge>
             </div>
             <input
+              id="mark-input"
               type="number"
               min="0"
               max="100"
               step="0.5"
               value={markInput}
               onChange={(e) => setMarkInput(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full h-11 bg-bg-secondary border border-border rounded-lg px-3.5 py-2 text-xs text-text-primary focus-ring transition"
             />
           </div>
 
           {/* Submit Button */}
           <div className="sm:col-span-3">
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="lg"
               disabled={!selectedCourseCode}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold py-2.5 rounded-xl shadow-md shadow-indigo-600/20 transition flex items-center justify-center space-x-1.5"
+              icon={Plus}
+              className="w-full"
             >
-              <Plus className="w-4 h-4" />
-              <span>Add to Transcript</span>
-            </button>
+              Add to Transcript
+            </Button>
           </div>
         </form>
-      </div>
+      </Card>
 
-      {/* Added Courses Table / Cards */}
-      <div className="space-y-4">
+      {/* Added Courses Section: High-Density Table replacing floating card boxes */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white flex items-center space-x-2">
-            <BookOpen className="w-4 h-4 text-indigo-400" />
+          <h2 className="text-sm font-semibold text-text-primary flex items-center space-x-2">
+            <BookOpen className="w-4 h-4 text-primary" />
             <span>Enrolled & Completed Courses ({courses.length})</span>
           </h2>
           {courses.length > 0 && (
             <button
+              type="button"
               onClick={() => setCourses([])}
-              className="text-xs text-rose-400 hover:text-rose-300 font-medium transition"
+              className="text-xs text-text-muted hover:text-danger font-medium transition cursor-pointer"
             >
-              Clear all
+              Clear all courses
             </button>
           )}
         </div>
 
         {courses.length === 0 ? (
-          <div className="bg-slate-900/40 border border-dashed border-slate-800 rounded-2xl p-12 text-center space-y-3">
-            <BookOpen className="w-8 h-8 text-slate-600 mx-auto" />
-            <p className="text-sm text-slate-400 font-medium">
-              No courses recorded yet.
+          <Card className="p-12 text-center space-y-3 border-dashed bg-bg-secondary/40">
+            <BookOpen className="w-8 h-8 text-text-muted mx-auto" />
+            <p className="text-sm text-text-primary font-semibold">
+              No courses recorded yet
             </p>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Select courses above or load one of the benchmark demo archetypes from the top menu to immediately explore recommendations.
+            <p className="text-xs text-text-secondary max-w-md mx-auto leading-relaxed">
+              Select courses above or click <strong>Auto-fill Prior Semesters</strong> to populate standard marks up to Year {profile.year} Semester {profile.semester}.
             </p>
-          </div>
+          </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {courses.map((c) => {
-              const gradeInfo = getGradeInfo(c.mark);
-              return (
-                <div
-                  key={c.course_code}
-                  className="bg-slate-900/60 border border-slate-800 hover:border-slate-700 rounded-xl p-3.5 flex flex-col justify-between space-y-2 shadow-sm transition"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-indigo-300 font-mono">
+          <div className="border border-border rounded-xl overflow-hidden bg-surface shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-bg-secondary border-b border-border text-text-secondary font-semibold uppercase tracking-wider text-[11px]">
+                    <th className="py-3 px-4 w-28">Code</th>
+                    <th className="py-3 px-4">Course Name & Subject Area</th>
+                    <th className="py-3 px-3 w-24">Type</th>
+                    <th className="py-3 px-3 w-20 text-center">Credits</th>
+                    <th className="py-3 px-3 w-20 text-center">Mark</th>
+                    <th className="py-3 px-3 w-28 text-center">Grade</th>
+                    <th className="py-3 px-4 w-16 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-subtle">
+                  {courses.map((c) => {
+                    const gradeInfo = getGradeInfo(c.mark);
+                    return (
+                      <tr
+                        key={c.course_code}
+                        className="hover:bg-surface-hover transition-colors group"
+                      >
+                        {/* Course Code */}
+                        <td className="py-3 px-4 font-mono font-semibold text-primary">
                           {c.course_code}
-                        </span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
+                        </td>
+
+                        {/* Name & Area */}
+                        <td className="py-3 px-4">
+                          <div className="font-medium text-text-primary">{c.course_name}</div>
+                          <div className="text-[11px] text-text-muted mt-0.5">{c.subject_area}</div>
+                        </td>
+
+                        {/* Type */}
+                        <td className="py-3 px-3">
+                          <Badge
+                            variant={c.course_type === 'Core' ? 'neutral' : 'info'}
+                            size="sm"
+                          >
+                            {c.course_type || 'Core'}
+                          </Badge>
+                        </td>
+
+                        {/* Credits */}
+                        <td className="py-3 px-3 text-center text-text-secondary font-medium">
                           {c.credits} cr
-                        </span>
-                        {c.course_type && c.course_type !== 'Core' && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-950/60 text-violet-300 border border-violet-800/40">
-                            {c.course_type}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="text-xs font-semibold text-white mt-1 line-clamp-1">
-                        {c.course_name}
-                      </h3>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        {c.subject_area}
-                      </p>
-                    </div>
+                        </td>
 
-                    <button
-                      onClick={() => handleRemoveCourse(c.course_code)}
-                      className="text-slate-500 hover:text-rose-400 p-1 rounded-md hover:bg-slate-800 transition"
-                      title="Remove course"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                        {/* Mark */}
+                        <td className="py-3 px-3 text-center font-semibold text-text-primary">
+                          {c.mark}%
+                        </td>
 
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                    <span className="text-slate-400 text-[11px]">
-                      Score: <strong className="text-white">{c.mark}%</strong>
-                    </span>
-                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${gradeInfo.color}`}>
-                      {gradeInfo.grade} ({gradeInfo.gp.toFixed(1)})
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+                        {/* Grade */}
+                        <td className="py-3 px-3 text-center">
+                          <Badge variant={gradeInfo.variant} size="sm">
+                            {gradeInfo.grade} ({gradeInfo.gp.toFixed(1)})
+                          </Badge>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3 px-4 text-right">
+                          <IconButton
+                            icon={Trash2}
+                            label={`Remove course ${c.course_code}`}
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleRemoveCourse(c.course_code)}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
 
       {/* Navigation Controls */}
-      <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
-        <button
+      <div className="pt-6 border-t border-border flex items-center justify-between">
+        <Button
+          variant="secondary"
+          size="md"
+          icon={ArrowLeft}
           onClick={onPrev}
-          className="flex items-center space-x-2 text-xs font-semibold text-slate-400 hover:text-white px-4 py-2 rounded-xl hover:bg-slate-900 transition"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Profile</span>
-        </button>
+          Back to Profile
+        </Button>
 
-        <button
+        <Button
+          variant="primary"
+          size="lg"
+          icon={ArrowRight}
+          iconPosition="right"
           onClick={onNext}
-          className="flex items-center space-x-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-600/25 transition"
         >
-          <span>Proceed to Career Interests</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+          Proceed to Career Interests
+        </Button>
       </div>
 
       {/* Custom Course Modal */}
       {isCustomModalOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-white">Add Custom Course</h3>
-            <p className="text-xs text-slate-400">
-              Enter course details from any curriculum or transfer credits.
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card variant="elevated" className="max-w-lg w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
+              <h3 className="text-base font-bold text-text-primary">Add Custom Course</h3>
+              <IconButton
+                icon={X}
+                label="Close custom course modal"
+                size="sm"
+                onClick={() => setIsCustomModalOpen(false)}
+              />
+            </div>
+            <p className="text-xs text-text-secondary leading-relaxed">
+              Enter custom course details from any curriculum, university, or credit transfer.
             </p>
 
-            <form onSubmit={handleAddCustomCourse} className="space-y-3 text-xs">
+            <form onSubmit={handleAddCustomCourse} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Course Code</label>
+                <label className="block text-text-secondary font-semibold mb-1">Course Code</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. CS3050"
                   value={customCourse.code}
                   onChange={(e) => setCustomCourse({ ...customCourse, code: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Course Title</label>
+                <label className="block text-text-secondary font-semibold mb-1">Course Title</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Distributed Cloud Architectures"
                   value={customCourse.name}
                   onChange={(e) => setCustomCourse({ ...customCourse, name: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Credits</label>
+                  <label className="block text-text-secondary font-semibold mb-1">Credits</label>
                   <input
                     type="number"
                     min="1"
                     max="6"
                     value={customCourse.credits}
                     onChange={(e) => setCustomCourse({ ...customCourse, credits: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Course Type</label>
+                  <label className="block text-text-secondary font-semibold mb-1">Course Type</label>
                   <select
                     value={customCourse.courseType}
                     onChange={(e) => setCustomCourse({ ...customCourse, courseType: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring cursor-pointer"
                   >
-                    <option value="Core">Core</option>
-                    <option value="Elective">Elective</option>
-                    <option value="NGPA">NGPA</option>
+                    <option value="Core" className="bg-surface text-text-primary">Core</option>
+                    <option value="Elective" className="bg-surface text-text-primary">Elective</option>
+                    <option value="NGPA" className="bg-surface text-text-primary">NGPA</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Subject Taxonomy Area</label>
+                <label className="block text-text-secondary font-semibold mb-1">Subject Taxonomy Area</label>
                 <select
                   value={customCourse.subjectArea}
                   onChange={(e) => setCustomCourse({ ...customCourse, subjectArea: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring cursor-pointer"
                 >
-                  <option value="Programming & Software Development">Programming & Software Development</option>
-                  <option value="Mathematics & Statistics">Mathematics & Statistics</option>
-                  <option value="Database Systems">Database Systems</option>
-                  <option value="Data Science & Analytics">Data Science & Analytics</option>
-                  <option value="Artificial Intelligence">Artificial Intelligence</option>
-                  <option value="Computer Networks">Computer Networks</option>
-                  <option value="Cyber Security">Cyber Security</option>
-                  <option value="Systems & Architecture">Systems & Architecture</option>
-                  <option value="Web & Mobile Development">Web & Mobile Development</option>
-                  <option value="Theoretical Computer Science">Theoretical Computer Science</option>
-                  <option value="IT Management & Professional Practice">IT Management & Professional Practice</option>
+                  <option value="Programming & Software Development" className="bg-surface text-text-primary">Programming & Software Development</option>
+                  <option value="Mathematics & Statistics" className="bg-surface text-text-primary">Mathematics & Statistics</option>
+                  <option value="Database Systems" className="bg-surface text-text-primary">Database Systems</option>
+                  <option value="Data Science & Analytics" className="bg-surface text-text-primary">Data Science & Analytics</option>
+                  <option value="Artificial Intelligence" className="bg-surface text-text-primary">Artificial Intelligence</option>
+                  <option value="Computer Networks" className="bg-surface text-text-primary">Computer Networks</option>
+                  <option value="Cyber Security" className="bg-surface text-text-primary">Cyber Security</option>
+                  <option value="Systems & Architecture" className="bg-surface text-text-primary">Systems & Architecture</option>
+                  <option value="Web & Mobile Development" className="bg-surface text-text-primary">Web & Mobile Development</option>
+                  <option value="Theoretical Computer Science" className="bg-surface text-text-primary">Theoretical Computer Science</option>
+                  <option value="IT Management & Professional Practice" className="bg-surface text-text-primary">IT Management & Professional Practice</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Mark Earned (0 - 100%)</label>
+                <label className="block text-text-secondary font-semibold mb-1">Mark Earned (0 - 100%)</label>
                 <input
                   type="number"
                   min="0"
@@ -507,27 +533,29 @@ export default function StepCourseHistory({
                   step="0.5"
                   value={customCourse.mark}
                   onChange={(e) => setCustomCourse({ ...customCourse, mark: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring"
                 />
               </div>
 
-              <div className="pt-4 flex justify-end space-x-3">
-                <button
+              <div className="pt-4 border-t border-border-subtle flex justify-end space-x-3">
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="md"
                   onClick={() => setIsCustomModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-slate-400 hover:text-white"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl font-semibold shadow-md shadow-indigo-600/20"
+                  variant="primary"
+                  size="md"
                 >
                   Add Course
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>
