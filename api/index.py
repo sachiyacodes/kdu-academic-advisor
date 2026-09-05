@@ -61,14 +61,14 @@ app.add_middleware(
 class CourseRecordInput(BaseModel):
     course_id: Optional[int] = None
     course_code: str
-    course_name: Optional[str] = ""
-    credits: Optional[int] = 3
-    subject_area: Optional[str] = "General"
+    course_name: Optional[str] = None
+    credits: Optional[int] = None
+    subject_area: Optional[str] = None
     mark: float = Field(ge=0.0, le=100.0)
-    course_type: Optional[str] = "Core"
+    course_type: Optional[str] = None
     status: Optional[str] = "completed"
-    year: Optional[int] = 1
-    semester: Optional[int] = 1
+    year: Optional[int] = None
+    semester: Optional[int] = None
 
 
 class RecommendationRequest(BaseModel):
@@ -106,22 +106,41 @@ def _hydrate_course_records(
     """Convert input courses into complete academic course records with grade/points."""
     records = []
     for inp in inputs:
-        cat = catalog_by_code.get(inp.course_code.strip().upper(), {})
+        code = inp.course_code.strip().upper()
+        cat = catalog_by_code.get(code)
         grade, grade_point = mark_to_grade(inp.mark)
+
+        if cat:
+            c_id = inp.course_id or cat.get("course_id", 0)
+            c_name = inp.course_name or cat.get("course_name", code)
+            c_credits = inp.credits if inp.credits is not None else int(cat.get("credits", 2))
+            c_area = inp.subject_area or cat.get("subject_area", "General")
+            c_type = inp.course_type or cat.get("course_type", "Core")
+            c_year = inp.year or cat.get("year", 1)
+            c_sem = inp.semester or cat.get("semester", 1)
+        else:
+            c_id = inp.course_id or 999
+            c_name = inp.course_name or code
+            c_credits = inp.credits if inp.credits is not None else 3
+            c_area = inp.subject_area or "General"
+            c_type = inp.course_type or "Core"
+            c_year = inp.year or 1
+            c_sem = inp.semester or 1
+
         records.append({
             "student_id": 1,
-            "course_id": inp.course_id or cat.get("course_id", 0),
-            "course_code": inp.course_code.strip().upper(),
-            "course_name": inp.course_name or cat.get("course_name", inp.course_code),
-            "credits": inp.credits or cat.get("credits", 3),
-            "subject_area": inp.subject_area or cat.get("subject_area", "General"),
+            "course_id": c_id,
+            "course_code": code,
+            "course_name": c_name,
+            "credits": c_credits,
+            "subject_area": c_area,
             "mark": float(inp.mark),
             "grade": grade,
             "grade_point": float(grade_point),
             "status": inp.status or "completed",
-            "course_type": inp.course_type or cat.get("course_type", "Core"),
-            "year": inp.year or cat.get("year", 1),
-            "semester": inp.semester or cat.get("semester", 1),
+            "course_type": c_type,
+            "year": c_year,
+            "semester": c_sem,
         })
     return records
 

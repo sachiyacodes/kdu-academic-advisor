@@ -196,6 +196,18 @@ export default function StepGraduation({
         </div>
       </div>
 
+      {/* Curriculum & Benchmark Explanatory Badges */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 text-slate-400 leading-relaxed">
+          <strong className="text-slate-200 block mb-0.5">📚 KDU Electives Policy:</strong>
+          In the KDU computing curricula, electives begin in <strong>Year 3, Semester 2</strong> and continue into Year 4. All modules taken in Years 1 & 2 are Core degree requirements.
+        </div>
+        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 text-slate-400 leading-relaxed">
+          <strong className="text-slate-200 block mb-0.5">✨ Benchmark Archetypes:</strong>
+          Demo profiles contain 4 key specialized modules ({gpa_credits_earned} credits) to demonstrate AI scoring and prerequisite logic. You can record more courses in <strong>Step 2</strong>.
+        </div>
+      </div>
+
       {/* Prerequisite Bottlenecks Detector */}
       {bottlenecks.length > 0 ? (
         <div className="bg-amber-950/25 border border-amber-800/50 rounded-2xl p-5 space-y-3 shadow-md">
