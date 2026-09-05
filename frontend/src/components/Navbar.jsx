@@ -103,7 +103,7 @@ export default function Navbar({
                 background: 'var(--color-surface)', border: '1px solid var(--color-border)',
                 color: 'var(--color-text-secondary)', fontSize: '12px',
                 borderRadius: '8px', padding: '5px 10px', cursor: 'pointer',
-                outline: 'none',
+                outline: 'none', maxWidth: '170px',
               }}
               className="focus-ring"
             >
