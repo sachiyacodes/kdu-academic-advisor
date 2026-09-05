@@ -457,37 +457,61 @@ def get_electives_and_roadmap(req: AdvisorRequest):
 
 @app.post("/api/audit/graduation")
 def audit_graduation(req: GraduationAuditRequest):
-    """Graduation Credit Audit: evaluate 120 GPA and 14 NGPA credit requirements."""
+    """Graduation Credit Audit: evaluate 120 GPA and 14 NGPA credit requirements & prerequisite bottlenecks."""
     catalog = {c["course_code"]: c for c in db.get_all_courses()}
     records = _hydrate_course_records(req.courses, catalog)
 
-    gpa_credits = sum(r["credits"] for r in records if r["course_type"] != "NGPA")
+    core_credits = sum(r["credits"] for r in records if r["course_type"] == "Core")
+    elec_credits = sum(r["credits"] for r in records if r["course_type"] == "Elective")
+    gpa_credits = core_credits + elec_credits
     ngpa_credits = sum(r["credits"] for r in records if r["course_type"] == "NGPA")
+    total_earned = gpa_credits + ngpa_credits
     gpa, _, _ = calculate_gpa(records)
+    classification = get_gpa_classification(gpa)
 
     gpa_pct = min(100.0, round((gpa_credits / GRADUATION_MIN_GPA_CREDITS) * 100, 1))
     ngpa_pct = min(100.0, round((ngpa_credits / GRADUATION_MIN_NGPA_CREDITS) * 100, 1))
     is_eligible = (gpa_credits >= GRADUATION_MIN_GPA_CREDITS) and (ngpa_credits >= GRADUATION_MIN_NGPA_CREDITS)
 
-    bottlenecks = []
-    if gpa_credits < GRADUATION_MIN_GPA_CREDITS:
-        bottlenecks.append(f"Requires {GRADUATION_MIN_GPA_CREDITS - gpa_credits} more GPA credits to satisfy minimum 120 target.")
-    if ngpa_credits < GRADUATION_MIN_NGPA_CREDITS:
-        bottlenecks.append(f"Requires {GRADUATION_MIN_NGPA_CREDITS - ngpa_credits} more NGPA credits to satisfy minimum 14 target.")
+    # Calculate real prerequisite bottlenecks
+    from collections import defaultdict
+    all_deg_courses = db.get_all_courses(degree=req.degree)
+    deg_course_ids = {c["course_id"] for c in all_deg_courses}
+    deg_course_map = {c["course_id"]: c for c in all_deg_courses}
+    completed_ids = {r["course_id"] for r in records}
 
+    all_prereqs = db.get_all_prerequisites()
+    downstream_counts = defaultdict(int)
+    for p in all_prereqs:
+        if p["course_id"] in deg_course_ids:
+            prereq_id = p["prerequisite_course_id"]
+            if prereq_id not in completed_ids and prereq_id in deg_course_map:
+                downstream_counts[prereq_id] += 1
+
+    bottlenecks = [
+        f"{deg_course_map[cid]['course_code']} — {deg_course_map[cid]['course_name']} (Year {deg_course_map[cid]['year']}, Sem {deg_course_map[cid]['semester']}): Blocks {count} downstream courses."
+        for cid, count in sorted(downstream_counts.items(), key=lambda x: x[1], reverse=True)
+        if count >= 2
+    ]
+
+    # Check for failed core courses
     failed_courses = [r for r in records if r["mark"] < 50.0 and r["course_type"] == "Core"]
     if failed_courses:
         names = ", ".join(c["course_code"] for c in failed_courses)
-        bottlenecks.append(f"Core courses below passing standing: {names}.")
+        bottlenecks.insert(0, f"Core courses below passing standing (repeat required): {names}.")
 
     return {
         "gpa": gpa,
+        "classification": classification,
+        "core_credits": core_credits,
+        "elective_credits": elec_credits,
         "gpa_credits_earned": gpa_credits,
         "gpa_target": GRADUATION_MIN_GPA_CREDITS,
         "gpa_progress_pct": gpa_pct,
         "ngpa_credits_earned": ngpa_credits,
         "ngpa_target": GRADUATION_MIN_NGPA_CREDITS,
         "ngpa_progress_pct": ngpa_pct,
+        "total_credits_earned": total_earned,
         "is_eligible": is_eligible,
-        "bottlenecks": bottlenecks,
+        "bottlenecks": bottlenecks[:5],
     }
