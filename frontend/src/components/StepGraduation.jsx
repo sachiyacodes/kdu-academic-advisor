@@ -203,8 +203,8 @@ export default function StepGraduation({
           In the KDU computing curricula, electives begin in <strong>Year 3, Semester 2</strong> and continue into Year 4. All modules taken in Years 1 & 2 are Core degree requirements.
         </div>
         <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 text-slate-400 leading-relaxed">
-          <strong className="text-slate-200 block mb-0.5">✨ Benchmark Archetypes:</strong>
-          Demo profiles contain 4 key specialized modules ({gpa_credits_earned} credits) to demonstrate AI scoring and prerequisite logic. You can record more courses in <strong>Step 2</strong>.
+          <strong className="text-slate-200 block mb-0.5">✨ Stage-Aware Auto-fill:</strong>
+          Demo profiles dynamically populate all completed courses prior to your current stage ({gpa_credits_earned} GPA credits, {ngpa_credits_earned} NGPA credits). You can modify or add courses in <strong>Step 2</strong>.
         </div>
       </div>
 
