@@ -42,13 +42,16 @@ export default function StepProfile({
               <select
                 value={profile.degree}
                 onChange={(e) => setProfile({ ...profile, degree: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition cursor-pointer"
               >
-                {degrees.map((d) => (
-                  <option key={d.degree_id} value={d.degree_name}>
-                    {d.degree_name} ({d.department})
-                  </option>
-                ))}
+                {degrees.map((d) => {
+                  const degName = d.name || d.degree_name;
+                  return (
+                    <option key={d.degree_id} value={degName}>
+                      {degName}
+                    </option>
+                  );
+                })}
               </select>
               {profile.degree === 'Custom / Other University Degree' && (
                 <p className="text-xs text-amber-400 bg-amber-950/30 border border-amber-800/40 rounded-lg p-2.5 mt-2">

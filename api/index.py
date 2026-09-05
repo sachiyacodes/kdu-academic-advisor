@@ -143,7 +143,15 @@ def health():
 def get_degrees():
     try:
         degrees = db.get_all_degrees()
-        return {"degrees": degrees}
+        formatted = [
+            {
+                "degree_id": d["degree_id"],
+                "name": d["name"],
+                "degree_name": d["name"],
+            }
+            for d in degrees
+        ]
+        return {"degrees": formatted}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
