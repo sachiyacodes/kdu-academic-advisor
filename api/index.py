@@ -1,0 +1,485 @@
+"""
+FastAPI Serverless Application Entry Point for Vercel Deployment.
+Exposes RESTful endpoints for the AI-Based IT Specialization & Course Recommendation System.
+
+Key Architectural Guarantees:
+1. 100% Stateless: computations run in-memory; no write-locks on read-only serverless filesystems.
+2. Direct Reuse: leverages src/ai, src/academic, src/data, and ml modules as libraries.
+3. CORS Enabled: seamless requests from Vite/React frontend and local dev environments.
+"""
+
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+# Ensure project root is on sys.path for serverless execution
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+from src.academic.gpa import calculate_gpa, get_gpa_classification
+from src.academic.grading import mark_to_grade
+from src.academic.profile import build_academic_profile
+from src.ai.explanations import generate_all_explanations
+from src.ai.recommendation_engine import generate_recommendations
+from src.ai.rule_engine import get_course_recommendations
+from src.config.settings import (
+    ACADEMIC_WEIGHT,
+    GRADUATION_MIN_GPA_CREDITS,
+    GRADUATION_MIN_NGPA_CREDITS,
+    INTEREST_WEIGHT,
+    SPECIALIZATION_WEIGHTS,
+    Specialization,
+)
+from src.data import database as db
+from src.data.demo_profiles import DEMO_PROFILES
+from ml.predict import is_model_available, load_metrics, predict_with_consensus
+
+app = FastAPI(
+    title="AI Academic Advisor API",
+    description="FastAPI serverless backend for KDU IT Specialization Recommender",
+    version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# =============================================================================
+# Request / Response Schemas
+# =============================================================================
+
+class CourseRecordInput(BaseModel):
+    course_id: Optional[int] = None
+    course_code: str
+    course_name: Optional[str] = ""
+    credits: Optional[int] = 3
+    subject_area: Optional[str] = "General"
+    mark: float = Field(ge=0.0, le=100.0)
+    course_type: Optional[str] = "Core"
+    status: Optional[str] = "completed"
+    year: Optional[int] = 1
+    semester: Optional[int] = 1
+
+
+class RecommendationRequest(BaseModel):
+    degree: str
+    year: int = Field(ge=1, le=4, default=2)
+    semester: int = Field(ge=1, le=2, default=2)
+    courses: List[CourseRecordInput]
+    interests: Dict[str, float] = {}  # {subject_area: intensity_1_to_5}
+    academic_weight: Optional[float] = ACADEMIC_WEIGHT
+    interest_weight: Optional[float] = INTEREST_WEIGHT
+
+
+class AdvisorRequest(BaseModel):
+    degree: str
+    year: int = Field(ge=1, le=4, default=2)
+    semester: int = Field(ge=1, le=2, default=2)
+    courses: List[CourseRecordInput]
+    target_specialization: Optional[str] = None
+    degree_filter: Optional[str] = None
+
+
+class GraduationAuditRequest(BaseModel):
+    degree: str
+    courses: List[CourseRecordInput]
+
+
+# =============================================================================
+# Helpers
+# =============================================================================
+
+def _hydrate_course_records(
+    inputs: List[CourseRecordInput],
+    catalog_by_code: Dict[str, Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Convert input courses into complete academic course records with grade/points."""
+    records = []
+    for inp in inputs:
+        cat = catalog_by_code.get(inp.course_code.strip().upper(), {})
+        grade, grade_point = mark_to_grade(inp.mark)
+        records.append({
+            "student_id": 1,
+            "course_id": inp.course_id or cat.get("course_id", 0),
+            "course_code": inp.course_code.strip().upper(),
+            "course_name": inp.course_name or cat.get("course_name", inp.course_code),
+            "credits": inp.credits or cat.get("credits", 3),
+            "subject_area": inp.subject_area or cat.get("subject_area", "General"),
+            "mark": float(inp.mark),
+            "grade": grade,
+            "grade_point": float(grade_point),
+            "status": inp.status or "completed",
+            "course_type": inp.course_type or cat.get("course_type", "Core"),
+            "year": inp.year or cat.get("year", 1),
+            "semester": inp.semester or cat.get("semester", 1),
+        })
+    return records
+
+
+# =============================================================================
+# API Endpoints
+# =============================================================================
+
+@app.get("/api/health")
+def health():
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "ml_models_ready": is_model_available(),
+    }
+
+
+@app.get("/api/catalog/degrees")
+def get_degrees():
+    try:
+        degrees = db.get_all_degrees()
+        return {"degrees": degrees}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/catalog/courses")
+def get_courses(degree: Optional[str] = None, course_type: Optional[str] = None):
+    try:
+        courses = db.get_all_courses(degree=degree, course_type=course_type)
+        return {"courses": courses, "total": len(courses)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/catalog/interests")
+def get_interests():
+    try:
+        interests = db.get_all_interests()
+        return {"interests": interests}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/catalog/specializations")
+def get_specializations():
+    try:
+        specs = db.get_all_specializations()
+        return {"specializations": specs, "weights": SPECIALIZATION_WEIGHTS}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/catalog/demo-profiles")
+def get_demo_profiles():
+    """Return demo student profiles with pre-resolved course records."""
+    try:
+        all_courses = {c["course_code"]: c for c in db.get_all_courses()}
+        result = {}
+        for key, demo in DEMO_PROFILES.items():
+            resolved_courses = []
+            for item in demo["courses"]:
+                if len(item) == 2:
+                    code, mark = item
+                    cat = all_courses.get(code, {})
+                    grade, gp = mark_to_grade(mark)
+                    resolved_courses.append({
+                        "course_id": cat.get("course_id", 0),
+                        "course_code": code,
+                        "course_name": cat.get("course_name", code),
+                        "credits": cat.get("credits", 3),
+                        "subject_area": cat.get("subject_area", "General"),
+                        "mark": mark,
+                        "grade": grade,
+                        "grade_point": gp,
+                        "course_type": cat.get("course_type", "Core"),
+                        "status": "completed",
+                        "year": cat.get("year", 1),
+                        "semester": cat.get("semester", 1),
+                    })
+                elif len(item) == 6:
+                    code, mark, name, area, c_type, credits = item
+                    grade, gp = mark_to_grade(mark)
+                    resolved_courses.append({
+                        "course_id": 999,
+                        "course_code": code,
+                        "course_name": name,
+                        "credits": credits,
+                        "subject_area": area,
+                        "mark": mark,
+                        "grade": grade,
+                        "grade_point": gp,
+                        "course_type": c_type,
+                        "status": "completed",
+                        "year": demo.get("year", 2),
+                        "semester": demo.get("semester", 2),
+                    })
+
+            interest_dict = {area: 4.0 for area in demo.get("interests", [])}
+
+            result[key] = {
+                "key": key,
+                "title": demo["title"],
+                "description": demo["description"],
+                "degree": demo["degree"],
+                "year": demo["year"],
+                "semester": demo["semester"],
+                "courses": resolved_courses,
+                "interests": interest_dict,
+            }
+        return {"profiles": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/gpa/calculate")
+def calculate_student_gpa(courses: List[CourseRecordInput]):
+    """Stateless GPA calculation with class rank and credit totals."""
+    catalog = {c["course_code"]: c for c in db.get_all_courses()}
+    records = _hydrate_course_records(courses, catalog)
+    gpa, earned, attempted = calculate_gpa(records)
+    classification = get_gpa_classification(gpa)
+    return {
+        "gpa": gpa,
+        "credits_earned": earned,
+        "credits_attempted": attempted,
+        "classification": classification,
+        "course_count": len(records),
+    }
+
+
+@app.post("/api/recommendations")
+def get_recommendations(req: RecommendationRequest):
+    """
+    Execute the hybrid recommendation pipeline in-memory:
+    1. Weighted Academic Fit (AI Concept 2)
+    2. Content-Based Interest Matching (AI Concept 3)
+    3. Hybrid combination (configurable weights)
+    4. Explainable AI explanations & counterfactual pathways
+    5. Machine Learning consensus cross-check (AI Concept 4)
+    """
+    catalog = {c["course_code"]: c for c in db.get_all_courses()}
+    course_records = _hydrate_course_records(req.courses, catalog)
+
+    profile = build_academic_profile(
+        student_id=1,
+        degree=req.degree,
+        year=req.year,
+        semester=req.semester,
+        course_records=course_records,
+    )
+
+    recs = generate_recommendations(
+        profile=profile,
+        selected_interests=req.interests,
+        academic_weight=req.academic_weight if req.academic_weight is not None else ACADEMIC_WEIGHT,
+        interest_weight=req.interest_weight if req.interest_weight is not None else INTEREST_WEIGHT,
+    )
+
+    explanations = generate_all_explanations(recs)
+
+    rec_list = []
+    for r in recs:
+        rec_list.append({
+            "specialization_name": r.specialization_name,
+            "academic_fit": r.academic_fit,
+            "interest_alignment": r.interest_alignment,
+            "final_score": r.final_score,
+            "evidence_level": r.evidence_level,
+            "relevant_course_count": r.relevant_course_count,
+            "calibrated_fit": r.calibrated_fit,
+            "confidence_score": r.confidence_score,
+            "confidence_level": r.confidence_level,
+            "rank": r.rank,
+            "subject_contributions": r.subject_contributions,
+            "subject_marks": r.subject_marks,
+            "interest_contributions": r.interest_contributions,
+            "available_subject_areas": r.available_subject_areas,
+            "missing_subject_areas": r.missing_subject_areas,
+        })
+
+    exp_dict = {}
+    for name, exp in explanations.items():
+        exp_dict[name] = {
+            "specialization_name": exp.specialization_name,
+            "summary": exp.summary,
+            "strengths": exp.strengths,
+            "weaknesses": exp.weaknesses,
+            "interest_matches": exp.interest_matches,
+            "evidence_note": exp.evidence_note,
+            "missing_areas_note": exp.missing_areas_note,
+            "comparison_notes": exp.comparison_notes,
+            "counterfactuals": exp.counterfactuals,
+        }
+
+    # ML Cross-Check
+    subject_averages = {
+        area: perf.average_mark
+        for area, perf in profile.subject_performances.items()
+    }
+    ml_crosscheck = predict_with_consensus(subject_averages)
+
+    # Sensitivity Analysis Curve
+    sensitivity = []
+    for w in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
+        pt = {"academic_weight": w, "interest_weight": round(1.0 - w, 1)}
+        for r in recs:
+            s = round(r.academic_fit * w + r.interest_alignment * (1.0 - w), 2)
+            pt[r.specialization_name] = s
+        sensitivity.append(pt)
+
+    perf_list = [
+        {
+            "subject_area": p.subject_area,
+            "average_mark": p.average_mark,
+            "course_count": p.course_count,
+            "total_credits": p.total_credits,
+        }
+        for p in profile.subject_performances.values()
+    ]
+
+    return {
+        "profile": {
+            "degree": profile.degree,
+            "year": profile.year,
+            "semester": profile.semester,
+            "gpa": profile.gpa,
+            "total_credits": profile.total_credits,
+            "academic_stage": profile.academic_stage,
+            "completed_course_count": profile.completed_course_count,
+            "subject_performances": perf_list,
+        },
+        "recommendations": rec_list,
+        "explanations": exp_dict,
+        "ml_crosscheck": ml_crosscheck,
+        "sensitivity_curve": sensitivity,
+        "weights": {
+            "academic_weight": req.academic_weight if req.academic_weight is not None else ACADEMIC_WEIGHT,
+            "interest_weight": req.interest_weight if req.interest_weight is not None else INTEREST_WEIGHT,
+        },
+    }
+
+
+@app.post("/api/electives/advisor")
+def get_electives_and_roadmap(req: AdvisorRequest):
+    """
+    Rule-Based Course & Elective Advisor:
+    1. Prerequisite verification
+    2. Stage eligibility gating
+    3. Synergy scoring against target specialization
+    4. Categorization into Recommended Now / Recommended Later / Low Priority
+    """
+    catalog = {c["course_code"]: c for c in db.get_all_courses()}
+    course_records = _hydrate_course_records(req.courses, catalog)
+
+    profile = build_academic_profile(
+        student_id=1,
+        degree=req.degree,
+        year=req.year,
+        semester=req.semester,
+        course_records=course_records,
+    )
+
+    target_spec = req.target_specialization or "Data Science"
+    target_areas = set(SPECIALIZATION_WEIGHTS.get(target_spec, {}).keys())
+
+    all_courses = db.get_all_courses(degree=req.degree_filter or req.degree)
+    all_prereqs = db.get_all_prerequisites()
+
+    recommendations = get_course_recommendations(
+        profile=profile,
+        all_courses=all_courses,
+        all_prerequisites=all_prereqs,
+        top_specialization_areas=target_areas,
+        degree_filter=req.degree_filter or req.degree,
+        top_specialization_name=target_spec,
+    )
+
+    serialized_recs = []
+    for r in recommendations:
+        serialized_recs.append({
+            "course": {
+                "course_id": r.course.course_id,
+                "course_code": r.course.course_code,
+                "course_name": r.course.course_name,
+                "degree": r.course.degree,
+                "year": r.course.year,
+                "semester": r.course.semester,
+                "credits": r.course.credits,
+                "subject_area": r.course.subject_area,
+                "course_type": r.course.course_type,
+            },
+            "category": r.category,
+            "reason": r.reason,
+            "missing_prerequisites": r.missing_prerequisites,
+            "prerequisite_status": r.prerequisite_status,
+            "chain_impact_count": r.chain_impact_count,
+            "synergy_score": r.synergy_score,
+            "target_specialization": r.target_specialization,
+        })
+
+    electives = [r for r in serialized_recs if r["course"]["course_type"] == "Elective"]
+    cores = [r for r in serialized_recs if r["course"]["course_type"] == "Core"]
+    ngpa = [r for r in serialized_recs if r["course"]["course_type"] == "NGPA"]
+
+    roadmap = {}
+    for y in range(1, 5):
+        roadmap[f"Year {y}"] = {}
+        for s in range(1, 3):
+            sem_courses = [
+                c for c in all_courses
+                if c["year"] == y and c["semester"] == s
+            ]
+            roadmap[f"Year {y}"][f"Semester {s}"] = sem_courses
+
+    return {
+        "target_specialization": target_spec,
+        "electives": electives,
+        "core_courses": cores,
+        "ngpa_courses": ngpa,
+        "roadmap": roadmap,
+        "total_available": len(serialized_recs),
+    }
+
+
+@app.post("/api/audit/graduation")
+def audit_graduation(req: GraduationAuditRequest):
+    """Graduation Credit Audit: evaluate 120 GPA and 14 NGPA credit requirements."""
+    catalog = {c["course_code"]: c for c in db.get_all_courses()}
+    records = _hydrate_course_records(req.courses, catalog)
+
+    gpa_credits = sum(r["credits"] for r in records if r["course_type"] != "NGPA")
+    ngpa_credits = sum(r["credits"] for r in records if r["course_type"] == "NGPA")
+    gpa, _, _ = calculate_gpa(records)
+
+    gpa_pct = min(100.0, round((gpa_credits / GRADUATION_MIN_GPA_CREDITS) * 100, 1))
+    ngpa_pct = min(100.0, round((ngpa_credits / GRADUATION_MIN_NGPA_CREDITS) * 100, 1))
+    is_eligible = (gpa_credits >= GRADUATION_MIN_GPA_CREDITS) and (ngpa_credits >= GRADUATION_MIN_NGPA_CREDITS)
+
+    bottlenecks = []
+    if gpa_credits < GRADUATION_MIN_GPA_CREDITS:
+        bottlenecks.append(f"Requires {GRADUATION_MIN_GPA_CREDITS - gpa_credits} more GPA credits to satisfy minimum 120 target.")
+    if ngpa_credits < GRADUATION_MIN_NGPA_CREDITS:
+        bottlenecks.append(f"Requires {GRADUATION_MIN_NGPA_CREDITS - ngpa_credits} more NGPA credits to satisfy minimum 14 target.")
+
+    failed_courses = [r for r in records if r["mark"] < 50.0 and r["course_type"] == "Core"]
+    if failed_courses:
+        names = ", ".join(c["course_code"] for c in failed_courses)
+        bottlenecks.append(f"Core courses below passing standing: {names}.")
+
+    return {
+        "gpa": gpa,
+        "gpa_credits_earned": gpa_credits,
+        "gpa_target": GRADUATION_MIN_GPA_CREDITS,
+        "gpa_progress_pct": gpa_pct,
+        "ngpa_credits_earned": ngpa_credits,
+        "ngpa_target": GRADUATION_MIN_NGPA_CREDITS,
+        "ngpa_progress_pct": ngpa_pct,
+        "is_eligible": is_eligible,
+        "bottlenecks": bottlenecks,
+    }

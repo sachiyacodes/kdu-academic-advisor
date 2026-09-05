@@ -1,0 +1,13 @@
+.git
+.pytest_cache
+__pycache__
+*.pyc
+tests
+tests/
+venv
+.venv
+pages/
+app.py
+src/ui/
+frontend/node_modules/
+requirements-streamlit.txt
