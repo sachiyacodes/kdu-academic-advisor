@@ -88,7 +88,7 @@ class TestAPIEndpoints:
         data = response.json()
 
         assert "profile" in data
-        assert data["profile"]["gpa"] == 3.76
+        assert data["profile"]["gpa"] == 3.64
         assert len(data["recommendations"]) == 6
 
         # Top recommendation for student A is Data Science

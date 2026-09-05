@@ -101,7 +101,7 @@ export function useAdvisorState() {
           fetchCourses(),
           fetchInterests(),
           fetchSpecializations(),
-          fetchDemoProfiles(),
+          fetchDemoProfiles(profile.degree, profile.year, profile.semester),
         ]);
 
         setDegrees(degs.degrees || []);
@@ -198,21 +198,71 @@ export function useAdvisorState() {
     }
   }, [profile, courses]);
 
-  // Load Demo Archetype
+  // Load Demo Archetype (stage-aware based on user's current Year and Semester)
   const loadDemo = useCallback(
-    (profileKey) => {
-      if (!demoProfiles || !demoProfiles[profileKey]) return;
-      const demo = demoProfiles[profileKey];
-      setProfile({
-        degree: demo.degree,
-        year: demo.year,
-        semester: demo.semester,
-      });
-      setCourses(demo.courses || []);
-      setInterests(demo.interests || {});
-      setCurrentStep(4); // Jump directly to recommendations to see results
+    async (profileKey) => {
+      try {
+        setLoading(true);
+        // Student E is specifically intended to test Limited Evidence early stage
+        const isEarlyStage = profileKey === 'student_e';
+        const targetYear = isEarlyStage ? 1 : (profile.year || 2);
+        const targetSem = isEarlyStage ? 1 : (profile.semester || 2);
+        const targetDegree = profileKey === 'student_c'
+          ? 'Software Engineering'
+          : profileKey === 'student_f'
+            ? 'Custom / Other University Degree'
+            : (profile.degree || 'Information Technology');
+
+        const data = await fetchDemoProfiles(targetDegree, targetYear, targetSem);
+        const demo = data?.profiles?.[profileKey];
+        if (demo) {
+          setProfile({
+            degree: demo.degree,
+            year: demo.year,
+            semester: demo.semester,
+          });
+          setCourses(demo.courses || []);
+          setInterests(demo.interests || {});
+          setCurrentStep(4); // Jump directly to recommendations to see results
+        }
+      } catch (err) {
+        console.error('Failed to load stage-aware demo profile:', err);
+        // Fallback to locally cached demoProfiles if offline
+        if (demoProfiles && demoProfiles[profileKey]) {
+          const fallback = demoProfiles[profileKey];
+          setProfile({
+            degree: fallback.degree,
+            year: fallback.year,
+            semester: fallback.semester,
+          });
+          setCourses(fallback.courses || []);
+          setInterests(fallback.interests || {});
+          setCurrentStep(4);
+        }
+      } finally {
+        setLoading(false);
+      }
     },
-    [demoProfiles]
+    [profile, demoProfiles]
+  );
+
+  // Auto-fill Completed Semesters for Current Degree, Year & Semester
+  const autofillPriorCourses = useCallback(
+    async (archetypeKey = 'student_a') => {
+      try {
+        setLoading(true);
+        const data = await fetchDemoProfiles(profile.degree, profile.year, profile.semester);
+        const demo = data?.profiles?.[archetypeKey] || Object.values(data?.profiles || {})[0];
+        if (demo && demo.courses) {
+          setCourses(demo.courses);
+        }
+      } catch (err) {
+        console.error('Failed to auto-fill prior courses:', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [profile]
   );
 
   // Reset All Data
@@ -268,6 +318,7 @@ export function useAdvisorState() {
     runElectivesAdvisor,
     runGraduationAudit,
     loadDemo,
+    autofillPriorCourses,
     resetAll,
     completedSteps,
   };

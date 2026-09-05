@@ -125,12 +125,17 @@ export default function StepProfile({
         {/* Right 1 Col: Benchmark Archetypes */}
         <div className="space-y-4">
           <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
-            <div className="flex items-center space-x-2 text-indigo-400 font-semibold text-sm">
-              <Sparkles className="w-4 h-4" />
-              <span>Benchmark Archetypes</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-indigo-400 font-semibold text-sm">
+                <Sparkles className="w-4 h-4" />
+                <span>Benchmark Archetypes</span>
+              </div>
+              <span className="text-[10px] text-indigo-300 bg-indigo-950/60 border border-indigo-800/50 px-2 py-0.5 rounded-full font-medium">
+                Stage: Y{profile.year}S{profile.semester}
+              </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Click any profile to load pre-configured courses, marks, and interests for live demonstration:
+              Loads pre-configured marks and interests adapted to your selected stage. Autofills all completed courses strictly prior to <strong className="text-slate-300">Year {profile.year} Sem {profile.semester}</strong>:
             </p>
 
             <div className="space-y-2.5">

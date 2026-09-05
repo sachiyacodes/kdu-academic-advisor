@@ -76,8 +76,11 @@ with st.expander("⚡ Fast-Track Demo: Load Sample Student Profile", expanded=Fa
         st.write("")
         st.write("")
         if st.button("Load Profile", type="primary", use_container_width=True):
-            load_demo_profile(demo_keys[selected_idx])
-            st.success(f"Loaded {DEMO_PROFILES[demo_keys[selected_idx]]['title']}!")
+            student = db.get_current_student()
+            s_year = student.get("year", 2) if student else 2
+            s_sem = student.get("semester", 2) if student else 2
+            load_demo_profile(demo_keys[selected_idx], year=s_year, semester=s_sem)
+            st.success(f"Loaded {DEMO_PROFILES[demo_keys[selected_idx]]['title']} (autofilled prior semesters for Year {s_year} Sem {s_sem})!")
             st.rerun()
     st.info(DEMO_PROFILES[demo_keys[selected_idx]]["description"])
 

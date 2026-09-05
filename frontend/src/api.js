@@ -40,8 +40,13 @@ export async function fetchSpecializations() {
   return res.json();
 }
 
-export async function fetchDemoProfiles() {
-  const res = await fetch(`${API_BASE}/catalog/demo-profiles`);
+export async function fetchDemoProfiles(degree = null, year = null, semester = null) {
+  const params = new URLSearchParams();
+  if (degree) params.append('degree', degree);
+  if (year !== null && year !== undefined) params.append('year', year);
+  if (semester !== null && semester !== undefined) params.append('semester', semester);
+  const qs = params.toString() ? `?${params.toString()}` : '';
+  const res = await fetch(`${API_BASE}/catalog/demo-profiles${qs}`);
   if (!res.ok) throw new Error('Failed to load demo profiles');
   return res.json();
 }

@@ -10,6 +10,7 @@ import {
   Search,
   Filter,
   Layers,
+  Sparkles,
 } from 'lucide-react';
 
 function getGradeInfo(mark) {
@@ -33,6 +34,7 @@ export default function StepCourseHistory({
   setCourses,
   catalogCourses,
   gpaData,
+  onAutofillPriorCourses,
   onPrev,
   onNext,
 }) {
@@ -143,6 +145,18 @@ export default function StepCourseHistory({
 
   const currentGrade = getGradeInfo(markInput);
 
+  const priorSemestersText = useMemo(() => {
+    const y = profile.year || 2;
+    const s = profile.semester || 2;
+    if (y === 1 && s === 1) return 'Year 1 Sem 1 is your current initial semester (no prior completed semesters)';
+    if (y === 1 && s === 2) return 'Year 1 Semester 1';
+    if (y === 2 && s === 1) return 'Year 1 (Semester 1 & 2)';
+    if (y === 2 && s === 2) return 'Year 1 (Sem 1 & 2) + Year 2 Sem 1';
+    if (y === 3 && s === 1) return 'Year 1 & Year 2 (Semesters 1 through 4)';
+    if (y === 3 && s === 2) return 'Year 1, Year 2, and Year 3 Sem 1';
+    return `All semesters prior to Year ${y} Semester ${s}`;
+  }, [profile.year, profile.semester]);
+
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header */}
@@ -179,6 +193,52 @@ export default function StepCourseHistory({
                 {gpaData.credits_earned} <span className="text-xs text-slate-500">/ 134</span>
               </span>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Stage Context & Quick Autofill Banner */}
+      <div className="bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-slate-900 border border-indigo-800/40 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-5 h-5 text-indigo-400" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-bold text-slate-200">
+                Current Stage: Year {profile.year}, Semester {profile.semester}
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-900/60 text-indigo-300 border border-indigo-700/50">
+                {profile.degree}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Completed semesters: <strong className="text-slate-300">{priorSemestersText}</strong>. Marks for current semester are pending since you are currently studying it.
+            </p>
+          </div>
+        </div>
+
+        {onAutofillPriorCourses && (
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => onAutofillPriorCourses('student_a')}
+              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 transition cursor-pointer"
+              title="Auto-fill all completed prior courses with benchmark marks"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Auto-fill Prior Semesters</span>
+            </button>
+            {courses.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setCourses([])}
+                className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-rose-950/50 hover:text-rose-300 hover:border-rose-800/50 border border-slate-700 text-slate-400 text-xs font-medium transition cursor-pointer"
+                title="Clear all course records"
+              >
+                Clear
+              </button>
+            )}
           </div>
         )}
       </div>

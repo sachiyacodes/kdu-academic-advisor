@@ -37,6 +37,7 @@ export default function App() {
     runElectivesAdvisor,
     runGraduationAudit,
     loadDemo,
+    autofillPriorCourses,
     resetAll,
     completedSteps,
   } = useAdvisorState();
@@ -101,6 +102,7 @@ export default function App() {
             setCourses={setCourses}
             catalogCourses={catalogCourses}
             gpaData={gpaData}
+            onAutofillPriorCourses={autofillPriorCourses}
             onPrev={() => setCurrentStep(1)}
             onNext={() => setCurrentStep(3)}
           />

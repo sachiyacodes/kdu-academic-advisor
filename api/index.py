@@ -36,7 +36,7 @@ from src.config.settings import (
     Specialization,
 )
 from src.data import database as db
-from src.data.demo_profiles import DEMO_PROFILES
+from src.data.demo_profiles import DEMO_PROFILES, get_all_demo_profiles
 from ml.predict import is_model_available, load_metrics, predict_with_consensus
 
 app = FastAPI(
@@ -203,12 +203,17 @@ def get_specializations():
 
 
 @app.get("/api/catalog/demo-profiles")
-def get_demo_profiles():
-    """Return demo student profiles with pre-resolved course records."""
+def get_demo_profiles(
+    degree: Optional[str] = Query(None, description="Degree program filter"),
+    year: Optional[int] = Query(None, description="Current student academic year"),
+    semester: Optional[int] = Query(None, description="Current student academic semester"),
+):
+    """Return demo student profiles with pre-resolved course records for the requested academic stage."""
     try:
+        profiles_data = get_all_demo_profiles(degree=degree, year=year, semester=semester)
         all_courses = {c["course_code"]: c for c in db.get_all_courses()}
         result = {}
-        for key, demo in DEMO_PROFILES.items():
+        for key, demo in profiles_data.items():
             resolved_courses = []
             for item in demo["courses"]:
                 if len(item) == 2:
