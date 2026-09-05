@@ -11,57 +11,34 @@ import { AlertCircle } from 'lucide-react';
 
 export default function App() {
   const {
-    currentStep,
-    setCurrentStep,
-    backendOnline,
-    loading,
-    error,
-    degrees,
-    catalogCourses,
-    catalogInterests,
-    specializations,
-    demoProfiles,
-    profile,
-    setProfile,
-    courses,
-    setCourses,
-    interests,
-    setInterests,
-    targetSpec,
-    setTargetSpec,
-    gpaData,
-    recData,
-    advisorData,
-    auditData,
-    runRecommendations,
-    runElectivesAdvisor,
-    runGraduationAudit,
-    loadDemo,
-    autofillPriorCourses,
-    resetAll,
-    completedSteps,
+    currentStep, setCurrentStep, backendOnline, loading, error,
+    degrees, catalogCourses, catalogInterests, specializations, demoProfiles,
+    profile, setProfile, courses, setCourses, interests, setInterests,
+    targetSpec, setTargetSpec, gpaData, recData, advisorData, auditData,
+    runRecommendations, runElectivesAdvisor, runGraduationAudit,
+    loadDemo, autofillPriorCourses, resetAll, completedSteps,
   } = useAdvisorState();
 
-  // Trigger recalculations when switching to steps requiring backend pipeline results
   useEffect(() => {
-    if (currentStep === 4) {
-      runRecommendations();
-    } else if (currentStep === 5) {
-      runElectivesAdvisor();
-    } else if (currentStep === 6) {
-      runGraduationAudit();
-    }
+    if (currentStep === 4) runRecommendations();
+    else if (currentStep === 5) runElectivesAdvisor();
+    else if (currentStep === 6) runGraduationAudit();
   }, [currentStep, runRecommendations, runElectivesAdvisor, runGraduationAudit]);
 
-  // When targetSpec changes in step 5, re-fetch electives
   const handleTargetSpecChange = (newSpec) => {
     setTargetSpec(newSpec);
     runElectivesAdvisor(newSpec);
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col font-sans selection:bg-primary/20 selection:text-primary">
-      {/* Global Navbar */}
+    <div style={{
+      minHeight: '100vh',
+      background: 'var(--color-bg-primary)',
+      color: 'var(--color-text-primary)',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'var(--font-sans)',
+    }}>
       <Navbar
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
@@ -72,93 +49,84 @@ export default function App() {
         backendOnline={backendOnline}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        {error && (
-          <div className="mb-6 p-4 rounded-xl bg-danger-subtle border border-danger-border text-danger text-xs flex items-center space-x-3">
-            <AlertCircle className="w-5 h-5 text-danger shrink-0" />
-            <div className="flex-1">
-              <strong className="block font-semibold">Service Notice:</strong>
-              <span>{error}</span>
+      <main style={{ flex: 1, padding: '0 24px 48px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+
+          {/* Error banner */}
+          {error && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '10px',
+              padding: '12px 14px', margin: '16px 0',
+              background: 'var(--color-danger-subtle)',
+              border: '1px solid var(--color-danger-border)',
+              borderRadius: '8px', fontSize: '12px',
+            }}>
+              <AlertCircle style={{ width: '14px', height: '14px', color: 'var(--color-danger)', flexShrink: 0, marginTop: '1px' }} />
+              <div>
+                <strong style={{ color: 'var(--color-danger)', fontWeight: 600 }}>Service notice: </strong>
+                <span style={{ color: 'var(--color-text-secondary)' }}>{error}</span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {currentStep === 1 && (
-          <StepProfile
-            profile={profile}
-            setProfile={setProfile}
-            degrees={degrees}
-            demoProfiles={demoProfiles}
-            onLoadDemo={loadDemo}
-            onNext={() => setCurrentStep(2)}
-          />
-        )}
-
-        {currentStep === 2 && (
-          <StepCourseHistory
-            profile={profile}
-            courses={courses}
-            setCourses={setCourses}
-            catalogCourses={catalogCourses}
-            gpaData={gpaData}
-            onAutofillPriorCourses={autofillPriorCourses}
-            onPrev={() => setCurrentStep(1)}
-            onNext={() => setCurrentStep(3)}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <StepInterests
-            interests={interests}
-            setInterests={setInterests}
-            catalogInterests={catalogInterests}
-            onPrev={() => setCurrentStep(2)}
-            onNext={() => setCurrentStep(4)}
-          />
-        )}
-
-        {currentStep === 4 && (
-          <StepRecommendations
-            recData={recData}
-            loading={loading}
-            onPrev={() => setCurrentStep(3)}
-            onNext={() => setCurrentStep(5)}
-          />
-        )}
-
-        {currentStep === 5 && (
-          <StepElectives
-            advisorData={advisorData}
-            loading={loading}
-            targetSpec={targetSpec}
-            setTargetSpec={handleTargetSpecChange}
-            specializations={specializations}
-            onPrev={() => setCurrentStep(4)}
-            onNext={() => setCurrentStep(6)}
-          />
-        )}
-
-        {currentStep === 6 && (
-          <StepGraduation
-            auditData={auditData}
-            recData={recData}
-            loading={loading}
-            onPrev={() => setCurrentStep(5)}
-            onReset={resetAll}
-          />
-        )}
+          {currentStep === 1 && (
+            <StepProfile
+              profile={profile} setProfile={setProfile}
+              degrees={degrees} demoProfiles={demoProfiles}
+              onLoadDemo={loadDemo} onNext={() => setCurrentStep(2)}
+            />
+          )}
+          {currentStep === 2 && (
+            <StepCourseHistory
+              profile={profile} courses={courses} setCourses={setCourses}
+              catalogCourses={catalogCourses} gpaData={gpaData}
+              onAutofillPriorCourses={autofillPriorCourses}
+              onPrev={() => setCurrentStep(1)} onNext={() => setCurrentStep(3)}
+            />
+          )}
+          {currentStep === 3 && (
+            <StepInterests
+              interests={interests} setInterests={setInterests}
+              catalogInterests={catalogInterests}
+              onPrev={() => setCurrentStep(2)} onNext={() => setCurrentStep(4)}
+            />
+          )}
+          {currentStep === 4 && (
+            <StepRecommendations
+              recData={recData} loading={loading}
+              onPrev={() => setCurrentStep(3)} onNext={() => setCurrentStep(5)}
+            />
+          )}
+          {currentStep === 5 && (
+            <StepElectives
+              advisorData={advisorData} loading={loading}
+              targetSpec={targetSpec} setTargetSpec={handleTargetSpecChange}
+              specializations={specializations}
+              onPrev={() => setCurrentStep(4)} onNext={() => setCurrentStep(6)}
+            />
+          )}
+          {currentStep === 6 && (
+            <StepGraduation
+              auditData={auditData} recData={recData} loading={loading}
+              onPrev={() => setCurrentStep(5)} onReset={resetAll}
+            />
+          )}
+        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border-subtle bg-bg-secondary py-6 text-center text-xs text-text-muted">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>
-            AI-Based IT Specialization & Course Recommendation System · KDU Faculty of Computing
-          </span>
-          <span>
-            IT3182 Essentials of AI · Group 22 · Academic Prototype
-          </span>
+      <footer style={{
+        borderTop: '1px solid var(--color-border-subtle)',
+        background: 'var(--color-bg-secondary)',
+        padding: '16px 24px',
+      }}>
+        <div style={{
+          maxWidth: '1280px', margin: '0 auto',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          fontSize: '11px', color: 'var(--color-text-muted)',
+          flexWrap: 'wrap', gap: '4px',
+        }}>
+          <span>KDU Academic Advisor · Faculty of Computing</span>
+          <span>IT3182 Essentials of AI · Group 22</span>
         </div>
       </footer>
     </div>

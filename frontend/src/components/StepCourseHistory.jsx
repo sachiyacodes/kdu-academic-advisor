@@ -1,29 +1,23 @@
 import React, { useState, useMemo } from 'react';
 import {
-  BookOpen,
-  Plus,
-  Trash2,
-  Sparkles,
-  ArrowRight,
-  ArrowLeft,
-  X,
+  BookOpen, Plus, Trash2, Sparkles, ArrowRight, ArrowLeft, X,
 } from 'lucide-react';
-import { Card, Button, Badge, IconButton } from './ui';
+import { Button, Badge, IconButton } from './ui';
 
 function getGradeInfo(mark) {
-  const numMark = parseFloat(mark) || 0;
-  if (numMark >= 85) return { grade: 'A+', gp: 4.0, variant: 'success' };
-  if (numMark >= 75) return { grade: 'A', gp: 4.0, variant: 'success' };
-  if (numMark >= 70) return { grade: 'A-', gp: 3.7, variant: 'success' };
-  if (numMark >= 65) return { grade: 'B+', gp: 3.3, variant: 'primary' };
-  if (numMark >= 60) return { grade: 'B', gp: 3.0, variant: 'primary' };
-  if (numMark >= 55) return { grade: 'B-', gp: 2.7, variant: 'primary' };
-  if (numMark >= 50) return { grade: 'C+', gp: 2.3, variant: 'warning' };
-  if (numMark >= 45) return { grade: 'C', gp: 2.0, variant: 'warning' };
-  if (numMark >= 40) return { grade: 'C-', gp: 1.7, variant: 'warning' };
-  if (numMark >= 35) return { grade: 'D+', gp: 1.3, variant: 'danger' };
-  if (numMark >= 30) return { grade: 'D', gp: 1.0, variant: 'danger' };
-  return { grade: 'E', gp: 0.0, variant: 'danger' };
+  const n = parseFloat(mark) || 0;
+  if (n >= 85) return { grade: 'A+', gp: 4.0, variant: 'success' };
+  if (n >= 75) return { grade: 'A',  gp: 4.0, variant: 'success' };
+  if (n >= 70) return { grade: 'A-', gp: 3.7, variant: 'success' };
+  if (n >= 65) return { grade: 'B+', gp: 3.3, variant: 'primary' };
+  if (n >= 60) return { grade: 'B',  gp: 3.0, variant: 'primary' };
+  if (n >= 55) return { grade: 'B-', gp: 2.7, variant: 'primary' };
+  if (n >= 50) return { grade: 'C+', gp: 2.3, variant: 'warning' };
+  if (n >= 45) return { grade: 'C',  gp: 2.0, variant: 'warning' };
+  if (n >= 40) return { grade: 'C-', gp: 1.7, variant: 'warning' };
+  if (n >= 35) return { grade: 'D+', gp: 1.3, variant: 'danger' };
+  if (n >= 30) return { grade: 'D',  gp: 1.0, variant: 'danger' };
+  return        { grade: 'E',  gp: 0.0, variant: 'danger' };
 }
 
 export default function StepCourseHistory({
@@ -38,370 +32,310 @@ export default function StepCourseHistory({
 }) {
   const [selectedCourseCode, setSelectedCourseCode] = useState('');
   const [markInput, setMarkInput] = useState(75);
-
-  // Custom Course Modal State
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [customCourse, setCustomCourse] = useState({
-    code: '',
-    name: '',
-    credits: 3,
+    code: '', name: '', credits: 3,
     subjectArea: 'Programming & Software Development',
-    courseType: 'Core',
-    mark: 75,
+    courseType: 'Core', mark: 75,
   });
 
-  // Filter available catalog courses for current degree
   const availableCatalogCourses = useMemo(() => {
-    let list = catalogCourses;
-    if (profile.degree !== 'Custom / Other University Degree') {
-      list = list.filter((c) => c.degree === profile.degree);
-    }
-    return list;
+    if (profile.degree === 'Custom / Other University Degree') return catalogCourses;
+    return catalogCourses.filter((c) => c.degree === profile.degree);
   }, [catalogCourses, profile.degree]);
 
-  // Already added course codes
-  const addedCodes = useMemo(
-    () => new Set(courses.map((c) => c.course_code)),
-    [courses]
-  );
+  const addedCodes = useMemo(() => new Set(courses.map((c) => c.course_code)), [courses]);
 
   const handleAddCourse = (e) => {
     e.preventDefault();
     if (!selectedCourseCode) return;
     const cat = catalogCourses.find((c) => c.course_code === selectedCourseCode);
     if (!cat) return;
-
-    const gradeInfo = getGradeInfo(markInput);
-    const newRecord = {
-      course_id: cat.course_id,
-      course_code: cat.course_code,
-      course_name: cat.course_name,
-      credits: cat.credits,
-      subject_area: cat.subject_area,
-      course_type: cat.course_type,
-      mark: parseFloat(markInput),
-      grade: gradeInfo.grade,
-      grade_point: gradeInfo.gp,
-      status: 'completed',
-      year: cat.year,
-      semester: cat.semester,
-    };
-
-    setCourses([...courses.filter((c) => c.course_code !== cat.course_code), newRecord]);
+    const gi = getGradeInfo(markInput);
+    setCourses([
+      ...courses.filter((c) => c.course_code !== cat.course_code),
+      {
+        course_id: cat.course_id, course_code: cat.course_code, course_name: cat.course_name,
+        credits: cat.credits, subject_area: cat.subject_area, course_type: cat.course_type,
+        mark: parseFloat(markInput), grade: gi.grade, grade_point: gi.gp,
+        status: 'completed', year: cat.year, semester: cat.semester,
+      },
+    ]);
     setSelectedCourseCode('');
   };
 
   const handleAddCustomCourse = (e) => {
     e.preventDefault();
     if (!customCourse.code || !customCourse.name) return;
-
-    const gradeInfo = getGradeInfo(customCourse.mark);
-    const newRecord = {
-      course_id: Date.now(),
-      course_code: customCourse.code.toUpperCase().trim(),
-      course_name: customCourse.name.trim(),
-      credits: parseInt(customCourse.credits, 10),
-      subject_area: customCourse.subjectArea,
-      course_type: customCourse.courseType,
-      mark: parseFloat(customCourse.mark),
-      grade: gradeInfo.grade,
-      grade_point: gradeInfo.gp,
-      status: 'completed',
-      year: profile.year,
-      semester: profile.semester,
+    const gi = getGradeInfo(customCourse.mark);
+    const rec = {
+      course_id: Date.now(), course_code: customCourse.code.toUpperCase().trim(),
+      course_name: customCourse.name.trim(), credits: parseInt(customCourse.credits, 10),
+      subject_area: customCourse.subjectArea, course_type: customCourse.courseType,
+      mark: parseFloat(customCourse.mark), grade: gi.grade, grade_point: gi.gp,
+      status: 'completed', year: profile.year, semester: profile.semester,
     };
-
-    setCourses([...courses.filter((c) => c.course_code !== newRecord.course_code), newRecord]);
+    setCourses([...courses.filter((c) => c.course_code !== rec.course_code), rec]);
     setIsCustomModalOpen(false);
-    setCustomCourse({
-      code: '',
-      name: '',
-      credits: 3,
-      subjectArea: 'Programming & Software Development',
-      courseType: 'Core',
-      mark: 75,
-    });
+    setCustomCourse({ code: '', name: '', credits: 3, subjectArea: 'Programming & Software Development', courseType: 'Core', mark: 75 });
   };
 
-  const handleRemoveCourse = (code) => {
-    setCourses(courses.filter((c) => c.course_code !== code));
-  };
-
+  const handleRemoveCourse = (code) => setCourses(courses.filter((c) => c.course_code !== code));
   const currentGrade = getGradeInfo(markInput);
 
   const priorSemestersText = useMemo(() => {
-    const y = profile.year || 2;
-    const s = profile.semester || 2;
-    if (y === 1 && s === 1) return 'Year 1 Sem 1 is your initial semester (no prior completed semesters)';
-    if (y === 1 && s === 2) return 'Year 1 Semester 1';
-    if (y === 2 && s === 1) return 'Year 1 (Semester 1 & 2)';
-    if (y === 2 && s === 2) return 'Year 1 (Sem 1 & 2) + Year 2 Sem 1';
-    if (y === 3 && s === 1) return 'Year 1 & Year 2 (Semesters 1 through 4)';
-    if (y === 3 && s === 2) return 'Year 1, Year 2, and Year 3 Sem 1';
-    return `All semesters prior to Year ${y} Semester ${s}`;
+    const y = profile.year || 2, s = profile.semester || 2;
+    if (y === 1 && s === 1) return 'This is your initial semester — no prior semesters.';
+    if (y === 1 && s === 2) return 'Year 1, Semester 1';
+    if (y === 2 && s === 1) return 'Year 1 (Sem 1 & 2)';
+    if (y === 2 && s === 2) return 'Year 1 (Sem 1 & 2) + Year 2, Sem 1';
+    if (y === 3 && s === 1) return 'Year 1 & 2 (Semesters 1–4)';
+    if (y === 3 && s === 2) return 'Year 1, 2, and Year 3 Sem 1';
+    return `All semesters before Year ${y} Semester ${s}`;
   }, [profile.year, profile.semester]);
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-fadeIn">
-      {/* Header */}
-      <div className="border-b border-border pb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="animate-fadeIn" style={{ maxWidth: '960px', margin: '0 auto' }}>
+
+      {/* ── Header ───────────────────────────────────────────────── */}
+      <div style={{
+        padding: '32px 0 24px', borderBottom: '1px solid var(--color-border-subtle)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px',
+      }}>
         <div>
-          <div className="flex items-center space-x-2 text-primary text-xs font-semibold uppercase tracking-wider mb-1">
-            <span>Step 2 of 6</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
-            Completed Course History
+          <h1 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-text-primary)', margin: 0, lineHeight: 1.3 }}>
+            Course History
           </h1>
-          <p className="text-sm text-text-secondary mt-1">
-            Enter marks for completed courses. The engine automatically computes GPA, stage credits, and subject proficiencies.
+          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '6px 0 0', lineHeight: 1.6 }}>
+            Record marks for completed courses. GPA and subject proficiencies are computed automatically.
           </p>
         </div>
 
-        {/* GPA & Credits Stats Card */}
+        {/* GPA stats */}
         {gpaData && (
-          <Card padding="sm" className="flex items-center space-x-5 px-5 shrink-0">
-            <div className="text-right">
-              <span className="text-[11px] uppercase tracking-wider text-text-secondary font-semibold block">
-                Current GPA
-              </span>
-              <span className="text-2xl font-black text-primary">
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '20px',
+            background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+            borderRadius: '10px', padding: '12px 18px', flexShrink: 0,
+          }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-muted)', letterSpacing: '0.05em', marginBottom: '2px' }}>GPA</div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-primary)', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
                 {gpaData.gpa.toFixed(2)}
-              </span>
+              </div>
             </div>
-            <div className="h-8 w-px bg-border" />
+            <div style={{ width: '1px', height: '32px', background: 'var(--color-border)' }} />
             <div>
-              <span className="text-[11px] uppercase tracking-wider text-text-secondary font-semibold block">
-                Credits Earned
-              </span>
-              <span className="text-lg font-bold text-text-primary">
-                {gpaData.credits_earned} <span className="text-xs text-text-muted">/ 134</span>
-              </span>
+              <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-muted)', letterSpacing: '0.05em', marginBottom: '2px' }}>CREDITS</div>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-text-primary)', fontVariantNumeric: 'tabular-nums' }}>
+                {gpaData.credits_earned}<span style={{ fontSize: '12px', color: 'var(--color-text-muted)', fontWeight: 400 }}> / 134</span>
+              </div>
             </div>
-          </Card>
+          </div>
         )}
       </div>
 
-      {/* Stage Context & Quick Autofill Banner */}
-      <Card padding="normal" className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center space-x-3.5">
-          <div className="w-10 h-10 rounded-lg bg-teal-subtle border border-teal-border flex items-center justify-center text-teal shrink-0">
-            <Sparkles className="w-5 h-5" />
-          </div>
+      {/* ── Autofill banner ──────────────────────────────────────── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: '16px', padding: '14px 16px', margin: '20px 0',
+        background: 'var(--color-teal-subtle)', border: '1px solid var(--color-teal-border)',
+        borderRadius: '10px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+          <Sparkles style={{ width: '14px', height: '14px', color: 'var(--color-teal)', flexShrink: 0, marginTop: '2px' }} />
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-semibold text-text-primary">
-                Current Stage: Year {profile.year}, Semester {profile.semester}
-              </span>
-              <Badge variant="neutral" size="sm">
-                {profile.degree}
-              </Badge>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '2px' }}>
+              Year {profile.year}, Semester {profile.semester}
             </div>
-            <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
-              Completed semesters: <strong className="text-text-primary">{priorSemestersText}</strong>. Marks for current semester are pending since you are currently enrolled.
-            </p>
+            <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+              Completed semesters: <strong style={{ color: 'var(--color-text-primary)' }}>{priorSemestersText}</strong>
+            </div>
           </div>
         </div>
-
-        {onAutofillPriorCourses && (
-          <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
-            <Button
-              variant="primary"
-              size="md"
-              icon={Sparkles}
-              onClick={() => onAutofillPriorCourses('student_a')}
-              title="Auto-fill all completed prior courses with benchmark marks"
-              className="flex-1 sm:flex-none"
-            >
-              Auto-fill Prior Semesters
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          {onAutofillPriorCourses && (
+            <Button variant="teal" size="sm" icon={Sparkles} onClick={() => onAutofillPriorCourses('student_a')}>
+              Auto-fill prior semesters
             </Button>
-            {courses.length > 0 && (
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => setCourses([])}
-                title="Clear all course records"
-              >
-                Clear
-              </Button>
-            )}
-          </div>
-        )}
-      </Card>
+          )}
+          {courses.length > 0 && (
+            <Button variant="secondary" size="sm" onClick={() => setCourses([])}>Clear all</Button>
+          )}
+        </div>
+      </div>
 
-      {/* Add Course Form Section */}
-      <Card className="space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
-          <h2 className="text-sm font-semibold text-text-primary flex items-center space-x-2">
-            <Plus className="w-4 h-4 text-primary" />
-            <span>Record Course Grade</span>
-          </h2>
+      {/* ── Add course form ──────────────────────────────────────── */}
+      <div style={{
+        background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+        borderRadius: '10px', padding: '16px', marginBottom: '20px',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginBottom: '14px',
+        }}>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Plus style={{ width: '13px', height: '13px', color: 'var(--color-text-muted)' }} />
+            Record a grade
+          </span>
           <button
             type="button"
             onClick={() => setIsCustomModalOpen(true)}
-            className="text-xs text-primary hover:text-primary-hover font-medium hover:underline flex items-center space-x-1 cursor-pointer"
+            style={{
+              fontSize: '12px', color: 'var(--color-primary)', fontWeight: 500,
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            }}
+            className="focus-ring"
           >
-            <span>+ Add Custom Course</span>
+            + Add custom course
           </button>
         </div>
 
-        <form onSubmit={handleAddCourse} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-          {/* Course Selector */}
-          <div className="sm:col-span-6 space-y-1.5">
-            <label htmlFor="course-catalog-select" className="block text-xs font-semibold text-text-secondary">
-              Select Course from Curriculum
-            </label>
-            <select
-              id="course-catalog-select"
-              value={selectedCourseCode}
-              onChange={(e) => setSelectedCourseCode(e.target.value)}
-              className="w-full h-11 bg-bg-secondary border border-border rounded-lg px-3 py-2 text-xs text-text-primary focus-ring transition cursor-pointer"
-            >
-              <option value="">-- Choose Course from Catalog --</option>
-              {availableCatalogCourses.map((c) => {
-                const isAdded = addedCodes.has(c.course_code);
-                return (
-                  <option key={c.course_code} value={c.course_code} disabled={isAdded} className="bg-surface text-text-primary">
-                    {c.course_code} - {c.course_name} ({c.credits} cr · {c.subject_area}) {isAdded ? '✓ Added' : ''}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-
-          {/* Mark Input */}
-          <div className="sm:col-span-3 space-y-1.5">
-            <div className="flex justify-between items-center text-xs">
-              <label htmlFor="mark-input" className="font-semibold text-text-secondary">Mark (0 - 100%)</label>
-              <Badge variant={currentGrade.variant} size="sm">
-                {currentGrade.grade} ({currentGrade.gp.toFixed(1)})
-              </Badge>
+        <form onSubmit={handleAddCourse}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px 140px', gap: '10px', alignItems: 'flex-end' }} className="add-course-grid">
+            {/* Course selector */}
+            <div>
+              <label htmlFor="course-catalog-select" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '6px' }}>
+                Course
+              </label>
+              <select
+                id="course-catalog-select"
+                value={selectedCourseCode}
+                onChange={(e) => setSelectedCourseCode(e.target.value)}
+                style={{
+                  width: '100%', height: '38px',
+                  background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
+                  borderRadius: '8px', padding: '0 10px', fontSize: '12px',
+                  color: 'var(--color-text-primary)', cursor: 'pointer', outline: 'none',
+                }}
+                className="focus-ring"
+              >
+                <option value="">Select from curriculum...</option>
+                {availableCatalogCourses.map((c) => {
+                  const added = addedCodes.has(c.course_code);
+                  return (
+                    <option key={c.course_code} value={c.course_code} disabled={added} style={{ background: 'var(--color-surface)' }}>
+                      {c.course_code} — {c.course_name} ({c.credits} cr){added ? '  ✓' : ''}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
-            <input
-              id="mark-input"
-              type="number"
-              min="0"
-              max="100"
-              step="0.5"
-              value={markInput}
-              onChange={(e) => setMarkInput(e.target.value)}
-              className="w-full h-11 bg-bg-secondary border border-border rounded-lg px-3.5 py-2 text-xs text-text-primary focus-ring transition"
-            />
-          </div>
 
-          {/* Submit Button */}
-          <div className="sm:col-span-3">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              disabled={!selectedCourseCode}
-              icon={Plus}
-              className="w-full"
-            >
-              Add to Transcript
-            </Button>
+            {/* Mark input */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label htmlFor="mark-input" style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)' }}>Mark %</label>
+                <Badge variant={currentGrade.variant} size="sm">{currentGrade.grade}</Badge>
+              </div>
+              <input
+                id="mark-input"
+                type="number" min="0" max="100" step="0.5"
+                value={markInput}
+                onChange={(e) => setMarkInput(e.target.value)}
+                style={{
+                  width: '100%', height: '38px',
+                  background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
+                  borderRadius: '8px', padding: '0 10px', fontSize: '13px',
+                  color: 'var(--color-text-primary)', outline: 'none',
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+                className="focus-ring"
+              />
+            </div>
+
+            {/* Submit */}
+            <div>
+              <div style={{ height: '23px' }} /> {/* spacer aligns with inputs that have labels */}
+              <Button type="submit" variant="primary" size="md" disabled={!selectedCourseCode} icon={Plus} className="w-full">
+                Add
+              </Button>
+            </div>
           </div>
         </form>
-      </Card>
+      </div>
 
-      {/* Added Courses Section: High-Density Table replacing floating card boxes */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-text-primary flex items-center space-x-2">
-            <BookOpen className="w-4 h-4 text-primary" />
-            <span>Enrolled & Completed Courses ({courses.length})</span>
-          </h2>
-          {courses.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setCourses([])}
-              className="text-xs text-text-muted hover:text-danger font-medium transition cursor-pointer"
-            >
-              Clear all courses
-            </button>
-          )}
+      {/* ── Transcript table ─────────────────────────────────────── */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <BookOpen style={{ width: '13px', height: '13px', color: 'var(--color-text-muted)' }} />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+              Transcript
+            </span>
+            {courses.length > 0 && (
+              <span style={{
+                fontSize: '11px', color: 'var(--color-text-muted)',
+                background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+                borderRadius: '20px', padding: '1px 8px',
+              }}>
+                {courses.length} courses
+              </span>
+            )}
+          </div>
         </div>
 
         {courses.length === 0 ? (
-          <Card className="p-12 text-center space-y-3 border-dashed bg-bg-secondary/40">
-            <BookOpen className="w-8 h-8 text-text-muted mx-auto" />
-            <p className="text-sm text-text-primary font-semibold">
-              No courses recorded yet
+          <div style={{
+            border: '1px dashed var(--color-border)', borderRadius: '10px',
+            padding: '48px 24px', textAlign: 'center',
+            background: 'var(--color-bg-secondary)',
+          }}>
+            <BookOpen style={{ width: '24px', height: '24px', color: 'var(--color-text-disabled)', margin: '0 auto 12px' }} />
+            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', margin: '0 0 6px' }}>
+              No courses recorded
             </p>
-            <p className="text-xs text-text-secondary max-w-md mx-auto leading-relaxed">
-              Select courses above or click <strong>Auto-fill Prior Semesters</strong> to populate standard marks up to Year {profile.year} Semester {profile.semester}.
+            <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.5 }}>
+              Select a course above or click <strong style={{ color: 'var(--color-teal)' }}>Auto-fill prior semesters</strong> to populate your transcript.
             </p>
-          </Card>
+          </div>
         ) : (
-          <div className="border border-border rounded-xl overflow-hidden bg-surface shadow-xs">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
+          <div style={{
+            border: '1px solid var(--color-border)', borderRadius: '10px', overflow: 'hidden',
+          }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="academic-table" style={{ minWidth: '640px' }}>
                 <thead>
-                  <tr className="bg-bg-secondary border-b border-border text-text-secondary font-semibold uppercase tracking-wider text-[11px]">
-                    <th className="py-3 px-4 w-28">Code</th>
-                    <th className="py-3 px-4">Course Name & Subject Area</th>
-                    <th className="py-3 px-3 w-24">Type</th>
-                    <th className="py-3 px-3 w-20 text-center">Credits</th>
-                    <th className="py-3 px-3 w-20 text-center">Mark</th>
-                    <th className="py-3 px-3 w-28 text-center">Grade</th>
-                    <th className="py-3 px-4 w-16 text-right">Actions</th>
+                  <tr>
+                    <th>Code</th>
+                    <th>Course</th>
+                    <th>Type</th>
+                    <th style={{ textAlign: 'center' }}>Cr</th>
+                    <th style={{ textAlign: 'center' }}>Mark</th>
+                    <th style={{ textAlign: 'center' }}>Grade</th>
+                    <th style={{ textAlign: 'right' }}></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border-subtle">
+                <tbody>
                   {courses.map((c) => {
-                    const gradeInfo = getGradeInfo(c.mark);
+                    const gi = getGradeInfo(c.mark);
                     return (
-                      <tr
-                        key={c.course_code}
-                        className="hover:bg-surface-hover transition-colors group"
-                      >
-                        {/* Course Code */}
-                        <td className="py-3 px-4 font-mono font-semibold text-primary">
-                          {c.course_code}
+                      <tr key={c.course_code}>
+                        <td>
+                          <span className="course-code">{c.course_code}</span>
                         </td>
-
-                        {/* Name & Area */}
-                        <td className="py-3 px-4">
-                          <div className="font-medium text-text-primary">{c.course_name}</div>
-                          <div className="text-[11px] text-text-muted mt-0.5">{c.subject_area}</div>
+                        <td>
+                          <div style={{ fontWeight: 500, fontSize: '12px', color: 'var(--color-text-primary)' }}>{c.course_name}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '1px' }}>{c.subject_area}</div>
                         </td>
-
-                        {/* Type */}
-                        <td className="py-3 px-3">
-                          <Badge
-                            variant={c.course_type === 'Core' ? 'neutral' : 'info'}
-                            size="sm"
-                          >
+                        <td>
+                          <Badge variant={c.course_type === 'Core' ? 'neutral' : 'info'} size="sm">
                             {c.course_type || 'Core'}
                           </Badge>
                         </td>
-
-                        {/* Credits */}
-                        <td className="py-3 px-3 text-center text-text-secondary font-medium">
-                          {c.credits} cr
+                        <td style={{ textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: '12px', fontVariantNumeric: 'tabular-nums' }}>
+                          {c.credits}
                         </td>
-
-                        {/* Mark */}
-                        <td className="py-3 px-3 text-center font-semibold text-text-primary">
+                        <td style={{ textAlign: 'center', fontWeight: 600, fontSize: '12px', fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-primary)' }}>
                           {c.mark}%
                         </td>
-
-                        {/* Grade */}
-                        <td className="py-3 px-3 text-center">
-                          <Badge variant={gradeInfo.variant} size="sm">
-                            {gradeInfo.grade} ({gradeInfo.gp.toFixed(1)})
+                        <td style={{ textAlign: 'center' }}>
+                          <Badge variant={gi.variant} size="sm">
+                            {gi.grade} <span style={{ opacity: 0.7 }}>({gi.gp.toFixed(1)})</span>
                           </Badge>
                         </td>
-
-                        {/* Actions */}
-                        <td className="py-3 px-4 text-right">
-                          <IconButton
-                            icon={Trash2}
-                            label={`Remove course ${c.course_code}`}
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleRemoveCourse(c.course_code)}
-                          />
+                        <td style={{ textAlign: 'right' }}>
+                          <IconButton icon={Trash2} label={`Remove ${c.course_code}`} variant="destructive" size="sm" onClick={() => handleRemoveCourse(c.course_code)} />
                         </td>
                       </tr>
                     );
@@ -413,151 +347,101 @@ export default function StepCourseHistory({
         )}
       </div>
 
-      {/* Navigation Controls */}
-      <div className="pt-6 border-t border-border flex items-center justify-between">
-        <Button
-          variant="secondary"
-          size="md"
-          icon={ArrowLeft}
-          onClick={onPrev}
-        >
-          Back to Profile
-        </Button>
-
-        <Button
-          variant="primary"
-          size="lg"
-          icon={ArrowRight}
-          iconPosition="right"
-          onClick={onNext}
-        >
-          Proceed to Career Interests
-        </Button>
+      {/* ── Navigation ───────────────────────────────────────────── */}
+      <div style={{ paddingTop: '20px', borderTop: '1px solid var(--color-border-subtle)', display: 'flex', justifyContent: 'space-between' }}>
+        <Button variant="secondary" size="md" icon={ArrowLeft} onClick={onPrev}>Profile</Button>
+        <Button variant="primary" size="lg" icon={ArrowRight} iconPosition="right" onClick={onNext}>Career Interests</Button>
       </div>
 
-      {/* Custom Course Modal */}
+      {/* ── Custom course modal ──────────────────────────────────── */}
       {isCustomModalOpen && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <Card variant="elevated" className="max-w-lg w-full p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
-              <h3 className="text-base font-bold text-text-primary">Add Custom Course</h3>
-              <IconButton
-                icon={X}
-                label="Close custom course modal"
-                size="sm"
-                onClick={() => setIsCustomModalOpen(false)}
-              />
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+          backdropFilter: 'blur(4px)', zIndex: 100,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px',
+        }}>
+          <div style={{
+            background: 'var(--color-surface-elevated)', border: '1px solid var(--color-border)',
+            borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '480px',
+            boxShadow: '0 24px 48px rgba(0,0,0,0.4)',
+          }} className="animate-fadeUp">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid var(--color-border-subtle)' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Add custom course</h3>
+              <IconButton icon={X} label="Close" size="sm" onClick={() => setIsCustomModalOpen(false)} />
             </div>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              Enter custom course details from any curriculum, university, or credit transfer.
-            </p>
 
-            <form onSubmit={handleAddCustomCourse} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block text-text-secondary font-semibold mb-1">Course Code</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. CS3050"
-                  value={customCourse.code}
-                  onChange={(e) => setCustomCourse({ ...customCourse, code: e.target.value })}
-                  className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring"
-                />
-              </div>
-
-              <div>
-                <label className="block text-text-secondary font-semibold mb-1">Course Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Distributed Cloud Architectures"
-                  value={customCourse.name}
-                  onChange={(e) => setCustomCourse({ ...customCourse, name: e.target.value })}
-                  className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-text-secondary font-semibold mb-1">Credits</label>
+            <form onSubmit={handleAddCustomCourse} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {[
+                { label: 'Course code', field: 'code', type: 'text', placeholder: 'e.g. CS3050', required: true },
+                { label: 'Course title', field: 'name', type: 'text', placeholder: 'e.g. Distributed Cloud Architectures', required: true },
+              ].map(({ label, field, type, placeholder, required }) => (
+                <div key={field}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '6px' }}>{label}</label>
                   <input
-                    type="number"
-                    min="1"
-                    max="6"
-                    value={customCourse.credits}
+                    type={type} required={required} placeholder={placeholder}
+                    value={customCourse[field]}
+                    onChange={(e) => setCustomCourse({ ...customCourse, [field]: e.target.value })}
+                    style={{ width: '100%', height: '38px', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '0 10px', fontSize: '13px', color: 'var(--color-text-primary)', outline: 'none' }}
+                    className="focus-ring"
+                  />
+                </div>
+              ))}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '6px' }}>Credits</label>
+                  <input type="number" min="1" max="6" value={customCourse.credits}
                     onChange={(e) => setCustomCourse({ ...customCourse, credits: e.target.value })}
-                    className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring"
+                    style={{ width: '100%', height: '38px', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '0 10px', fontSize: '13px', color: 'var(--color-text-primary)', outline: 'none' }}
+                    className="focus-ring"
                   />
                 </div>
                 <div>
-                  <label className="block text-text-secondary font-semibold mb-1">Course Type</label>
-                  <select
-                    value={customCourse.courseType}
-                    onChange={(e) => setCustomCourse({ ...customCourse, courseType: e.target.value })}
-                    className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring cursor-pointer"
-                  >
-                    <option value="Core" className="bg-surface text-text-primary">Core</option>
-                    <option value="Elective" className="bg-surface text-text-primary">Elective</option>
-                    <option value="NGPA" className="bg-surface text-text-primary">NGPA</option>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '6px' }}>Type</label>
+                  <select value={customCourse.courseType} onChange={(e) => setCustomCourse({ ...customCourse, courseType: e.target.value })}
+                    style={{ width: '100%', height: '38px', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '0 10px', fontSize: '12px', color: 'var(--color-text-primary)', outline: 'none', cursor: 'pointer' }}
+                    className="focus-ring">
+                    <option value="Core">Core</option>
+                    <option value="Elective">Elective</option>
+                    <option value="NGPA">NGPA</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-text-secondary font-semibold mb-1">Subject Taxonomy Area</label>
-                <select
-                  value={customCourse.subjectArea}
-                  onChange={(e) => setCustomCourse({ ...customCourse, subjectArea: e.target.value })}
-                  className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring cursor-pointer"
-                >
-                  <option value="Programming & Software Development" className="bg-surface text-text-primary">Programming & Software Development</option>
-                  <option value="Mathematics & Statistics" className="bg-surface text-text-primary">Mathematics & Statistics</option>
-                  <option value="Database Systems" className="bg-surface text-text-primary">Database Systems</option>
-                  <option value="Data Science & Analytics" className="bg-surface text-text-primary">Data Science & Analytics</option>
-                  <option value="Artificial Intelligence" className="bg-surface text-text-primary">Artificial Intelligence</option>
-                  <option value="Computer Networks" className="bg-surface text-text-primary">Computer Networks</option>
-                  <option value="Cyber Security" className="bg-surface text-text-primary">Cyber Security</option>
-                  <option value="Systems & Architecture" className="bg-surface text-text-primary">Systems & Architecture</option>
-                  <option value="Web & Mobile Development" className="bg-surface text-text-primary">Web & Mobile Development</option>
-                  <option value="Theoretical Computer Science" className="bg-surface text-text-primary">Theoretical Computer Science</option>
-                  <option value="IT Management & Professional Practice" className="bg-surface text-text-primary">IT Management & Professional Practice</option>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '6px' }}>Subject area</label>
+                <select value={customCourse.subjectArea} onChange={(e) => setCustomCourse({ ...customCourse, subjectArea: e.target.value })}
+                  style={{ width: '100%', height: '38px', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '0 10px', fontSize: '12px', color: 'var(--color-text-primary)', outline: 'none', cursor: 'pointer' }}
+                  className="focus-ring">
+                  {['Programming & Software Development','Mathematics & Statistics','Database Systems','Data Science & Analytics','Artificial Intelligence','Computer Networks','Cyber Security','Systems & Architecture','Web & Mobile Development','Theoretical Computer Science','IT Management & Professional Practice'].map(a => (
+                    <option key={a} value={a} style={{ background: 'var(--color-surface)' }}>{a}</option>
+                  ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-text-secondary font-semibold mb-1">Mark Earned (0 - 100%)</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                  value={customCourse.mark}
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '6px' }}>Mark (0–100%)</label>
+                <input type="number" min="0" max="100" step="0.5" value={customCourse.mark}
                   onChange={(e) => setCustomCourse({ ...customCourse, mark: e.target.value })}
-                  className="w-full h-10 bg-bg-secondary border border-border rounded-lg px-3 text-text-primary focus-ring"
+                  style={{ width: '100%', height: '38px', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '0 10px', fontSize: '13px', color: 'var(--color-text-primary)', outline: 'none' }}
+                  className="focus-ring"
                 />
               </div>
 
-              <div className="pt-4 border-t border-border-subtle flex justify-end space-x-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="md"
-                  onClick={() => setIsCustomModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="md"
-                >
-                  Add Course
-                </Button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', paddingTop: '8px', borderTop: '1px solid var(--color-border-subtle)' }}>
+                <Button type="button" variant="secondary" size="md" onClick={() => setIsCustomModalOpen(false)}>Cancel</Button>
+                <Button type="submit" variant="primary" size="md">Add course</Button>
               </div>
             </form>
-          </Card>
+          </div>
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 640px) {
+          .add-course-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

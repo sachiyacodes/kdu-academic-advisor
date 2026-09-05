@@ -1,6 +1,6 @@
 import React from 'react';
-import { BookOpen, Calendar, Sparkles, ArrowRight, School, Info } from 'lucide-react';
-import { Card, Button, Badge } from './ui';
+import { BookOpen, Calendar, ArrowRight, School, Sparkles, Info } from 'lucide-react';
+import { Button, Badge } from './ui';
 
 export default function StepProfile({
   profile,
@@ -11,181 +11,272 @@ export default function StepProfile({
   onNext,
 }) {
   return (
-    <div className="space-y-6 md:space-y-8 animate-fadeIn">
-      {/* Page Header */}
-      <div className="border-b border-border pb-5">
-        <div className="flex items-center space-x-2 text-primary text-xs font-semibold uppercase tracking-wider mb-1">
-          <span>Step 1 of 6</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
-          Academic Profile Setup
+    <div className="animate-fadeIn" style={{ maxWidth: '960px', margin: '0 auto' }}>
+
+      {/* ── Page header ──────────────────────────────────────────── */}
+      <div style={{ padding: '32px 0 24px', borderBottom: '1px solid var(--color-border-subtle)' }}>
+        <h1 style={{
+          fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em',
+          color: 'var(--color-text-primary)', margin: 0, lineHeight: 1.3,
+        }}>
+          Academic Profile
         </h1>
-        <p className="text-sm text-text-secondary mt-1 max-w-3xl leading-relaxed">
-          Configure your enrolled degree program and current academic standing. You can also load
-          a benchmark student archetype to immediately test the recommendation pipeline.
+        <p style={{
+          fontSize: '13px', color: 'var(--color-text-secondary)', margin: '6px 0 0',
+          maxWidth: '520px', lineHeight: 1.6,
+        }}>
+          Set your enrolled degree and current academic stage. The advisor will use this to determine
+          which courses you have completed and what requirements remain.
         </p>
       </div>
 
-      {/* Main Form & Benchmark Archetypes Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-        {/* Left 2 Cols: Profile Form */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="space-y-6">
-            <div className="flex items-center space-x-2.5 pb-3 border-b border-border-subtle">
-              <div className="w-8 h-8 rounded-lg bg-primary-subtle border border-primary-border flex items-center justify-center text-primary shrink-0">
-                <School className="w-4 h-4" />
-              </div>
-              <h2 className="text-base font-semibold text-text-primary">
-                Degree & Academic Standing
-              </h2>
-            </div>
+      {/* ── Two-column layout ────────────────────────────────────── */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: '1fr 320px', gap: '32px',
+        paddingTop: '28px', alignItems: 'start',
+      }} className="profile-grid">
 
-            {/* Degree Select */}
-            <div className="space-y-2">
-              <label htmlFor="degree-select" className="block text-xs font-semibold text-text-secondary">
-                Enrolled Degree Program
+        {/* Left: form */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+          {/* Degree select */}
+          <div>
+            <label
+              htmlFor="degree-select"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}
+            >
+              <School style={{ width: '13px', height: '13px', color: 'var(--color-text-muted)' }} />
+              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                Enrolled degree program
+              </span>
+            </label>
+            <select
+              id="degree-select"
+              value={profile.degree}
+              onChange={(e) => setProfile({ ...profile, degree: e.target.value })}
+              style={{
+                width: '100%', height: '40px',
+                background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
+                borderRadius: '8px', padding: '0 12px', fontSize: '13px',
+                color: 'var(--color-text-primary)', cursor: 'pointer',
+                outline: 'none', transition: 'border-color 120ms ease',
+              }}
+              className="focus-ring"
+            >
+              {degrees.map((d) => {
+                const name = d.name || d.degree_name;
+                return (
+                  <option key={d.degree_id} value={name} style={{ background: 'var(--color-surface)' }}>
+                    {name}
+                  </option>
+                );
+              })}
+            </select>
+
+            {profile.degree === 'Custom / Other University Degree' && (
+              <div style={{
+                display: 'flex', gap: '8px', padding: '10px 12px', marginTop: '8px',
+                background: 'var(--color-info-subtle)', border: '1px solid rgba(56,189,248,0.2)',
+                borderRadius: '8px', fontSize: '12px',
+              }}>
+                <Info style={{ width: '13px', height: '13px', color: 'var(--color-info)', flexShrink: 0, marginTop: '1px' }} />
+                <span style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                  Universal mode — enables manual course entry and access to all 89 electives.
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Year + Semester row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+
+            {/* Academic year */}
+            <div>
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px',
+              }}>
+                <Calendar style={{ width: '13px', height: '13px', color: 'var(--color-text-muted)' }} />
+                <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                  Current academic year
+                </span>
               </label>
-              <select
-                id="degree-select"
-                value={profile.degree}
-                onChange={(e) => setProfile({ ...profile, degree: e.target.value })}
-                className="w-full h-11 bg-bg-secondary border border-border rounded-lg px-3.5 py-2 text-sm text-text-primary focus-ring transition cursor-pointer"
-              >
-                {degrees.map((d) => {
-                  const degName = d.name || d.degree_name;
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                {[1, 2, 3, 4].map((y) => {
+                  const sel = profile.year === y;
                   return (
-                    <option key={d.degree_id} value={degName} className="bg-surface text-text-primary">
-                      {degName}
-                    </option>
+                    <button
+                      key={y}
+                      type="button"
+                      onClick={() => setProfile({ ...profile, year: y })}
+                      aria-pressed={sel}
+                      style={{
+                        height: '36px', borderRadius: '8px', border: '1px solid',
+                        fontSize: '12px', fontWeight: sel ? 600 : 400, cursor: 'pointer',
+                        transition: 'all 120ms ease',
+                        background: sel ? 'var(--color-primary)' : 'var(--color-bg-secondary)',
+                        borderColor: sel ? 'transparent' : 'var(--color-border)',
+                        color: sel ? '#fff' : 'var(--color-text-secondary)',
+                      }}
+                      className="focus-ring"
+                    >
+                      Y{y}
+                    </button>
                   );
                 })}
-              </select>
-              {profile.degree === 'Custom / Other University Degree' && (
-                <div className="flex items-start space-x-2 text-xs text-text-primary bg-info-subtle border border-info/30 rounded-lg p-3 mt-2">
-                  <Info className="w-4 h-4 text-info shrink-0 mt-0.5" />
-                  <div className="leading-relaxed">
-                    <strong className="font-semibold text-info">Universal Curriculum Mode:</strong> Enables manual course entry from any institution and unlocks exploration of all 89 electives across computing departments.
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Year & Semester Controls */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Academic Year */}
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-text-secondary flex items-center space-x-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-primary" />
-                  <span>Current Academic Year</span>
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[1, 2, 3, 4].map((y) => {
-                    const isSelected = profile.year === y;
-                    return (
-                      <button
-                        key={y}
-                        type="button"
-                        onClick={() => setProfile({ ...profile, year: y })}
-                        aria-pressed={isSelected}
-                        className={`h-11 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer focus-ring ${
-                          isSelected
-                            ? 'bg-primary text-white shadow-xs border border-primary/20'
-                            : 'bg-bg-secondary text-text-secondary hover:text-text-primary hover:bg-surface-hover border border-border'
-                        }`}
-                      >
-                        Year {y}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Semester */}
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-text-secondary flex items-center space-x-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-primary" />
-                  <span>Current Semester</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[1, 2].map((s) => {
-                    const isSelected = profile.semester === s;
-                    return (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => setProfile({ ...profile, semester: s })}
-                        aria-pressed={isSelected}
-                        className={`h-11 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer focus-ring ${
-                          isSelected
-                            ? 'bg-primary text-white shadow-xs border border-primary/20'
-                            : 'bg-bg-secondary text-text-secondary hover:text-text-primary hover:bg-surface-hover border border-border'
-                        }`}
-                      >
-                        Semester {s}
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
             </div>
 
-            {/* Form Footer Action */}
-            <div className="pt-4 border-t border-border-subtle flex justify-end">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={onNext}
-                icon={ArrowRight}
-                iconPosition="right"
-              >
-                Proceed to Course History
-              </Button>
+            {/* Semester */}
+            <div>
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px',
+              }}>
+                <BookOpen style={{ width: '13px', height: '13px', color: 'var(--color-text-muted)' }} />
+                <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
+                  Current semester
+                </span>
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                {[1, 2].map((s) => {
+                  const sel = profile.semester === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setProfile({ ...profile, semester: s })}
+                      aria-pressed={sel}
+                      style={{
+                        height: '36px', borderRadius: '8px', border: '1px solid',
+                        fontSize: '12px', fontWeight: sel ? 600 : 400, cursor: 'pointer',
+                        transition: 'all 120ms ease',
+                        background: sel ? 'var(--color-primary)' : 'var(--color-bg-secondary)',
+                        borderColor: sel ? 'transparent' : 'var(--color-border)',
+                        color: sel ? '#fff' : 'var(--color-text-secondary)',
+                      }}
+                      className="focus-ring"
+                    >
+                      Sem {s}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </Card>
+          </div>
+
+          {/* Stage summary */}
+          <div style={{
+            padding: '12px 14px',
+            background: 'var(--color-surface)', border: '1px solid var(--color-border-subtle)',
+            borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px',
+          }}>
+            <div style={{
+              width: '6px', height: '6px', borderRadius: '50%',
+              background: 'var(--color-primary)', flexShrink: 0,
+            }} />
+            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+              Currently at{' '}
+              <strong style={{ color: 'var(--color-text-primary)' }}>
+                Year {profile.year}, Semester {profile.semester}
+              </strong>
+              . All prior semesters will be treated as completed.
+            </span>
+          </div>
+
+          {/* Action */}
+          <div style={{ paddingTop: '8px', borderTop: '1px solid var(--color-border-subtle)', textAlign: 'right' }}>
+            <Button variant="primary" size="lg" onClick={onNext} icon={ArrowRight} iconPosition="right">
+              Continue to Course History
+            </Button>
+          </div>
         </div>
 
-        {/* Right 1 Col: Benchmark Archetypes */}
-        <div className="space-y-4">
-          <Card className="space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
-              <div className="flex items-center space-x-2 font-semibold text-sm text-text-primary">
-                <Sparkles className="w-4 h-4 text-teal" />
-                <span>Benchmark Archetypes</span>
-              </div>
-              <Badge variant="teal" size="sm">
-                Stage: Y{profile.year}S{profile.semester}
-              </Badge>
+        {/* Right: archetypes */}
+        <div style={{
+          background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+          borderRadius: '12px', overflow: 'hidden',
+        }}>
+          {/* Header */}
+          <div style={{
+            padding: '14px 16px', borderBottom: '1px solid var(--color-border-subtle)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+              <Sparkles style={{ width: '13px', height: '13px', color: 'var(--color-teal)' }} />
+              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                Student archetypes
+              </span>
             </div>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              Loads pre-configured student marks and interests adapted to your selected stage. Autofills completed courses prior to <strong className="text-text-primary">Year {profile.year} Sem {profile.semester}</strong>:
-            </p>
+            <Badge variant="teal" size="sm">
+              Y{profile.year}S{profile.semester}
+            </Badge>
+          </div>
 
-            <div className="space-y-2 pt-1">
-              {demoProfiles &&
-                Object.entries(demoProfiles).map(([key, demo]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => onLoadDemo(key)}
-                    className="w-full text-left p-3 rounded-lg bg-bg-secondary hover:bg-surface-hover border border-border hover:border-primary/40 transition-all duration-150 group cursor-pointer focus-ring"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-text-primary group-hover:text-primary transition-colors">
-                        {demo.title.split('—')[0].trim()}
-                      </span>
-                      <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-surface border border-border text-text-secondary group-hover:bg-primary-subtle group-hover:text-primary group-hover:border-primary-border transition-colors">
-                        Load
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-text-muted group-hover:text-text-secondary mt-1 line-clamp-2 leading-relaxed transition-colors">
-                      {demo.description}
-                    </p>
-                  </button>
-                ))}
-            </div>
-          </Card>
+          {/* Description */}
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border-subtle)' }}>
+            <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.5 }}>
+              Pre-configured mark sets adapted to your current stage. Loads courses completed before
+              Year {profile.year}, Sem {profile.semester}.
+            </p>
+          </div>
+
+          {/* Archetype list */}
+          <div style={{ padding: '8px' }}>
+            {demoProfiles && Object.entries(demoProfiles).map(([key, demo]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => onLoadDemo(key)}
+                style={{
+                  width: '100%', textAlign: 'left', padding: '10px 12px', borderRadius: '8px',
+                  background: 'none', border: '1px solid transparent',
+                  cursor: 'pointer', transition: 'all 120ms ease', marginBottom: '2px',
+                  display: 'block',
+                }}
+                className="focus-ring archetype-btn"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--color-surface-hover)';
+                  e.currentTarget.style.borderColor = 'var(--color-border)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'none';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }}
+              >
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  marginBottom: '3px',
+                }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                    {demo.title.split('—')[0].trim()}
+                  </span>
+                  <span style={{
+                    fontSize: '10px', color: 'var(--color-text-muted)',
+                    background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
+                    borderRadius: '4px', padding: '1px 6px', fontWeight: 500,
+                  }}>
+                    Load
+                  </span>
+                </div>
+                <p style={{
+                  fontSize: '11px', color: 'var(--color-text-muted)', margin: 0,
+                  lineHeight: 1.4, overflow: 'hidden',
+                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                }}>
+                  {demo.description}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Responsive grid collapse */}
+      <style>{`
+        .profile-grid { grid-template-columns: 1fr 300px; }
+        @media (max-width: 768px) {
+          .profile-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

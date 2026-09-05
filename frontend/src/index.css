@@ -41,39 +41,33 @@
   --color-text-disabled: var(--color-text-disabled);
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   DESIGN SYSTEM TOKENS: DARK THEME (DEFAULT)
-   Linear × Vercel × Modern Academic Data Platform
-   Deep Navy canvas + Ocean Blue interaction + Intelligence Teal analytical
+   DESIGN TOKENS: DARK THEME (DEFAULT)
    ───────────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Canvas & Structural Backgrounds */
   --color-bg-primary: #07111F;
   --color-bg-secondary: #0B1728;
   --color-surface: #101D2E;
   --color-surface-elevated: #16263A;
   --color-surface-hover: #1B2D43;
 
-  /* Borders & Dividers */
   --color-border: #203149;
   --color-border-subtle: #17263A;
 
-  /* Primary Interaction Accent: Ocean Blue */
   --color-primary: #3B82F6;
   --color-primary-hover: #60A5FA;
   --color-primary-active: #2563EB;
   --color-primary-subtle: rgba(59, 130, 246, 0.10);
   --color-primary-border: rgba(59, 130, 246, 0.30);
 
-  /* Analytical & AI Accent: Intelligence Teal */
   --color-teal: #14B8A6;
   --color-teal-hover: #2DD4BF;
   --color-teal-subtle: rgba(20, 184, 166, 0.10);
   --color-teal-border: rgba(20, 184, 166, 0.30);
 
-  /* Semantic Feedback Statuses */
   --color-success: #22C55E;
   --color-success-subtle: rgba(34, 197, 94, 0.10);
   --color-success-border: rgba(34, 197, 94, 0.25);
@@ -89,44 +83,37 @@
   --color-info: #38BDF8;
   --color-info-subtle: rgba(56, 189, 248, 0.10);
 
-  /* High-Contrast Readable Typography Hierarchy */
-  --color-text-primary: #F8FAFC;
-  --color-text-secondary: #A8B4C5;
-  --color-text-muted: #718096;
-  --color-text-disabled: #4B5A6D;
+  --color-text-primary: #F1F5F9;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+  --color-text-disabled: #3B4E62;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   DESIGN SYSTEM TOKENS: LIGHT THEME
-   Crisp, high-contrast daylight academic theme
+   DESIGN TOKENS: LIGHT THEME
    ───────────────────────────────────────────────────────────────────────────── */
 :root[data-theme="light"],
 .light {
-  /* Canvas & Structural Backgrounds */
   --color-bg-primary: #F6F8FB;
   --color-bg-secondary: #FFFFFF;
   --color-surface: #FFFFFF;
   --color-surface-elevated: #F8FAFC;
   --color-surface-hover: #F1F5F9;
 
-  /* Borders & Dividers */
   --color-border: #E2E8F0;
   --color-border-subtle: #EDF2F7;
 
-  /* Primary Interaction Accent: Ocean Blue */
   --color-primary: #2563EB;
   --color-primary-hover: #1D4ED8;
   --color-primary-active: #1E40AF;
   --color-primary-subtle: rgba(37, 99, 235, 0.08);
   --color-primary-border: rgba(37, 99, 235, 0.25);
 
-  /* Analytical & AI Accent: Intelligence Teal */
   --color-teal: #0F766E;
   --color-teal-hover: #115E59;
   --color-teal-subtle: rgba(15, 118, 110, 0.08);
   --color-teal-border: rgba(15, 118, 110, 0.25);
 
-  /* Semantic Feedback Statuses */
   --color-success: #16A34A;
   --color-success-subtle: rgba(22, 163, 74, 0.08);
   --color-success-border: rgba(22, 163, 74, 0.25);
@@ -142,14 +129,19 @@
   --color-info: #0284C7;
   --color-info-subtle: rgba(2, 132, 199, 0.08);
 
-  /* High-Contrast Readable Typography Hierarchy */
   --color-text-primary: #0F172A;
   --color-text-secondary: #475569;
   --color-text-muted: #64748B;
   --color-text-disabled: #94A3B8;
 }
 
-/* Global Application Base */
+/* ─────────────────────────────────────────────────────────────────────────────
+   GLOBAL BASE
+   ───────────────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -158,19 +150,283 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-/* Focus Ring Accessibility Utility */
+/* ─────────────────────────────────────────────────────────────────────────────
+   TYPOGRAPHY SCALE
+   Deliberately set so heading levels feel distinct.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Page-level titles */
+.text-page-title {
+  font-size: 1.5rem;    /* 24px */
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+
+/* Section headings */
+.text-section-heading {
+  font-size: 0.8125rem;  /* 13px */
+  font-weight: 600;
+  letter-spacing: 0em;
+  color: var(--color-text-primary);
+}
+
+/* Metadata / labels */
+.text-meta {
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--color-text-muted);
+}
+
+/* Numeric data — use tabular figures */
+.text-data {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FOCUS RING
+   ───────────────────────────────────────────────────────────────────────────── */
 .focus-ring {
   outline: none;
-  transition: box-shadow 150ms ease, border-color 150ms ease;
+  transition: box-shadow 120ms ease, border-color 120ms ease;
 }
 .focus-ring:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-/* Reduced Motion Support */
+/* ─────────────────────────────────────────────────────────────────────────────
+   ANIMATIONS  — properly defined here so animate-fadeIn actually works
+   ───────────────────────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 200ms ease both;
+}
+.animate-fadeUp {
+  animation: fadeUp 240ms ease both;
+}
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Stagger children for list-type reveals */
+.stagger-children > * {
+  animation: fadeIn 200ms ease both;
+}
+.stagger-children > *:nth-child(1)  { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2)  { animation-delay: 40ms; }
+.stagger-children > *:nth-child(3)  { animation-delay: 80ms; }
+.stagger-children > *:nth-child(4)  { animation-delay: 120ms; }
+.stagger-children > *:nth-child(5)  { animation-delay: 160ms; }
+.stagger-children > *:nth-child(6)  { animation-delay: 200ms; }
+.stagger-children > *:nth-child(n+7) { animation-delay: 240ms; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION DIVIDER  — a thin horizontal rule with optional label
+   ───────────────────────────────────────────────────────────────────────────── */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--color-border-subtle);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SCROLLBARS
+   ───────────────────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-border-subtle); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   STEPPER BAR  — the horizontal progress rail in the navbar
+   ───────────────────────────────────────────────────────────────────────────── */
+.step-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  position: relative;
+}
+
+.step-track-item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Connector line between steps */
+.step-track-item:not(:last-child)::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+  margin: 0 4px;
+  transition: background 200ms ease;
+}
+
+.step-track-item.is-completed:not(:last-child)::after {
+  background: var(--color-success);
+  opacity: 0.5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TABLE  — shared academic table styles
+   ───────────────────────────────────────────────────────────────────────────── */
+.academic-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.academic-table thead th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.academic-table thead th:first-child { padding-left: 16px; }
+.academic-table thead th:last-child  { padding-right: 16px; }
+
+.academic-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  vertical-align: middle;
+  color: var(--color-text-primary);
+}
+.academic-table tbody td:first-child { padding-left: 16px; }
+.academic-table tbody td:last-child  { padding-right: 16px; }
+
+.academic-table tbody tr:last-child td { border-bottom: none; }
+.academic-table tbody tr:hover td { background: var(--color-surface-hover); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   INTEREST SLIDER  — range input custom track
+   ───────────────────────────────────────────────────────────────────────────── */
+.interest-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-border);
+  cursor: pointer;
+  outline: none;
+  transition: height 120ms ease;
+}
+.interest-slider:hover { height: 4px; }
+.interest-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid var(--color-bg-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+  cursor: pointer;
+  transition: box-shadow 120ms ease, transform 120ms ease;
+}
+.interest-slider::-webkit-slider-thumb:hover,
+.interest-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+  transform: scale(1.15);
+}
+.interest-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid var(--color-bg-primary);
+  cursor: pointer;
+}
+
+/* Sensitivity slider variant */
+.sensitivity-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  cursor: pointer;
+  outline: none;
+}
+.sensitivity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid var(--color-bg-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+  cursor: pointer;
+  transition: box-shadow 120ms ease;
+}
+.sensitivity-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px var(--color-primary-subtle);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PROGRESS BAR  — thin structured progress
+   ───────────────────────────────────────────────────────────────────────────── */
+.progress-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 600ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+.progress-fill-primary  { background: var(--color-primary); }
+.progress-fill-teal     { background: var(--color-teal); }
+.progress-fill-success  { background: var(--color-success); }
+.progress-fill-warning  { background: var(--color-warning); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   INLINE CODE / COURSE CODE
+   ───────────────────────────────────────────────────────────────────────────── */
+.course-code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   REDUCED MOTION
+   ───────────────────────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -178,20 +434,4 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* Subtle, Calm Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-bg-primary);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-subtle);
 }

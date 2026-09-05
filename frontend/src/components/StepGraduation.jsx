@@ -1,40 +1,79 @@
 import React from 'react';
 import {
-  GraduationCap,
-  Check,
-  AlertTriangle,
-  BarChart3,
-  ArrowLeft,
-  RotateCcw,
-  BookOpen,
-  Info,
+  GraduationCap, Check, AlertTriangle, BarChart3,
+  ArrowLeft, RotateCcw, BookOpen, Info,
 } from 'lucide-react';
-import { Card, Button, Progress, Skeleton } from './ui';
+import { Button, Skeleton } from './ui';
 
-export default function StepGraduation({
-  auditData,
-  recData,
-  loading,
-  onPrev,
-  onReset,
-}) {
+function StatBox({ label, value, sub, color }) {
+  return (
+    <div style={{
+      background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+      borderRadius: '10px', padding: '14px 16px',
+    }}>
+      <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-muted)', letterSpacing: '0.05em', marginBottom: '6px' }}>
+        {label}
+      </div>
+      <div style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', color: color || 'var(--color-text-primary)', lineHeight: 1.1 }}>
+        {value}
+      </div>
+      {sub && (
+        <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>{sub}</div>
+      )}
+    </div>
+  );
+}
+
+function CreditProgress({ label, sub, earned, target, pct, color }) {
+  return (
+    <div style={{
+      background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+      borderRadius: '10px', padding: '16px 18px',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+        <div>
+          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '3px' }}>{label}</div>
+          <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{sub}</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <span style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-text-primary)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>{earned}</span>
+          <span style={{ fontSize: '12px', color: 'var(--color-text-muted)', fontWeight: 400 }}> / {target} cr</span>
+        </div>
+      </div>
+
+      <div style={{ height: '4px', background: 'var(--color-border)', borderRadius: '2px', overflow: 'hidden', marginBottom: '8px' }}>
+        <div style={{
+          width: `${Math.min(100, pct)}%`, height: '100%', borderRadius: '2px',
+          background: color || 'var(--color-primary)',
+          transition: 'width 700ms cubic-bezier(0.25, 1, 0.5, 1)',
+        }} />
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+        <span style={{ fontWeight: 600, color: color || 'var(--color-primary)' }}>{pct}% complete</span>
+        <span style={{ color: 'var(--color-text-muted)' }}>
+          {Math.max(0, target - earned)} credits remaining
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export default function StepGraduation({ auditData, recData, loading, onPrev, onReset }) {
+
   if (loading) {
     return (
-      <div className="space-y-6 md:space-y-8 animate-fadeIn">
-        <div className="border-b border-border pb-5 space-y-2">
-          <Skeleton className="h-4 w-28" />
-          <Skeleton className="h-8 w-80" />
-          <Skeleton className="h-4 w-96" />
+      <div className="animate-fadeIn" style={{ maxWidth: '960px', margin: '0 auto' }}>
+        <div style={{ padding: '32px 0 24px', borderBottom: '1px solid var(--color-border-subtle)', marginBottom: '24px' }}>
+          <Skeleton className="h-7 w-72" />
+          <Skeleton className="h-4 w-96 mt-2" />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '20px' }}>
+          {[1,2,3,4].map(i => <Skeleton key={i} className="h-20 w-full" />)}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Skeleton className="h-36 w-full" />
-          <Skeleton className="h-36 w-full" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
         </div>
       </div>
     );
@@ -42,307 +81,239 @@ export default function StepGraduation({
 
   if (!auditData) {
     return (
-      <Card className="py-16 text-center space-y-4 max-w-lg mx-auto">
-        <AlertTriangle className="w-10 h-10 text-warning mx-auto" />
-        <h2 className="text-base font-semibold text-text-primary">No Audit Data Available</h2>
-        <Button variant="primary" size="md" onClick={onPrev}>
-          Back to Elective Advisor
-        </Button>
-      </Card>
+      <div style={{ maxWidth: '480px', margin: '64px auto', textAlign: 'center' }}>
+        <AlertTriangle style={{ width: '32px', height: '32px', color: 'var(--color-warning)', margin: '0 auto 16px' }} />
+        <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-text-primary)', margin: '0 0 8px' }}>No audit data</h2>
+        <Button variant="primary" size="md" onClick={onPrev}>Back to electives</Button>
+      </div>
     );
   }
 
   const {
-    gpa,
-    classification,
-    core_credits = 0,
-    elective_credits = 0,
-    gpa_credits_earned = 0,
-    gpa_target = 120,
-    gpa_progress_pct = 0,
-    ngpa_credits_earned = 0,
-    ngpa_target = 14,
-    ngpa_progress_pct = 0,
-    total_credits_earned = 0,
-    is_eligible = false,
-    bottlenecks = [],
+    gpa = 0, classification, core_credits = 0, elective_credits = 0,
+    gpa_credits_earned = 0, gpa_target = 120, gpa_progress_pct = 0,
+    ngpa_credits_earned = 0, ngpa_target = 14, ngpa_progress_pct = 0,
+    total_credits_earned = 0, is_eligible = false, bottlenecks = [],
   } = auditData;
 
   const profile = recData?.profile;
   const subjectPerfs = profile?.subject_performances || [];
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-fadeIn">
-      {/* Header */}
-      <div className="border-b border-border pb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="animate-fadeIn" style={{ maxWidth: '960px', margin: '0 auto' }}>
+
+      {/* ── Header ───────────────────────────────────────────────── */}
+      <div style={{
+        padding: '32px 0 24px', borderBottom: '1px solid var(--color-border-subtle)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px',
+      }}>
         <div>
-          <div className="flex items-center space-x-2 text-primary text-xs font-semibold uppercase tracking-wider mb-1">
-            <span>Step 6 of 6 · Degree Completion Audit</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
-            Graduation Credit Audit & Analytics
+          <h1 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-text-primary)', margin: 0, lineHeight: 1.3 }}>
+            Graduation Audit
           </h1>
-          <p className="text-sm text-text-secondary mt-1">
-            Evaluation against official degree requirements: 120 GPA credits and 14 NGPA credits.
+          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '6px 0 0', lineHeight: 1.6 }}>
+            Verification against official requirements: 120 GPA credits + 14 NGPA credits.
           </p>
         </div>
 
-        {/* Graduation Clearance Status Banner */}
-        <Card
-          padding="sm"
-          className={`flex items-center space-x-3 px-4 shrink-0 shadow-xs ${
-            is_eligible ? 'border-success-border bg-success-subtle' : 'border-border'
-          }`}
-        >
-          <div
-            className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-              is_eligible ? 'bg-success text-white' : 'bg-primary-subtle text-primary border border-primary-border'
-            }`}
-          >
-            <GraduationCap className="w-5 h-5" />
+        {/* Clearance status */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0,
+          padding: '10px 14px', borderRadius: '10px',
+          background: is_eligible ? 'var(--color-success-subtle)' : 'var(--color-surface)',
+          border: `1px solid ${is_eligible ? 'var(--color-success-border)' : 'var(--color-border)'}`,
+        }}>
+          <div style={{
+            width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: is_eligible ? 'var(--color-success)' : 'var(--color-primary-subtle)',
+            color: is_eligible ? '#fff' : 'var(--color-primary)',
+            border: is_eligible ? 'none' : '1px solid var(--color-primary-border)',
+          }}>
+            <GraduationCap style={{ width: '16px', height: '16px' }} />
           </div>
           <div>
-            <span className="text-[10px] uppercase font-semibold text-text-secondary block tracking-wider">
-              Graduation Clearance
-            </span>
-            <strong className={`text-xs font-bold ${is_eligible ? 'text-success' : 'text-text-primary'}`}>
-              {is_eligible ? 'All Graduation Requirements Met' : 'Degree In Progress'}
-            </strong>
+            <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-muted)', letterSpacing: '0.04em', marginBottom: '2px' }}>CLEARANCE</div>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: is_eligible ? 'var(--color-success)' : 'var(--color-text-primary)' }}>
+              {is_eligible ? 'Requirements met' : 'Degree in progress'}
+            </div>
           </div>
-        </Card>
+        </div>
       </div>
 
-      {/* Academic Standing Summary Metrics */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card padding="sm" className="space-y-1">
-          <span className="text-[10px] uppercase font-semibold text-text-muted block tracking-wider">
-            Academic Stage
-          </span>
-          <span className="text-sm font-bold text-text-primary block">
-            {profile ? `Year ${profile.year}, Sem ${profile.semester}` : 'Enrolled'}
-          </span>
-        </Card>
-
-        <Card padding="sm" className="space-y-1">
-          <span className="text-[10px] uppercase font-semibold text-text-muted block tracking-wider">
-            Cumulative GPA
-          </span>
-          <span className="text-sm font-bold text-primary block">
-            {gpa ? gpa.toFixed(2) : '0.00'}
-          </span>
-        </Card>
-
-        <Card padding="sm" className="space-y-1">
-          <span className="text-[10px] uppercase font-semibold text-text-muted block tracking-wider">
-            Classification
-          </span>
-          <span className="text-sm font-bold text-success block truncate">
-            {classification || 'Good Standing'}
-          </span>
-        </Card>
-
-        <Card padding="sm" className="space-y-1">
-          <span className="text-[10px] uppercase font-semibold text-text-muted block tracking-wider">
-            Total Credits Earned
-          </span>
-          <span className="text-sm font-bold text-text-primary block">
-            {total_credits_earned || gpa_credits_earned + ngpa_credits_earned} cr
-          </span>
-        </Card>
+      {/* ── Stats row ────────────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', margin: '20px 0' }} className="stats-grid">
+        <StatBox
+          label="ACADEMIC STAGE"
+          value={profile ? `Y${profile.year}S${profile.semester}` : '—'}
+          sub={profile ? `Year ${profile.year}, Semester ${profile.semester}` : 'Enrolled'}
+        />
+        <StatBox
+          label="CUMULATIVE GPA"
+          value={gpa ? gpa.toFixed(2) : '0.00'}
+          color="var(--color-primary)"
+        />
+        <StatBox
+          label="CLASSIFICATION"
+          value={classification || 'Good Standing'}
+          color="var(--color-success)"
+          sub={classification ? '' : undefined}
+        />
+        <StatBox
+          label="TOTAL CREDITS"
+          value={`${total_credits_earned || gpa_credits_earned + ngpa_credits_earned}`}
+          sub="of 134 required"
+        />
       </div>
 
-      {/* Credit Progress Gauges */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* GPA Credits Card */}
-        <Card className="space-y-4 shadow-xs">
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-xs font-semibold text-text-primary block">
-                Core & Elective GPA Credits
-              </span>
-              <p className="text-[11px] text-text-secondary mt-0.5">
-                Core: <strong className="text-text-primary">{core_credits}</strong> cr · Elective: <strong className="text-text-primary">{elective_credits}</strong> cr
-              </p>
-            </div>
-            <div className="text-right">
-              <span className="text-xl font-black text-text-primary">{gpa_credits_earned}</span>
-              <span className="text-xs text-text-muted font-medium"> / {gpa_target}</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Progress
-              value={gpa_progress_pct}
-              max={100}
-              variant="primary"
-              size="md"
-            />
-            <div className="flex justify-between text-[11px] text-text-secondary">
-              <span className="font-semibold text-primary">{gpa_progress_pct}% Complete</span>
-              <span>{Math.max(0, gpa_target - gpa_credits_earned)} credits remaining</span>
-            </div>
-          </div>
-        </Card>
-
-        {/* NGPA Credits Card */}
-        <Card className="space-y-4 shadow-xs">
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-xs font-semibold text-text-primary block">
-                Non-GPA (NGPA) Auxiliary Credits
-              </span>
-              <p className="text-[11px] text-text-secondary mt-0.5">
-                English, Industrial Internship, and Leadership modules
-              </p>
-            </div>
-            <div className="text-right">
-              <span className="text-xl font-black text-text-primary">{ngpa_credits_earned}</span>
-              <span className="text-xs text-text-muted font-medium"> / {ngpa_target}</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Progress
-              value={ngpa_progress_pct}
-              max={100}
-              variant="teal"
-              size="md"
-            />
-            <div className="flex justify-between text-[11px] text-text-secondary">
-              <span className="font-semibold text-teal">{ngpa_progress_pct}% Complete</span>
-              <span>{Math.max(0, ngpa_target - ngpa_credits_earned)} credits remaining</span>
-            </div>
-          </div>
-        </Card>
+      {/* ── Credit progress ──────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }} className="progress-grid">
+        <CreditProgress
+          label="Core & Elective Credits"
+          sub={`Core ${core_credits} cr · Elective ${elective_credits} cr`}
+          earned={gpa_credits_earned}
+          target={gpa_target}
+          pct={gpa_progress_pct}
+          color="var(--color-primary)"
+        />
+        <CreditProgress
+          label="Non-GPA Credits"
+          sub="English, Internship, Leadership"
+          earned={ngpa_credits_earned}
+          target={ngpa_target}
+          pct={ngpa_progress_pct}
+          color="var(--color-teal)"
+        />
       </div>
 
-      {/* Curriculum & Benchmark Information Notice */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-        <Card padding="sm" className="space-y-1">
-          <div className="flex items-center space-x-1.5 font-semibold text-text-primary">
-            <BookOpen className="w-3.5 h-3.5 text-primary" />
-            <span>KDU Electives Policy</span>
-          </div>
-          <p className="text-text-secondary text-[11px] leading-relaxed">
-            In the KDU computing curriculum, elective options begin in <strong>Year 3, Semester 2</strong> and extend into Year 4. Modules in Years 1 & 2 are mandatory degree core foundations.
-          </p>
-        </Card>
-
-        <Card padding="sm" className="space-y-1">
-          <div className="flex items-center space-x-1.5 font-semibold text-text-primary">
-            <Info className="w-3.5 h-3.5 text-teal" />
-            <span>Stage-Aware Verification</span>
-          </div>
-          <p className="text-text-secondary text-[11px] leading-relaxed">
-            Transcript evaluations dynamically incorporate all completed prior courses ({gpa_credits_earned} GPA credits, {ngpa_credits_earned} NGPA credits). You can adjust any grade in <strong>Step 2</strong>.
-          </p>
-        </Card>
-      </div>
-
-      {/* Prerequisite Bottlenecks Alert */}
+      {/* ── Bottlenecks ──────────────────────────────────────────── */}
       {bottlenecks.length > 0 ? (
-        <Card className="border-warning-border bg-warning-subtle space-y-2.5">
-          <div className="flex items-center space-x-2 text-warning font-semibold text-xs uppercase tracking-wider">
-            <AlertTriangle className="w-4 h-4" />
-            <span>Prerequisite Bottlenecks Detected</span>
-          </div>
-          <p className="text-xs text-text-primary leading-relaxed">
-            The following courses serve as prerequisite foundations for multiple upcoming subjects. Completing them is essential to prevent curriculum progression delays:
-          </p>
-          <ul className="space-y-1 text-xs text-text-secondary list-disc list-inside">
-            {bottlenecks.map((b, i) => (
-              <li key={i} className="leading-relaxed font-medium">
-                {b}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      ) : (
-        <Card className="border-success-border bg-success-subtle flex items-center space-x-3 p-4">
-          <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success shrink-0">
-            <Check className="w-4 h-4" />
-          </div>
-          <div>
-            <strong className="block text-xs font-semibold text-text-primary">
-              No Prerequisite Bottlenecks
-            </strong>
-            <span className="text-xs text-text-secondary">
-              All prerequisite chains for your current curriculum stage are satisfied.
+        <div style={{
+          padding: '14px 16px', marginBottom: '20px',
+          background: 'var(--color-warning-subtle)', border: '1px solid var(--color-warning-border)',
+          borderRadius: '10px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '8px' }}>
+            <AlertTriangle style={{ width: '14px', height: '14px', color: 'var(--color-warning)', flexShrink: 0 }} />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-warning)' }}>
+              Prerequisite bottlenecks
             </span>
           </div>
-        </Card>
+          <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 8px', lineHeight: 1.5 }}>
+            These courses unlock multiple downstream subjects. Complete them to avoid progression delays.
+          </p>
+          <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: '12px', color: 'var(--color-text-primary)', lineHeight: 1.8 }}>
+            {bottlenecks.map((b, i) => <li key={i}>{b}</li>)}
+          </ul>
+        </div>
+      ) : (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '10px',
+          padding: '12px 16px', marginBottom: '20px',
+          background: 'var(--color-success-subtle)', border: '1px solid var(--color-success-border)',
+          borderRadius: '10px',
+        }}>
+          <div style={{
+            width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(34,197,94,0.2)', color: 'var(--color-success)',
+          }}>
+            <Check style={{ width: '14px', height: '14px' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>No prerequisite bottlenecks</div>
+            <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>All prerequisite chains for your current stage are satisfied.</div>
+          </div>
+        </div>
       )}
 
-      {/* Subject Area Performance Distribution */}
+      {/* ── Policy notes ─────────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }} className="notes-grid">
+        <div style={{
+          padding: '12px 14px', background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)', borderRadius: '10px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+            <BookOpen style={{ width: '12px', height: '12px', color: 'var(--color-primary)' }} />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Electives policy</span>
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.6 }}>
+            KDU computing electives begin in <strong style={{ color: 'var(--color-text-primary)' }}>Year 3, Semester 2</strong>. Years 1 & 2 are mandatory core foundations.
+          </p>
+        </div>
+        <div style={{
+          padding: '12px 14px', background: 'var(--color-surface)',
+          border: '1px solid var(--color-border)', borderRadius: '10px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+            <Info style={{ width: '12px', height: '12px', color: 'var(--color-teal)' }} />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Stage-aware audit</span>
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.6 }}>
+            Evaluation includes {gpa_credits_earned} GPA + {ngpa_credits_earned} NGPA credits from completed semesters. Adjust grades in Step 2.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Subject performance ──────────────────────────────────── */}
       {subjectPerfs.length > 0 && (
-        <Card className="space-y-4 shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
-            <h3 className="text-sm font-semibold text-text-primary flex items-center space-x-2">
-              <BarChart3 className="w-4 h-4 text-primary" />
-              <span>Academic Performance by Subject Taxonomy Area</span>
-            </h3>
-            <span className="text-xs text-text-muted font-medium">
-              Taxonomy Areas: <strong className="text-primary">{subjectPerfs.length}</strong>
+        <div style={{
+          background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+          borderRadius: '10px', padding: '18px', marginBottom: '20px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid var(--color-border-subtle)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+              <BarChart3 style={{ width: '14px', height: '14px', color: 'var(--color-primary)' }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Performance by subject area</span>
+            </div>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
+              {subjectPerfs.length} areas
             </span>
           </div>
 
-          <div className="space-y-3 pt-1">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 32px' }} className="perf-grid">
             {subjectPerfs.map((p) => {
               const mark = p.average_mark;
-              let variant = 'primary';
-              if (mark >= 80) variant = 'success';
-              else if (mark < 55) variant = 'warning';
-
-              const courseCountText =
-                p.course_count === 1 ? '1 course' : `${p.course_count} courses`;
+              const barColor = mark >= 80 ? 'var(--color-success)' : mark < 55 ? 'var(--color-warning)' : 'var(--color-primary)';
+              const textColor = mark >= 80 ? 'var(--color-success)' : mark < 55 ? 'var(--color-warning)' : 'var(--color-primary)';
+              const courses = p.course_count === 1 ? '1 course' : `${p.course_count} courses`;
 
               return (
-                <div key={p.subject_area} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-text-primary font-medium">{p.subject_area}</span>
-                    <span className="font-mono text-text-secondary font-semibold">
-                      {mark.toFixed(1)}% <span className="text-text-muted font-normal">({courseCountText})</span>
+                <div key={p.subject_area}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--color-text-primary)', fontWeight: 500 }}>{p.subject_area}</span>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: textColor, fontVariantNumeric: 'tabular-nums', flexShrink: 0, marginLeft: '8px' }}>
+                      {mark.toFixed(1)}%
+                      <span style={{ fontSize: '10px', fontWeight: 400, color: 'var(--color-text-muted)', marginLeft: '4px' }}>({courses})</span>
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        variant === 'success'
-                          ? 'bg-success'
-                          : variant === 'warning'
-                          ? 'bg-warning'
-                          : 'bg-primary'
-                      }`}
-                      style={{ width: `${Math.min(100, mark)}%` }}
-                    />
+                  <div style={{ height: '3px', background: 'var(--color-border)', borderRadius: '2px', overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${Math.min(100, mark)}%`, height: '100%', borderRadius: '2px',
+                      background: barColor, transition: 'width 600ms cubic-bezier(0.25,1,0.5,1)',
+                    }} />
                   </div>
                 </div>
               );
             })}
           </div>
-        </Card>
+        </div>
       )}
 
-      {/* Footer Controls */}
-      <div className="pt-6 border-t border-border flex items-center justify-between">
-        <Button
-          variant="secondary"
-          size="md"
-          icon={ArrowLeft}
-          onClick={onPrev}
-        >
-          Back to Elective Advisor
-        </Button>
-
-        <Button
-          variant="secondary"
-          size="md"
-          icon={RotateCcw}
-          onClick={onReset}
-        >
-          Reset & Start New Evaluation
-        </Button>
+      {/* ── Navigation ───────────────────────────────────────────── */}
+      <div style={{ paddingTop: '20px', borderTop: '1px solid var(--color-border-subtle)', display: 'flex', justifyContent: 'space-between' }}>
+        <Button variant="secondary" size="md" icon={ArrowLeft} onClick={onPrev}>Electives</Button>
+        <Button variant="secondary" size="md" icon={RotateCcw} onClick={onReset}>Start new evaluation</Button>
       </div>
+
+      <style>{`
+        @media (max-width: 640px) {
+          .stats-grid    { grid-template-columns: 1fr 1fr !important; }
+          .progress-grid { grid-template-columns: 1fr !important; }
+          .notes-grid    { grid-template-columns: 1fr !important; }
+          .perf-grid     { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }
