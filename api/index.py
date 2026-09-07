@@ -17,7 +17,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -77,6 +77,9 @@ def serve_favicon():
         return FileResponse(str(fav), media_type="image/svg+xml")
     raise HTTPException(status_code=404, detail="Favicon not found")
 
+
+# API Router for flexible path handling (with and without /api prefix)
+api_router = APIRouter()
 
 # =============================================================================
 # Request / Response Schemas
@@ -173,7 +176,7 @@ def _hydrate_course_records(
 # API Endpoints
 # =============================================================================
 
-@app.get("/api/health")
+@api_router.get("/health")
 def health():
     return {
         "status": "healthy",
@@ -182,7 +185,7 @@ def health():
     }
 
 
-@app.get("/api/catalog/degrees")
+@api_router.get("/catalog/degrees")
 def get_degrees():
     try:
         degrees = db.get_all_degrees()
@@ -199,7 +202,7 @@ def get_degrees():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/catalog/courses")
+@api_router.get("/catalog/courses")
 def get_courses(degree: Optional[str] = None, course_type: Optional[str] = None):
     try:
         courses = db.get_all_courses(degree=degree, course_type=course_type)
@@ -208,7 +211,7 @@ def get_courses(degree: Optional[str] = None, course_type: Optional[str] = None)
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/catalog/interests")
+@api_router.get("/catalog/interests")
 def get_interests():
     try:
         interests = db.get_all_interests()
@@ -217,7 +220,7 @@ def get_interests():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/catalog/specializations")
+@api_router.get("/catalog/specializations")
 def get_specializations():
     try:
         specs = db.get_all_specializations()
@@ -226,7 +229,7 @@ def get_specializations():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/catalog/demo-profiles")
+@api_router.get("/catalog/demo-profiles")
 def get_demo_profiles(
     degree: Optional[str] = Query(None, description="Degree program filter"),
     year: Optional[int] = Query(None, description="Current student academic year"),
@@ -293,7 +296,7 @@ def get_demo_profiles(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/gpa/calculate")
+@api_router.post("/gpa/calculate")
 def calculate_student_gpa(courses: List[CourseRecordInput]):
     """Stateless GPA calculation with class rank and credit totals."""
     catalog = {c["course_code"]: c for c in db.get_all_courses()}
@@ -309,7 +312,7 @@ def calculate_student_gpa(courses: List[CourseRecordInput]):
     }
 
 
-@app.post("/api/recommendations")
+@api_router.post("/recommendations")
 def get_recommendations(req: RecommendationRequest):
     """
     Execute the hybrid recommendation pipeline in-memory:
@@ -421,7 +424,7 @@ def get_recommendations(req: RecommendationRequest):
     }
 
 
-@app.post("/api/electives/advisor")
+@api_router.post("/electives/advisor")
 def get_electives_and_roadmap(req: AdvisorRequest):
     """
     Rule-Based Course & Elective Advisor:
@@ -503,7 +506,7 @@ def get_electives_and_roadmap(req: AdvisorRequest):
     }
 
 
-@app.post("/api/audit/graduation")
+@api_router.post("/audit/graduation")
 def audit_graduation(req: GraduationAuditRequest):
     """Graduation Credit Audit: evaluate 120 GPA and 14 NGPA credit requirements & prerequisite bottlenecks."""
     catalog = {c["course_code"]: c for c in db.get_all_courses()}
@@ -563,3 +566,7 @@ def audit_graduation(req: GraduationAuditRequest):
         "is_eligible": is_eligible,
         "bottlenecks": bottlenecks[:5],
     }
+
+# Mount API router with and without /api prefix to handle direct Vercel routing
+app.include_router(api_router, prefix="/api")
+app.include_router(api_router)
