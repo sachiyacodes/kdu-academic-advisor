@@ -19,6 +19,8 @@ if str(ROOT_DIR) not in sys.path:
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.academic.gpa import calculate_gpa, get_gpa_classification
@@ -52,6 +54,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount frontend built assets for seamless SPA serving
+DIST_DIR = ROOT_DIR / "frontend" / "dist"
+ASSETS_DIR = DIST_DIR / "assets"
+INDEX_HTML = DIST_DIR / "index.html"
+
+if ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
+
+@app.get("/", include_in_schema=False)
+@app.get("/index.html", include_in_schema=False)
+def serve_index():
+    if INDEX_HTML.exists():
+        return FileResponse(str(INDEX_HTML))
+    return HTMLResponse("<h1>KDU Academic Advisor</h1><p>API is active. Visit <a href='/docs'>/docs</a>.</p>")
+
+@app.get("/favicon.svg", include_in_schema=False)
+def serve_favicon():
+    fav = ROOT_DIR / "frontend" / "public" / "favicon.svg"
+    if fav.exists():
+        return FileResponse(str(fav), media_type="image/svg+xml")
+    raise HTTPException(status_code=404, detail="Favicon not found")
 
 
 # =============================================================================

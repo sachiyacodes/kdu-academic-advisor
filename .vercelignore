@@ -11,3 +11,7 @@ app.py
 src/ui/
 frontend/node_modules/
 requirements-streamlit.txt
+*.zip
+*.log
+post_redesign_screenshots/
+baseline_screenshots/
