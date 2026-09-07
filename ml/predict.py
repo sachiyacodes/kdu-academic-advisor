@@ -14,19 +14,37 @@ import pickle
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 from src.config.settings import SUBJECT_AREA_ORDER, SYNTHETIC_DATA_DISCLAIMER
 
 MODEL_DIR = Path(__file__).parent / "models"
 MODEL_PATH = MODEL_DIR / "decision_tree.pkl"
 RF_MODEL_PATH = MODEL_DIR / "random_forest.pkl"
+JSON_MODEL_PATH = MODEL_DIR / "model_trees.json"
 METRICS_PATH = MODEL_DIR / "metrics.json"
+
+_CACHED_JSON_MODEL = None
+
+
+def load_json_model() -> Optional[Dict[str, Any]]:
+    """Load the pre-exported lightweight tree ensemble for zero-dependency inference."""
+    global _CACHED_JSON_MODEL
+    if _CACHED_JSON_MODEL is not None:
+        return _CACHED_JSON_MODEL
+    if JSON_MODEL_PATH.exists():
+        with open(JSON_MODEL_PATH, "r", encoding="utf-8") as f:
+            _CACHED_JSON_MODEL = json.load(f)
+            return _CACHED_JSON_MODEL
+    return None
 
 
 def is_model_available() -> bool:
     """Check if trained models exist."""
-    return MODEL_PATH.exists() or RF_MODEL_PATH.exists()
+    return JSON_MODEL_PATH.exists() or MODEL_PATH.exists() or RF_MODEL_PATH.exists()
 
 
 def load_model(model_name: str = "random_forest"):
@@ -46,6 +64,27 @@ def load_metrics() -> Optional[Dict]:
         return json.load(f)
 
 
+def _predict_tree(tree_data: Dict[str, Any], x: List[float]) -> List[float]:
+    """Pure-Python decision tree traversal with no external C/scikit-learn dependencies."""
+    node = 0
+    left_children = tree_data["children_left"]
+    right_children = tree_data["children_right"]
+    features = tree_data["feature"]
+    thresholds = tree_data["threshold"]
+    values = tree_data["value"]
+
+    while left_children[node] != right_children[node]:
+        feat = features[node]
+        thresh = thresholds[node]
+        if x[feat] <= thresh:
+            node = left_children[node]
+        else:
+            node = right_children[node]
+    counts = values[node][0]
+    total = sum(counts)
+    return [c / total if total > 0 else 0.0 for c in counts]
+
+
 def predict_specialization(
     subject_area_averages: Dict[str, float],
     model_name: str = "random_forest",
@@ -61,20 +100,47 @@ def predict_specialization(
     Returns:
         Tuple of (predicted_specialization, class_probabilities) or None if model unavailable.
     """
+    # Calculate student baseline mean across available subjects
+    valid_marks = [m for m in subject_area_averages.values() if m is not None and m >= 0]
+    student_mean = float(sum(valid_marks) / len(valid_marks)) if valid_marks else 65.0
+
+    # Build feature vector: impute missing subjects with student mean (not 0.0)
+    feature_vec = [
+        float(subject_area_averages.get(area, student_mean))
+        for area in SUBJECT_AREA_ORDER
+    ]
+
+    # 1. Zero-dependency pure Python JSON model inference
+    json_model = load_json_model()
+    if json_model is not None and model_name in json_model:
+        classes = json_model["classes"]
+        trees_or_tree = json_model[model_name]
+
+        if model_name == "random_forest":
+            all_probs = [_predict_tree(t, feature_vec) for t in trees_or_tree]
+            num_trees = len(all_probs)
+            num_classes = len(classes)
+            avg_probs = [
+                sum(p[i] for p in all_probs) / num_trees
+                for i in range(num_classes)
+            ]
+        else:
+            avg_probs = _predict_tree(trees_or_tree, feature_vec)
+
+        best_idx = max(range(len(classes)), key=lambda i: avg_probs[i])
+        prediction = str(classes[best_idx])
+        prob_dict = {
+            str(classes[i]): round(float(avg_probs[i]), 4)
+            for i in range(len(classes))
+        }
+        return prediction, prob_dict
+
+    # 2. Fallback to pickle model if JSON is not present and scikit-learn/numpy are available
     model = load_model(model_name)
     if model is None:
         model = load_model("decision_tree")
-    if model is None:
+    if model is None or np is None:
         return None
-
-    # Calculate student baseline mean across available subjects
-    valid_marks = [m for m in subject_area_averages.values() if m is not None and m >= 0]
-    student_mean = float(np.mean(valid_marks)) if valid_marks else 65.0
-
-    # Build feature vector: impute missing subjects with student mean (not 0.0)
-    feature_vec = []
-    for area in SUBJECT_AREA_ORDER:
-        feature_vec.append(subject_area_averages.get(area, student_mean))
 
     X = np.array([feature_vec])
 
