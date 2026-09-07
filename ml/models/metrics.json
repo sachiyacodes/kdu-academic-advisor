@@ -1,0 +1,170 @@
+{
+  "accuracy": 0.6486,
+  "dt_accuracy": 0.4955,
+  "rf_accuracy": 0.6486,
+  "primary_model": "Random Forest Classifier",
+  "benchmark_comparison": {
+    "Decision Tree": {
+      "cv_accuracy_mean": 0.4901,
+      "cv_accuracy_std": 0.0266,
+      "cv_macro_f1_mean": 0.4845,
+      "cv_macro_f1_std": 0.0245
+    },
+    "Random Forest": {
+      "cv_accuracy_mean": 0.604,
+      "cv_accuracy_std": 0.041,
+      "cv_macro_f1_mean": 0.6054,
+      "cv_macro_f1_std": 0.0363
+    },
+    "Gradient Boosting": {
+      "cv_accuracy_mean": 0.5787,
+      "cv_accuracy_std": 0.0477,
+      "cv_macro_f1_mean": 0.5783,
+      "cv_macro_f1_std": 0.0444
+    }
+  },
+  "classification_report": {
+    "Artificial Intelligence / Machine Learning": {
+      "precision": 0.8,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.7272727272727273,
+      "support": 18.0
+    },
+    "Cyber Security": {
+      "precision": 0.7058823529411765,
+      "recall": 0.5714285714285714,
+      "f1-score": 0.631578947368421,
+      "support": 21.0
+    },
+    "Data Science": {
+      "precision": 0.56,
+      "recall": 0.7,
+      "f1-score": 0.6222222222222222,
+      "support": 20.0
+    },
+    "Database & Data Engineering": {
+      "precision": 0.7777777777777778,
+      "recall": 0.5,
+      "f1-score": 0.6086956521739131,
+      "support": 14.0
+    },
+    "Networking & Cloud Computing": {
+      "precision": 0.5483870967741935,
+      "recall": 0.7727272727272727,
+      "f1-score": 0.6415094339622641,
+      "support": 22.0
+    },
+    "Software Engineering": {
+      "precision": 0.7142857142857143,
+      "recall": 0.625,
+      "f1-score": 0.6666666666666666,
+      "support": 16.0
+    },
+    "accuracy": 0.6486486486486487,
+    "macro avg": {
+      "precision": 0.6843888236298104,
+      "recall": 0.6393037518037518,
+      "f1-score": 0.6496576082777024,
+      "support": 111.0
+    },
+    "weighted avg": {
+      "precision": 0.6739234762005162,
+      "recall": 0.6486486486486487,
+      "f1-score": 0.6495506736428978,
+      "support": 111.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      12,
+      0,
+      6,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      12,
+      0,
+      1,
+      7,
+      1
+    ],
+    [
+      3,
+      0,
+      14,
+      0,
+      3,
+      0
+    ],
+    [
+      0,
+      0,
+      3,
+      7,
+      2,
+      2
+    ],
+    [
+      0,
+      4,
+      0,
+      0,
+      17,
+      1
+    ],
+    [
+      0,
+      1,
+      2,
+      1,
+      2,
+      10
+    ]
+  ],
+  "feature_importance": {
+    "Programming": 0.0911,
+    "Mathematics": 0.1035,
+    "Statistics": 0.0725,
+    "Database": 0.1139,
+    "Networking": 0.1036,
+    "Cyber Security": 0.0592,
+    "Algorithms & Data Structures": 0.0866,
+    "Software Engineering": 0.0921,
+    "Systems & Operating Systems": 0.0872,
+    "Data Analysis": 0.0479,
+    "Artificial Intelligence": 0.0505,
+    "Cloud Computing": 0.0565,
+    "Other": 0.0353
+  },
+  "feature_names": [
+    "Programming",
+    "Mathematics",
+    "Statistics",
+    "Database",
+    "Networking",
+    "Cyber Security",
+    "Algorithms & Data Structures",
+    "Software Engineering",
+    "Systems & Operating Systems",
+    "Data Analysis",
+    "Artificial Intelligence",
+    "Cloud Computing",
+    "Other"
+  ],
+  "class_labels": [
+    "Artificial Intelligence / Machine Learning",
+    "Cyber Security",
+    "Data Science",
+    "Database & Data Engineering",
+    "Networking & Cloud Computing",
+    "Software Engineering"
+  ],
+  "train_size": 442,
+  "test_size": 111,
+  "cv_folds": 5,
+  "random_state": 42,
+  "disclaimer": "The dataset is synthetic, intended for demonstration and evaluation of the prototype. Results cannot be assumed to represent real KDU students."
+}

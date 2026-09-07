@@ -10,6 +10,7 @@ All queries use parameterized statements to prevent SQL injection (§40).
 
 import os
 import sqlite3
+import sys
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -18,10 +19,39 @@ from src.config.settings import DATABASE_PATH
 
 
 def get_db_path() -> str:
-    """Get the absolute path to the database file."""
-    # Resolve relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    return str(project_root / DATABASE_PATH)
+    """Get the absolute path to the database file, copying to /tmp in serverless environments if needed."""
+    project_root = Path(__file__).resolve().parent.parent.parent
+    bundled_db = project_root / DATABASE_PATH
+
+    # On serverless platforms (Linux, /tmp writable, /var/task read-only)
+    if sys.platform != "win32" and Path("/tmp").exists():
+        tmp_db = Path("/tmp") / "academic.db"
+        if not tmp_db.exists():
+            if bundled_db.exists():
+                try:
+                    import shutil
+                    shutil.copy2(bundled_db, tmp_db)
+                except Exception as e:
+                    print(f"Failed to copy bundled db to /tmp: {e}")
+            else:
+                try:
+                    from scripts.seed_database import main as seed_main
+                    seed_main(target_path=tmp_db)
+                except Exception as e:
+                    print(f"Failed to auto-seed db to /tmp: {e}")
+        if tmp_db.exists():
+            return str(tmp_db)
+
+    # Local fallback: auto-seed if missing
+    if not bundled_db.exists():
+        try:
+            from scripts.seed_database import main as seed_main
+            bundled_db.parent.mkdir(parents=True, exist_ok=True)
+            seed_main(target_path=bundled_db)
+        except Exception:
+            pass
+
+    return str(bundled_db)
 
 
 @contextmanager
@@ -36,28 +66,38 @@ def get_connection():
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
-    # Ensure feedback table exists
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS student_feedback (
-            feedback_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            student_id INTEGER,
-            specialization_name TEXT NOT NULL,
-            rating INTEGER NOT NULL,
-            comment TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (student_id) REFERENCES students(student_id)
-        );
-    """)
-    # Ensure intensity column exists on student_interests
     try:
-        conn.execute("ALTER TABLE student_interests ADD COLUMN intensity REAL DEFAULT 3.0")
+        # Ensure feedback table exists
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS student_feedback (
+                feedback_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER,
+                specialization_name TEXT NOT NULL,
+                rating INTEGER NOT NULL,
+                comment TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (student_id) REFERENCES students(student_id)
+            );
+        """)
+        # Ensure intensity column exists on student_interests
+        try:
+            conn.execute("ALTER TABLE student_interests ADD COLUMN intensity REAL DEFAULT 3.0")
+        except sqlite3.OperationalError:
+            pass  # column already exists
     except sqlite3.OperationalError:
-        pass  # column already exists
+        # Ignore on read-only database filesystems
+        pass
     try:
         yield conn
-        conn.commit()
+        try:
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
     except Exception:
-        conn.rollback()
+        try:
+            conn.rollback()
+        except sqlite3.OperationalError:
+            pass
         raise
     finally:
         conn.close()

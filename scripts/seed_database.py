@@ -266,22 +266,24 @@ def validate_subject_areas(conn: sqlite3.Connection) -> bool:
     return all_valid
 
 
-def main() -> None:
+def main(target_path: Optional[Path] = None) -> None:
     """Main seed function: reads CSVs -> creates/populates SQLite."""
     print("=" * 60)
     print("CSV -> SQLite Seed Script")
     print("=" * 60)
 
+    db_file = Path(target_path) if target_path else DB_PATH
+
     # Ensure database directory exists
-    DB_DIR.mkdir(parents=True, exist_ok=True)
+    db_file.parent.mkdir(parents=True, exist_ok=True)
 
     # Remove existing database for clean seed
-    if DB_PATH.exists():
-        os.remove(DB_PATH)
-        print(f"Removed existing database: {DB_PATH}")
+    if db_file.exists():
+        os.remove(db_file)
+        print(f"Removed existing database: {db_file}")
 
     # Connect and create schema
-    conn = sqlite3.connect(str(DB_PATH))
+    conn = sqlite3.connect(str(db_file))
     conn.execute("PRAGMA foreign_keys = ON")
 
     print("\n1. Creating schema...")
