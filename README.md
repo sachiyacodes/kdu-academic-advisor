@@ -17,23 +17,22 @@ python -m venv .venv
 # 2. Activate (Windows)
 .venv\Scripts\activate
 
-# 3. Install dependencies (pinned versions)
+# 3. Install backend dependencies
 pip install -r requirements.txt
 
 # 4. Seed the database (CSV -> SQLite)
 python scripts/seed_database.py
 
-# 5. Generate synthetic dataset (optional, already included)
-python scripts/generate_dataset.py
-
-# 6. Train ML model (optional enhancement)
-python scripts/train_model.py
-
-# 7. Run the application
-streamlit run app.py
-
-# 8. Run tests
+# 5. Run tests (172 tests passing)
 python -m pytest tests/ -v
+
+# 6. Run local backend (optional)
+uvicorn api.index:app --reload
+
+# 7. Run local frontend (optional)
+cd frontend
+npm install
+npm run dev
 ```
 
 ---
@@ -85,22 +84,29 @@ Final Score = Academic Fit x 0.70 + Interest Alignment x 0.30
 
 ```
 project_root/
-├── app.py                    # Streamlit entry point (Dashboard)
-├── pages/                    # Streamlit multi-page UI
+├── api/                      # FastAPI serverless backend
+│   └── index.py              # REST API endpoints & SPA serving
+├── frontend/                 # Vite + React Modern Web Application
+│   ├── src/                  # React components, state, API client
+│   └── dist/                 # Production compiled SPA
 ├── src/
 │   ├── config/settings.py    # All constants, enums, weights
-│   ├── data/database.py      # SQLite access layer
-│   ├── academic/             # Grading, GPA, profile
+│   ├── data/database.py      # SQLite data access layer
+│   ├── academic/             # Grading, GPA, stage, profile
 │   ├── ai/                   # Rule engine, scoring, interest matching, recommendations
-│   ├── models/schemas.py     # Data models
-│   └── ui/                   # Components, styles
+│   ├── models/schemas.py     # Data validation schemas
+│   └── ui/                   # Visualization and presentation helpers
 ├── data/                     # CSV source-of-truth files (9 files)
-├── database/                 # SQLite database (generated)
-├── ml/                       # ML enhancement (train + predict)
-├── scripts/                  # Seed, generate, train scripts
-├── tests/                    # pytest test suite (135 tests)
-├── docs/                     # Documentation
-└── requirements.txt          # Pinned dependencies
+├── database/                 # SQLite database (academic.db)
+├── ml/                       # ML enhancement (tree ensemble + zero-dependency predict)
+│   ├── models/               # model_trees.json (pure Python inference)
+│   ├── predict.py            # Decision tree & random forest inference
+│   └── train_model.py        # Offline training script
+├── scripts/                  # Seed, generate, train, verification scripts
+├── tests/                    # pytest test suite (172 tests)
+├── docs/                     # Documentation & academic methodology reports
+├── vercel.json               # Vercel deployment configuration
+└── requirements.txt          # Serverless dependencies
 ```
 
 ---
@@ -117,7 +123,7 @@ CSV files under `data/` are the **single source of truth** for all static/config
 python -m pytest tests/ -v
 ```
 
-**135 tests** covering:
+**172 tests** covering:
 - Grading boundaries (every grade boundary)
 - GPA calculation (normal, failed, withdrawn, zero-credit)
 - Weight validation (all specializations sum to 1.0)
