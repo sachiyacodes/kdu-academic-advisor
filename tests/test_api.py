@@ -67,7 +67,7 @@ class TestAPIEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["gpa"] == 3.85
-        assert data["credits_earned"] == 6
+        assert data["credits_earned"] == 4
         assert data["classification"] == "First Class Honours"
 
     def test_recommendations_pipeline(self):
@@ -140,7 +140,7 @@ class TestAPIEndpoints:
         assert response.status_code == 200
         data = response.json()
 
-        assert data["gpa_credits_earned"] == 6
+        assert data["gpa_credits_earned"] == 4
         assert data["ngpa_credits_earned"] == 2
         assert data["is_eligible"] is False
         assert len(data["bottlenecks"]) >= 2

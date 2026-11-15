@@ -9,8 +9,9 @@ Key Architectural Guarantees:
 """
 
 import sys
+from math import isclose
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Annotated, Any, Dict, List, Optional
 
 # Ensure project root is on sys.path for serverless execution
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -21,10 +22,10 @@ from fastapi import FastAPI, HTTPException, Query, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from src.academic.gpa import calculate_gpa, get_gpa_classification
-from src.academic.grading import mark_to_grade
+from src.academic.grading import is_passing, mark_to_grade
 from src.academic.profile import build_academic_profile
 from src.ai.explanations import generate_all_explanations
 from src.ai.recommendation_engine import generate_recommendations
@@ -34,6 +35,8 @@ from src.config.settings import (
     GRADUATION_MIN_GPA_CREDITS,
     GRADUATION_MIN_NGPA_CREDITS,
     INTEREST_WEIGHT,
+    CourseStatus,
+    CourseType,
     SPECIALIZATION_WEIGHTS,
     Specialization,
 )
@@ -87,15 +90,23 @@ api_router = APIRouter()
 
 class CourseRecordInput(BaseModel):
     course_id: Optional[int] = None
-    course_code: str
+    course_code: str = Field(min_length=1, max_length=50)
     course_name: Optional[str] = None
-    credits: Optional[int] = None
+    credits: Optional[int] = Field(default=None, ge=0, le=30)
     subject_area: Optional[str] = None
-    mark: float = Field(ge=0.0, le=100.0)
-    course_type: Optional[str] = None
-    status: Optional[str] = "completed"
-    year: Optional[int] = None
-    semester: Optional[int] = None
+    mark: float = Field(ge=0.0, le=100.0, allow_inf_nan=False)
+    course_type: Optional[CourseType] = None
+    status: CourseStatus = CourseStatus.COMPLETED
+    year: Optional[int] = Field(default=None, ge=1, le=4)
+    semester: Optional[int] = Field(default=None, ge=1, le=2)
+
+    @field_validator("course_code")
+    @classmethod
+    def normalize_course_code(cls, value):
+        value = value.strip().upper()
+        if not value:
+            raise ValueError("Course code must not be blank")
+        return value
 
 
 class RecommendationRequest(BaseModel):
@@ -103,9 +114,17 @@ class RecommendationRequest(BaseModel):
     year: int = Field(ge=1, le=4, default=2)
     semester: int = Field(ge=1, le=2, default=2)
     courses: List[CourseRecordInput]
-    interests: Dict[str, float] = {}  # {subject_area: intensity_1_to_5}
-    academic_weight: Optional[float] = ACADEMIC_WEIGHT
-    interest_weight: Optional[float] = INTEREST_WEIGHT
+    interests: Dict[str, Annotated[float, Field(ge=0, le=5, allow_inf_nan=False)]] = {}  # {subject_area: intensity_1_to_5}
+    academic_weight: Optional[float] = Field(default=ACADEMIC_WEIGHT, ge=0, le=1, allow_inf_nan=False)
+    interest_weight: Optional[float] = Field(default=INTEREST_WEIGHT, ge=0, le=1, allow_inf_nan=False)
+
+    @model_validator(mode="after")
+    def validate_weights(self):
+        academic = self.academic_weight if self.academic_weight is not None else ACADEMIC_WEIGHT
+        interest = self.interest_weight if self.interest_weight is not None else INTEREST_WEIGHT
+        if not isclose(academic + interest, 1.0, rel_tol=0, abs_tol=1e-9):
+            raise ValueError("Academic and interest weights must sum to one")
+        return self
 
 
 class AdvisorRequest(BaseModel):
@@ -132,21 +151,25 @@ def _hydrate_course_records(
 ) -> List[Dict[str, Any]]:
     """Convert input courses into complete academic course records with grade/points."""
     records = []
+    seen = set()
     for inp in inputs:
         code = inp.course_code.strip().upper()
+        if code in seen:
+            raise HTTPException(422, f"Duplicate course record: {code}")
+        seen.add(code)
         cat = catalog_by_code.get(code)
         grade, grade_point = mark_to_grade(inp.mark)
 
         if cat:
-            c_id = inp.course_id or cat.get("course_id", 0)
-            c_name = inp.course_name or cat.get("course_name", code)
-            c_credits = inp.credits if inp.credits is not None else int(cat.get("credits", 2))
-            c_area = inp.subject_area or cat.get("subject_area", "General")
-            c_type = inp.course_type or cat.get("course_type", "Core")
-            c_year = inp.year or cat.get("year", 1)
-            c_sem = inp.semester or cat.get("semester", 1)
+            c_id = cat.get("course_id", 0)
+            c_name = cat.get("course_name", code)
+            c_credits = int(cat.get("credits", 2))
+            c_area = cat.get("subject_area", "General")
+            c_type = cat.get("course_type", "Core")
+            c_year = cat.get("year", 1)
+            c_sem = cat.get("semester", 1)
         else:
-            c_id = inp.course_id or 999
+            c_id = 0  # Custom courses cannot satisfy a catalog course's prerequisite ID.
             c_name = inp.course_name or code
             c_credits = inp.credits if inp.credits is not None else 3
             c_area = inp.subject_area or "General"
@@ -164,7 +187,9 @@ def _hydrate_course_records(
             "mark": float(inp.mark),
             "grade": grade,
             "grade_point": float(grade_point),
-            "status": inp.status or "completed",
+            "status": (CourseStatus.FAILED.value
+                       if inp.status == CourseStatus.COMPLETED and not is_passing(inp.mark)
+                       else inp.status.value),
             "course_type": c_type,
             "year": c_year,
             "semester": c_sem,
@@ -512,24 +537,26 @@ def audit_graduation(req: GraduationAuditRequest):
     catalog = {c["course_code"]: c for c in db.get_all_courses()}
     records = _hydrate_course_records(req.courses, catalog)
 
-    core_credits = sum(r["credits"] for r in records if r["course_type"] == "Core")
-    elec_credits = sum(r["credits"] for r in records if r["course_type"] == "Elective")
+    completed = [r for r in records if r["status"] == CourseStatus.COMPLETED.value]
+    failed_courses = [r for r in records if r["status"] == CourseStatus.FAILED.value and r["course_type"] == "Core"]
+    core_credits = sum(r["credits"] for r in completed if r["course_type"] == "Core")
+    elec_credits = sum(r["credits"] for r in completed if r["course_type"] == "Elective")
     gpa_credits = core_credits + elec_credits
-    ngpa_credits = sum(r["credits"] for r in records if r["course_type"] == "NGPA")
+    ngpa_credits = sum(r["credits"] for r in completed if r["course_type"] == "NGPA")
     total_earned = gpa_credits + ngpa_credits
     gpa, _, _ = calculate_gpa(records)
     classification = get_gpa_classification(gpa)
 
     gpa_pct = min(100.0, round((gpa_credits / GRADUATION_MIN_GPA_CREDITS) * 100, 1))
     ngpa_pct = min(100.0, round((ngpa_credits / GRADUATION_MIN_NGPA_CREDITS) * 100, 1))
-    is_eligible = (gpa_credits >= GRADUATION_MIN_GPA_CREDITS) and (ngpa_credits >= GRADUATION_MIN_NGPA_CREDITS)
+    is_eligible = (gpa_credits >= GRADUATION_MIN_GPA_CREDITS) and (ngpa_credits >= GRADUATION_MIN_NGPA_CREDITS) and not failed_courses
 
     # Calculate real prerequisite bottlenecks
     from collections import defaultdict
     all_deg_courses = db.get_all_courses(degree=req.degree)
     deg_course_ids = {c["course_id"] for c in all_deg_courses}
     deg_course_map = {c["course_id"]: c for c in all_deg_courses}
-    completed_ids = {r["course_id"] for r in records}
+    completed_ids = {r["course_id"] for r in completed if r["course_id"] in deg_course_ids}
 
     all_prereqs = db.get_all_prerequisites()
     downstream_counts = defaultdict(int)
@@ -546,7 +573,6 @@ def audit_graduation(req: GraduationAuditRequest):
     ]
 
     # Check for failed core courses
-    failed_courses = [r for r in records if r["mark"] < 50.0 and r["course_type"] == "Core"]
     if failed_courses:
         names = ", ".join(c["course_code"] for c in failed_courses)
         bottlenecks.insert(0, f"Core courses below passing standing (repeat required): {names}.")

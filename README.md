@@ -10,30 +10,37 @@ An AI-powered academic decision-support prototype that recommends suitable IT sp
 
 ## Quick Start
 
-```bash
+Use Python 3.12 and Node.js 24. In PowerShell, from the repository root:
+
+```powershell
 # 1. Create virtual environment
 python -m venv .venv
 
-# 2. Activate (Windows)
-.venv\Scripts\activate
+# 2. Install the tested development dependency set
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev-lock.txt
 
-# 3. Install backend dependencies
-pip install -r requirements.txt
+# 3. Seed the database (CSV -> SQLite)
+.\.venv\Scripts\python.exe scripts/seed_database.py
 
-# 4. Seed the database (CSV -> SQLite)
-python scripts/seed_database.py
+# 4. Run tests
+.\.venv\Scripts\python.exe -m pytest tests/ -q
 
-# 5. Run tests (172 tests passing)
-python -m pytest tests/ -v
+# 5. Run local backend (optional)
+.\.venv\Scripts\python.exe -m uvicorn api.index:app --reload
 
-# 6. Run local backend (optional)
-uvicorn api.index:app --reload
+```
 
-# 7. Run local frontend (optional)
+In a second terminal:
+
+```powershell
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
+
+Open http://localhost:5173. The production demo is [KDU Academic Advisor](https://magical-carson-gamma.vercel.app). API documentation is available locally at http://127.0.0.1:8000/docs.
+
+`requirements.txt` stays limited to the serverless runtime. `requirements-dev.txt` lists local test/server tools and legacy UI test dependencies; `requirements-dev-lock.txt` pins the tested development set. Model inference uses the committed JSON trees without installing scikit-learn. Offline model training requires its existing scientific Python dependencies separately.
 
 ---
 
@@ -69,13 +76,12 @@ Final Score = Academic Fit x 0.70 + Interest Alignment x 0.30
 
 | Technology | Purpose |
 |-----------|---------|
-| Python 3.9+ | Core language |
-| Streamlit | Web UI framework |
-| Pandas | Data manipulation |
-| NumPy | Numerical operations |
+| Python 3.12 | Backend language |
+| FastAPI / Pydantic | API and input validation |
+| React / Vite | Current web interface and build tooling |
 | SQLite | Database (seeded from CSV) |
-| Plotly | Interactive visualizations |
-| scikit-learn | ML enhancement |
+| Streamlit / Plotly | Legacy presentation helpers retained in regression tests |
+| scikit-learn | Offline ML training; JSON trees support lightweight serving |
 | pytest | Testing framework |
 
 ---
@@ -103,7 +109,7 @@ project_root/
 │   ├── predict.py            # Decision tree & random forest inference
 │   └── train_model.py        # Offline training script
 ├── scripts/                  # Seed, generate, train, verification scripts
-├── tests/                    # pytest test suite (172 tests)
+├── tests/                    # pytest regression and integration suite
 ├── docs/                     # Documentation & academic methodology reports
 ├── vercel.json               # Vercel deployment configuration
 └── requirements.txt          # Serverless dependencies
@@ -111,7 +117,7 @@ project_root/
 
 ---
 
-## Data Architecture (FIX-1)
+## Data Architecture
 
 CSV files under `data/` are the **single source of truth** for all static/configuration data. SQLite is populated from those CSVs via `scripts/seed_database.py`. The running application reads/writes **only through SQLite**.
 
@@ -123,7 +129,7 @@ CSV files under `data/` are the **single source of truth** for all static/config
 python -m pytest tests/ -v
 ```
 
-**172 tests** covering:
+The suite covers:
 - Grading boundaries (every grade boundary)
 - GPA calculation (normal, failed, withdrawn, zero-credit)
 - Weight validation (all specializations sum to 1.0)
@@ -133,6 +139,19 @@ python -m pytest tests/ -v
 - Recommendation ranking (all 5 manual scenarios A-E)
 - CSV/SQLite seed consistency
 - Full pipeline integration
+- Earned-credit status, catalog metadata, duplicate courses, request weights, and graduation eligibility
+
+CI runs backend tests and dependency checks plus frontend grade-preview tests, lint, and production build. Tests use a temporary copy of the bundled database, so feedback and schema checks do not change the repository database. Use `python -m pytest tests --collect-only -q` for the current test count.
+
+## Input and graduation rules
+
+The API normalizes course codes and rejects duplicates and unsupported statuses. Catalog identity, credits, type, and subject metadata come from the bundled catalog rather than caller overrides. Custom courses may use 0–30 credits and cannot impersonate catalog prerequisite IDs. Zero-credit catalog modules remain valid but add no earned credits.
+
+Completed marks below the configured passing threshold become failed attempts. Withdrawn and in-progress records earn no credits. Only passed, completed courses count toward graduation or prerequisite completion; failed core courses block the prototype's eligibility flag. The prototype uses `is_passing` and the grading configuration consistently, including rounding and the current pass mark of 40. These are illustrative rules, not an official graduation determination.
+
+Academic and interest weights must be finite, nonnegative, no greater than one, and sum to one. The backend recalculates grades and GPA; browser labels are previews.
+
+Interest intensities must be finite values from zero to five, matching the browser slider; zero represents no selected interest.
 
 ---
 
@@ -142,7 +161,7 @@ python -m pytest tests/ -v
 |---|----------|---------------|
 | 1 | SQLite | Structured persistence without infrastructure overhead |
 | 2 | scikit-learn | Powers the mandatory-but-scoped ML enhancement |
-| 3 | Plotly | Interactive visualization of performance and recommendations |
+| 3 | Plotly | Legacy presentation helpers covered by regression tests |
 | 4 | pytest | Systematic, examiner-visible testing |
 | 5 | 70/30 Academic/Interest split | Simplest defensible default; fully configurable |
 
@@ -151,3 +170,5 @@ python -m pytest tests/ -v
 ## License
 
 Academic project — KDU Group 22, IT3182 Essentials of AI.
+
+No project license has been selected. Contact the project contributors before reuse; this repair does not choose a license on their behalf.

@@ -1,0 +1,8 @@
+# Runtime plus tools already used by the test suite and local server.
+-r requirements.txt
+pytest==9.2.0
+httpx==0.28.1
+uvicorn==0.54.0
+# Legacy Streamlit presentation helpers remain covered by regression tests.
+streamlit==1.67.0
+plotly==7.1.0

@@ -2,29 +2,37 @@
 
 ## Overview
 
-The test suite uses **pytest** and contains **135 tests** covering unit tests, integration tests, seed consistency verification, and manual scenario validation.
+The test suite uses **pytest** for unit tests, API integration tests, seed consistency verification, and manual scenario validation. Use `python -m pytest tests --collect-only -q` to see the current count rather than relying on a fixed documentation total.
 
 **Synthetic data seed value: 42** (documented in `src/config/settings.py` as `SYNTHETIC_SEED`).
 
 ## Running Tests
 
 ```bash
+python -m pip install -r requirements-dev-lock.txt
 python -m pytest tests/ -v
 ```
 
+The development lock includes FastAPI TestClient's HTTPX dependency, the local Uvicorn server, and Streamlit/Plotly for existing legacy presentation tests. These tools are separate from the lean serverless requirements. Tests copy the bundled database into a temporary directory; feedback tests never write into the tracked database.
+
+Frontend checks run from `frontend`: `npm ci`, `npm test`, `npm run lint`, and `npm run build`. Grade-preview tests check the backend's prototype bands and half-to-even rounding boundaries. CI runs these checks and backend tests for every push and pull request.
+
 ## Test Files
 
-| File | Tests | What it covers |
-|------|-------|---------------|
-| `test_grading.py` | 39 | Every grade boundary, decimals, out-of-range, pass/fail |
-| `test_gpa.py` | 13 | Normal, failed, withdrawn, in-progress, zero-credit, classification |
-| `test_scoring.py` | 14 | Weight sums, renormalization, missing subjects, evidence levels, scenarios |
-| `test_interests.py` | 14 | Vector construction, cosine similarity, overlap, scenarios |
-| `test_rules.py` | 11 | Prerequisite checking, stage eligibility |
-| `test_recommendations.py` | 15 | 70/30 combination, configurability, ranking, all 5 scenarios |
-| `test_seed_consistency.py` | 13 | CSV/SQLite row counts, taxonomy, weight sums, Data Science proposal match |
-| `test_integration.py` | 5 | Full pipeline, no-interests, single-course, deterministic reproducibility |
-| `conftest.py` | - | Fixtures for Students A-E (Section 38) |
+| File | What it covers |
+|------|---------------|
+| `test_grading.py` | Every grade boundary, decimals, out-of-range, pass/fail |
+| `test_gpa.py` | Normal, failed, withdrawn, in-progress, zero-credit, NGPA, classification |
+| `test_api.py` | Catalog, demo, GPA, recommendation, elective, and graduation endpoints |
+| `test_api_validation.py` | Duplicate records, catalog authority, failed/withdrawn credits, prerequisite status, and weight validation |
+| `test_scoring.py` | Weight sums, renormalization, missing subjects, evidence levels, scenarios |
+| `test_interests.py` | Vector construction, cosine similarity, overlap, scenarios |
+| `test_rules.py` | Prerequisite checking, stage eligibility |
+| `test_recommendations.py` | 70/30 combination, configurability, ranking, all 5 scenarios |
+| `test_seed_consistency.py` | CSV/SQLite row counts, taxonomy, weight sums, Data Science proposal match |
+| `test_integration.py` | Full pipeline, no-interests, single-course, deterministic reproducibility |
+| `test_*_remediation.py` | Previously corrected scoring, interest, explanation, and ML behavior |
+| `conftest.py` | Student fixtures and isolated test database |
 
 ## Manual Test Scenarios (Section 38)
 

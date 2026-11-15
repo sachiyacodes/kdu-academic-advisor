@@ -104,6 +104,14 @@ class TestCalculateGPA:
         assert attempted == 0
         assert earned == 2
 
+    @pytest.mark.parametrize("course_type", ["Core", "NGPA"])
+    def test_failing_mark_cannot_earn_completed_credits(self, course_type):
+        records = [dict(mark=0, grade_point=0, credits=3, status="completed", course_type=course_type)]
+        gpa, earned, attempted = calculate_gpa(records)
+        assert gpa == 0
+        assert earned == 0
+        assert attempted == (0 if course_type == "NGPA" else 3)
+
 
 class TestGPAClassification:
     def test_first_class(self):

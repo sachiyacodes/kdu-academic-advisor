@@ -100,7 +100,7 @@ export default function StepGraduation({ auditData, recData, loading, onPrev, on
             Graduation Audit
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '5px 0 0', lineHeight: 1.5 }}>
-            Verification against official requirements: 120 GPA credits + 14 NGPA credits.
+            Prototype credit targets: 120 GPA credits + 14 NGPA credits. Confirm eligibility with your faculty.
           </p>
         </div>
 

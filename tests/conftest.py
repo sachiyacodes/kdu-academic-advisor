@@ -7,12 +7,30 @@ Includes deterministic fixtures for manual test scenarios A-E (section 38).
 import pytest
 import sys
 from pathlib import Path
+import shutil
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.config.settings import SubjectArea, CourseStatus
 from src.models.schemas import AcademicProfile, StudentCourse, SubjectPerformance
+
+
+@pytest.fixture(scope="session", autouse=True)
+def isolated_database(tmp_path_factory):
+    """Tests must not write feedback or schema changes into the bundled database."""
+    from src.data import database as db
+
+    source = Path(__file__).parent.parent / "database" / "academic.db"
+    target = tmp_path_factory.mktemp("database") / "academic.db"
+    if source.exists():
+        shutil.copy2(source, target)
+    else:
+        from scripts.seed_database import main
+        main(target_path=target)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(db, "get_db_path", lambda: str(target))
+        yield
 
 
 def make_course(

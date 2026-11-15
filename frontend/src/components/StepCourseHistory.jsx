@@ -3,22 +3,7 @@ import {
   BookOpen, Plus, Trash2, Sparkles, ArrowRight, ArrowLeft, X,
 } from 'lucide-react';
 import { Button, Badge, IconButton } from './ui';
-
-function getGradeInfo(mark) {
-  const n = parseFloat(mark) || 0;
-  if (n >= 85) return { grade: 'A+', gp: 4.0, variant: 'success' };
-  if (n >= 75) return { grade: 'A',  gp: 4.0, variant: 'success' };
-  if (n >= 70) return { grade: 'A-', gp: 3.7, variant: 'success' };
-  if (n >= 65) return { grade: 'B+', gp: 3.3, variant: 'primary' };
-  if (n >= 60) return { grade: 'B',  gp: 3.0, variant: 'primary' };
-  if (n >= 55) return { grade: 'B-', gp: 2.7, variant: 'primary' };
-  if (n >= 50) return { grade: 'C+', gp: 2.3, variant: 'warning' };
-  if (n >= 45) return { grade: 'C',  gp: 2.0, variant: 'warning' };
-  if (n >= 40) return { grade: 'C-', gp: 1.7, variant: 'warning' };
-  if (n >= 35) return { grade: 'D+', gp: 1.3, variant: 'danger' };
-  if (n >= 30) return { grade: 'D',  gp: 1.0, variant: 'danger' };
-  return        { grade: 'E',  gp: 0.0, variant: 'danger' };
-}
+import { getGradeInfo } from '../grade-info';
 
 export default function StepCourseHistory({
   profile,
@@ -58,7 +43,7 @@ export default function StepCourseHistory({
         course_id: cat.course_id, course_code: cat.course_code, course_name: cat.course_name,
         credits: cat.credits, subject_area: cat.subject_area, course_type: cat.course_type,
         mark: parseFloat(markInput), grade: gi.grade, grade_point: gi.gp,
-        status: 'completed', year: cat.year, semester: cat.semester,
+        status: gi.grade === 'F' ? 'failed' : 'completed', year: cat.year, semester: cat.semester,
       },
     ]);
     setSelectedCourseCode('');
@@ -73,7 +58,7 @@ export default function StepCourseHistory({
       course_name: customCourse.name.trim(), credits: parseInt(customCourse.credits, 10),
       subject_area: customCourse.subjectArea, course_type: customCourse.courseType,
       mark: parseFloat(customCourse.mark), grade: gi.grade, grade_point: gi.gp,
-      status: 'completed', year: profile.year, semester: profile.semester,
+      status: gi.grade === 'F' ? 'failed' : 'completed', year: profile.year, semester: profile.semester,
     };
     setCourses([...courses.filter((c) => c.course_code !== rec.course_code), rec]);
     setIsCustomModalOpen(false);

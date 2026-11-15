@@ -18,6 +18,7 @@ AI classification: This is standard academic arithmetic, not AI/ML.
 from typing import Dict, List, Optional, Tuple
 
 from src.config.settings import CourseStatus
+from src.academic.grading import is_passing
 
 
 def calculate_gpa(
@@ -49,6 +50,8 @@ def calculate_gpa(
         status = record.get("status", CourseStatus.COMPLETED.value)
         credits = int(record.get("credits", 0))
         grade_point = float(record.get("grade_point", 0.0))
+        if status == CourseStatus.COMPLETED.value and "mark" in record and not is_passing(record["mark"]):
+            status = CourseStatus.FAILED.value
 
         # Skip non-GPA-eligible statuses
         if status == CourseStatus.WITHDRAWN.value:
@@ -72,7 +75,6 @@ def calculate_gpa(
         # Failed courses
         if status == CourseStatus.FAILED.value:
             if include_failed:
-                total_quality_points += grade_point * credits
                 total_credits_attempted += credits
             continue
 
