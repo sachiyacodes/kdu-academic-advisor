@@ -1,16 +1,17 @@
-# React + Vite
+# KDU Academic Advisor frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React and Vite interface for the Group 22 academic advising prototype. The [root README](../README.md) describes the backend, illustrative academic rules, setup, and licensing limits.
 
-Currently, two official plugins are available:
+Use Node.js 24. From this directory:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```sh
+npm ci
+npm run dev
+npm test
+npm run lint
+npm run build
+```
 
-## React Compiler
+The development server runs at `http://localhost:5173`. Start the Python backend using the root instructions. The root `npm run build` and Vercel both use the committed frontend lockfile. Build output is generated in `dist/`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+The frontend package is private. Its scaffold version is not a public application release. See [release readiness](../docs/release-readiness.md) for verification evidence and remaining distribution gates.

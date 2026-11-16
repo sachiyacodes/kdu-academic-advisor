@@ -4,6 +4,10 @@
 
 An AI-powered academic decision-support prototype that recommends suitable IT specializations and courses based on a student's academic performance, completed courses, prerequisites, academic stage, and interests.
 
+![Academic profile screen from the deployed prototype](docs/screenshots/advisor.png)
+
+Portfolio status: working academic prototype with a [live demo](https://magical-carson-gamma.vercel.app), backend and frontend checks, and documented limitations. See [release readiness](docs/release-readiness.md) before distributing a release or reusing the project.
+
 > **Disclaimer:** This system provides academic decision support based on the information entered by the student and the prototype's predefined rules and weighting model. Recommendations are not guaranteed outcomes and should not replace official academic guidance. The grading scale and curriculum data used in this prototype are illustrative and may not represent official KDU academic policies.
 
 ---
