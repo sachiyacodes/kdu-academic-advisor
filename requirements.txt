@@ -2,5 +2,5 @@
 # AI-Based IT Specialization & Course Recommendation System
 # Lean bundle size (< 150MB) to stay well within Vercel's 250MB limit
 
-fastapi>=0.110.0
-pydantic>=2.8.0
+fastapi>=0.165.0
+pydantic>=2.14.4
